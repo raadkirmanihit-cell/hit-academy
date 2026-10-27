@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       mode: 'payment',
       line_items: [priceId
         ? { price: priceId, quantity: 1 }
-        : { quantity: 1, price_data: { currency: 'eur', unit_amount: 4900, product_data: { name: 'Negotiation & Conflict Resolution: self-paced course' } } }],
+        : { quantity: 1, price_data: { currency: 'eur', unit_amount: 11900, product_data: { name: 'Negotiation & Conflict Resolution: self-paced course' } } }],
       customer_email: user.email,
       client_reference_id: user.id,
       metadata: { user_id: user.id, product_id: PRODUCT_ID, withdrawal_waiver: 'yes', waiver_at: new Date().toISOString() },

@@ -7,7 +7,7 @@ export const course = {
   author: 'Raad Kirmani',
   org: 'Human Interactions Translated',
   orgShort: 'H.I.T.',
-  product: { id: 'hit-negotiation-selfpaced', name: 'Self-paced course, lifetime access', price: 49, currency: 'EUR' },
+  product: { id: 'hit-negotiation-selfpaced', name: 'Self-paced course, lifetime access', price: 119, currency: 'EUR' },
   certificate: {
     // 'all' = every module below must be complete (use this in production).
     // 'all-published' = only modules released so far (useful while modules are still arriving).
