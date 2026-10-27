@@ -79,9 +79,9 @@ export default function Landing() {
         <div className="wrap stack" style={{ gap: '1.5rem' }}>
           <span className="eyebrow">From past participants</span>
           <div className="quote-grid">
-            <div className="quote"><p>Changed how I handle business conversations. I lead with clarity and calm.</p><span className="small muted">Sara T., Tech Entrepreneur</span></div>
-            <div className="quote"><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
-            <div className="quote"><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>Changed how I handle business conversations. I lead with clarity and calm.</p><span className="small muted">Sara T., Tech Entrepreneur</span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
           </div>
           <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
