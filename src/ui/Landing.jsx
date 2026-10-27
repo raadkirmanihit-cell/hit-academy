@@ -81,6 +81,9 @@ export default function Landing() {
             <div className="quote"><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
             <div className="quote"><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
           </div>
+          <a className="google-link" href="https://share.google/KALONNhC3Vrc3lt7q" target="_blank" rel="noopener noreferrer">
+            <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
+          </a>
           <div><button className="btn btn-dark" onClick={cta}>Start Module 1 <Icon.arrowR /></button></div>
         </div>
       </section>
