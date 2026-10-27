@@ -4,7 +4,17 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY
 let sb
-const client = () => (sb ||= createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }))
+let recovering = false // set when the student arrives from a "reset your password" email
+const recoveryListeners = new Set()
+function client() {
+  if (!sb) {
+    sb = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } })
+    sb.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') { recovering = true; recoveryListeners.forEach((cb) => cb()) }
+    })
+  }
+  return sb
+}
 
 const friendly = (error) => {
   const m = error?.message || ''
@@ -53,13 +63,18 @@ async function loadUser(authUser) {
 export const liveBackend = {
   mode: 'live',
   async init() {
-    const { data } = await client().auth.getSession()
+    const sbc = client()
+    // Wait for the client to read a login from an email link (?code=… or #access_token=…).
+    await sbc.auth.initialize?.()
+    const { data } = await sbc.auth.getSession()
     return loadUser(data.session?.user)
   },
   // Calls back when a student arrives from a "reset your password" email.
   onRecovery(cb) {
-    const { data } = client().auth.onAuthStateChange((event) => { if (event === 'PASSWORD_RECOVERY') cb() })
-    return () => data.subscription.unsubscribe()
+    client()
+    if (recovering) setTimeout(cb)
+    recoveryListeners.add(cb)
+    return () => recoveryListeners.delete(cb)
   },
   async signUp({ name, email, password }) {
     const { data, error } = await client().auth.signUp({

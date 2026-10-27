@@ -55,8 +55,9 @@ export default function App() {
     ;(async () => {
       const params = new URLSearchParams(window.location.search)
       const checkout = params.get('checkout')
-      if (checkout || params.get('code')) window.history.replaceState({}, '', window.location.pathname)
+      // Sign in first: links from confirmation and reset emails carry the login in the URL.
       let u = await backend.init().catch(() => null)
+      if (checkout || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
       if (u && checkout === 'success' && !backend.hasAccess(u, course.product.id)) {
         // Stripe confirms the payment to our server a few seconds after the redirect.
         for (let i = 0; i < 10 && !backend.hasAccess(u, course.product.id); i++) {
