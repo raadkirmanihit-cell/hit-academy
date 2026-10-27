@@ -1,3 +1,5 @@
+import { isLive } from '../platform/backend.js'
+import { makeServerSample } from './serverSample.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { flatSteps } from '../platform/progress.js'
@@ -48,6 +50,8 @@ export function useSample() {
   const [state, setState] = useState({ ready: false, sample: null })
   useEffect(() => {
     let live = true
+    // Live website: our own coach server. claude.ai preview: the page's `sample` capability.
+    if (isLive) { setState({ ready: true, sample: makeServerSample() }); return }
     const c = typeof window !== 'undefined' ? window.claude : null
     if (!c?.use) { setState({ ready: true, sample: null }); return }
     c.use('sample').then((s) => live && setState({ ready: true, sample: s || null })).catch(() => live && setState({ ready: true, sample: null }))
@@ -62,8 +66,9 @@ const ERRORS = {
   rate_limited: 'The coach is busy. Please wait a minute and try again.',
   session_expired: 'Your session has expired. Please sign in to claude.ai again.',
   refused: 'The coach can\'t help with that. Try rephrasing your question.',
+  network: 'Connection problem. Please check your internet and try again.',
 }
-const errorText = (e) => ERRORS[e?.code] || 'Something went wrong. Please try again.'
+const errorText = (e) => (isLive && e?.message && e.code !== 'cancelled' ? e.message : ERRORS[e?.code]) || 'Something went wrong. Please try again.'
 
 // Coach replies use **bold** and "- " bullets only.
 function Rich({ text }) {
@@ -160,7 +165,7 @@ function CoachPanel({ ctx, onClose }) {
     <aside className="coach-panel fade-in" aria-label="AI coach">
       <header className="coach-head">
         <div>
-          <span className="eyebrow">Premium · prototype</span>
+          <span className="eyebrow">{isLive ? 'Premium' : 'Premium · prototype'}</span>
           <h3>H.I.T. Negotiation Coach</h3>
         </div>
         <div className="row" style={{ gap: '.4rem', flexWrap: 'nowrap' }}>
@@ -263,7 +268,7 @@ export function Spar({ scenarioId, compact }) {
   const learnerTurns = turns ? turns.filter((t) => t.role === 'user').length : 0
   return (
     <div className={'activity spar' + (compact ? ' compact' : '')}>
-      <span className="eyebrow" style={{ color: 'var(--orange-ink)' }}>Live sparring partner · AI coach (premium prototype)</span>
+      <span className="eyebrow" style={{ color: 'var(--orange-ink)' }}>Live sparring partner · AI coach{isLive ? '' : ' (premium prototype)'}</span>
       <h4>{sc.title}</h4>
       <div className="spar-brief">
         <img src={sc.img} alt="" />
@@ -363,7 +368,7 @@ export function PracticeStudio() {
       <button className="btn btn-sm" onClick={() => (active ? go('practice') : go('dashboard'))} style={{ marginBottom: '1rem' }}>← {active ? 'All scenarios' : 'Dashboard'}</button>
       {active ? <Spar key={active.id} scenarioId={active.id} /> : (
         <div className="stack" style={{ gap: '1.2rem' }}>
-          <span className="eyebrow">AI coach · Premium prototype</span>
+          <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
           <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Practice studio</h1>
           <p className="muted">Negotiate live with an AI counterpart who uses the tactics from the course. Afterwards you get a feedback report that links back to the lessons.</p>
           <div className="studio-grid">
@@ -388,7 +393,7 @@ export function CoachTeaser() {
     <div className="card coach-teaser">
       <span className="coach-dot lg" aria-hidden="true">AI</span>
       <div>
-        <span className="eyebrow">Premium · prototype</span>
+        <span className="eyebrow">{isLive ? 'Premium' : 'Premium · prototype'}</span>
         <h4>Your AI negotiation coach</h4>
         <p className="small muted">Ask questions about any situation, or practise live with an AI counterpart. Everything it teaches comes from the course.</p>
       </div>

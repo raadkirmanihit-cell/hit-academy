@@ -16,8 +16,11 @@ npm run build      # production build in dist/
 - `src/content/index.js` – registers finished modules. A module listed in `course.js` but not
   registered here shows as "Coming soon".
 - `src/platform/backend.js` – the only place that talks to accounts, payments and saved progress.
-  In preview mode it uses the browser's storage. Swap these three objects for real providers
-  (e.g. Supabase/Clerk for accounts, Stripe Checkout + webhook for payment) without changing any screen.
+  It picks `backend.live.js` (Supabase + Stripe) when the Supabase settings exist, otherwise
+  `backend.preview.js` (browser storage, no payment: used by the claude.ai preview).
+- `api/` – server functions on Vercel: `checkout` (Stripe payment page), `stripe-webhook` (records
+  payments), `coach` (AI coach via the Claude API), `notify-signup`, `admin-students`.
+- `supabase/schema.sql` – database tables and security rules. Run once in the Supabase SQL Editor.
 - `src/ui/`, `src/activities/`, `src/diagrams/` – screens, interactive activity types, SVG diagrams.
 
 ## Adding a module
@@ -44,3 +47,22 @@ steps (optional `start`), cards (optional `imgRatio`), person, table (optional `
 
 In a `scene` block, a line with an empty speaker (`['', 'Silence…']`) renders as a stage direction, and a
 third element on a line is a coaching note.
+
+## Live website settings (Vercel → Settings → Environment Variables)
+
+| Name | What it is |
+|---|---|
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase publishable key (public) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key (server only) |
+| `STRIPE_SECRET_KEY` | Stripe secret key (`sk_live_…`, or `sk_test_…` for testing) |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret of the Stripe webhook pointing to `/api/stripe-webhook` (events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`) |
+| `STRIPE_PRICE_ID` | Optional: a Stripe price to use instead of the built-in €49 |
+| `STRIPE_AUTOMATIC_TAX` | `true` once Stripe Tax is set up |
+| `ANTHROPIC_API_KEY` | Claude API key for the AI coach |
+| `COACH_MODEL`, `COACH_DAILY_LIMIT` | Optional: coach model (default `claude-opus-5-5`) and messages per student per day (default 80) |
+| `ADMIN_EMAILS` | Comma-separated emails that see the Students admin page |
+| `RESEND_API_KEY`, `NOTIFY_EMAIL`, `NOTIFY_FROM` | Optional: email notifications for new registrations and purchases |
+| `SITE_URL` | Optional: e.g. `https://academy.humaninteractionstranslated.com` |
+
+In Supabase, set Authentication → URL Configuration → Site URL to the website address.

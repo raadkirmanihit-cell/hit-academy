@@ -3,7 +3,7 @@ import { useApp } from '../App.jsx'
 import { courseStats } from '../platform/progress.js'
 
 export default function Topbar() {
-  const { course, modules, user, paid, progress, go, signOut, resetProgress, authorMode, setAuthorMode, view } = useApp()
+  const { course, modules, user, paid, progress, go, signOut, resetProgress, authorMode, setAuthorMode, view, admin, isLive } = useApp()
   const [open, setOpen] = useState(false)
   const ref = useRef()
   useEffect(() => {
@@ -16,11 +16,13 @@ export default function Topbar() {
 
   return (
     <>
-      <div className="preview-banner">
-        <div className="wrap">
-          <span><b>Preview mode.</b> Accounts and progress are saved in this browser only, and checkout takes no payment.</span>
+      {!isLive && (
+        <div className="preview-banner">
+          <div className="wrap">
+            <span><b>Preview mode.</b> Accounts and progress are saved in this browser only, and checkout takes no payment.</span>
+          </div>
         </div>
-      </div>
+      )}
       <header className="topbar">
         <div className="wrap topbar-inner">
           <button className="brand" onClick={() => go(user && paid ? 'dashboard' : 'landing')} aria-label="Home">
@@ -55,6 +57,7 @@ export default function Topbar() {
                   </div>
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('dashboard') }}>My dashboard</button>}
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('certificate') }}>My certificate</button>}
+                  {admin && <button role="menuitem" onClick={() => { setOpen(false); go('admin') }}>Students (admin)</button>}
                   <button role="menuitem" onClick={() => setAuthorMode(!authorMode)}>
                     {authorMode ? 'Hide' : 'Highlight'} content added beyond the module
                   </button>
