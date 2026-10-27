@@ -79,9 +79,8 @@ export default function Landing() {
           <div className="quote-grid">
             <div className="quote"><p>Changed how I handle business conversations. I lead with clarity and calm.</p><span className="small muted">Sara T., Tech Entrepreneur</span></div>
             <div className="quote"><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
-            <div className="quote"><p>A game changer for high-stakes negotiations.</p><span className="small muted">Milena B., Senior Sales Manager</span></div>
+            <div className="quote"><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
           </div>
-          <p className="small muted">Paraphrased from testimonials on humaninteractionstranslated.com.</p>
           <div><button className="btn btn-dark" onClick={cta}>Start Module 1 <Icon.arrowR /></button></div>
         </div>
       </section>
