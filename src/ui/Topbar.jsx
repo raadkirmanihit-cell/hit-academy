@@ -57,7 +57,8 @@ export default function Topbar() {
                   </div>
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('dashboard') }}>My dashboard</button>}
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('certificate') }}>My certificate</button>}
-                  {admin && <button role="menuitem" onClick={() => { setOpen(false); go('admin') }}>Students (admin)</button>}
+                  <button role="menuitem" onClick={() => { setOpen(false); go('contact') }}>Message Raad</button>
+                  {admin && <button role="menuitem" onClick={() => { setOpen(false); go('admin') }}>Control board (admin)</button>}
                   <button role="menuitem" onClick={() => setAuthorMode(!authorMode)}>
                     {authorMode ? 'Hide' : 'Highlight'} content added beyond the module
                   </button>

@@ -12,6 +12,7 @@ import Player from './ui/Player.jsx'
 import CertificatePage from './ui/Certificate.jsx'
 import { CoachLauncher, PracticeStudio } from './coach/Coach.jsx'
 import AdminPage from './ui/Admin.jsx'
+import ContactPage from './ui/Contact.jsx'
 
 const Ctx = createContext(null)
 export const useApp = () => useContext(Ctx)
@@ -148,6 +149,7 @@ export default function App() {
   let screen
   if (view.name === 'newpass') screen = <AuthScreen mode="newpass" />
   else if (!user && !['landing', 'signup', 'signin', 'reset'].includes(view.name)) screen = <Landing />
+  else if (view.name === 'contact' && user) screen = <ContactPage />
   else if (user && !paid && !['checkout', 'landing'].includes(view.name)) screen = <Checkout />
   else if (view.name === 'landing') screen = <Landing />
   else if (['signup', 'signin', 'reset'].includes(view.name)) screen = <AuthScreen mode={view.name} />

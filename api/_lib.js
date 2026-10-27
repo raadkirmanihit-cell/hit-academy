@@ -58,7 +58,7 @@ export function fail(res, err) {
 }
 
 // Sends an email to Raad through Resend, if it is set up. Never blocks the main action.
-export async function notifyOwner(subject, lines) {
+export async function notifyOwner(subject, lines, { replyTo } = {}) {
   const key = process.env.RESEND_API_KEY
   const to = process.env.NOTIFY_EMAIL
   if (!key || !to) return
@@ -71,8 +71,22 @@ export async function notifyOwner(subject, lines) {
         to: to.split(',').map((s) => s.trim()),
         subject,
         text: lines.join('\n'),
+        ...(replyTo ? { reply_to: replyTo } : {}),
       }),
     })
     if (!r.ok) console.error('Notification email failed', r.status, await r.text())
   } catch (e) { console.error('Notification email failed', e) }
+}
+
+// Marks a purchase refunded (works before and after database update 2).
+export async function markRefunded(sessionId) {
+  let { error } = await db().from('purchases').update({ status: 'refunded', refunded_at: new Date().toISOString() }).eq('stripe_session_id', sessionId)
+  if (error && /column|schema cache/i.test(error.message || '')) ({ error } = await db().from('purchases').update({ status: 'refunded' }).eq('stripe_session_id', sessionId))
+  if (error) throw error
+}
+
+export async function requireAdmin(req) {
+  const user = await requireUser(req)
+  if (!isAdmin(user)) throw Object.assign(new Error('Admins only.'), { status: 403 })
+  return user
 }

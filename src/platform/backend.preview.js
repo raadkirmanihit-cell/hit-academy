@@ -61,4 +61,7 @@ export const previewBackend = {
   async getToken() { return null },
   async isAdmin() { return false },
   async listStudents() { return [] },
+  async adminData() { return { students: [], payments: [], messages: [], messagesReady: true } },
+  async adminAction() { await wait(300); return { ok: true } },
+  async sendMessage() { await wait(500); return { ok: true } },
 }

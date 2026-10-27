@@ -1093,3 +1093,12 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
 .admin-stats .card { padding: 1rem 1.2rem; }
 .admin-stats strong { display: block; font-size: 1.6rem; }
+.admin-stats .card { display: grid; gap: .2rem; align-content: start; }
+.admin-stat-btn { text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.admin-stat-btn:hover { border-color: var(--orange); }
+.admin-row { cursor: pointer; }
+.admin-row:hover td, .admin-row.open td { background: var(--surface-2); }
+.admin-detail > td { background: var(--surface-2); padding: 1rem; }
+.admin-mini { background: var(--surface); border-radius: var(--r-m); font-size: .85rem; }
+.admin-msg { display: grid; gap: .6rem; padding: 1.1rem 1.3rem; }
+.admin-msg.unread { border-left: 4px solid var(--orange); }

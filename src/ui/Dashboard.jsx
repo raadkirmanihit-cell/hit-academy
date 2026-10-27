@@ -86,6 +86,15 @@ export default function Dashboard() {
           </div>
           <button className={'btn ' + (stats.eligible ? 'btn-primary' : '')} onClick={() => go('certificate')}>{stats.eligible ? 'View certificate' : 'Preview'}</button>
         </div>
+
+        <div className="card cert-teaser">
+          <span style={{ color: 'var(--orange)' }}><Icon.chat width="40" height="40" /></span>
+          <div>
+            <h4>Questions along the way?</h4>
+            <p className="small muted">Send Raad a message about the course or a negotiation you're preparing. He replies by email.</p>
+          </div>
+          <button className="btn" onClick={() => go('contact')}>Message Raad</button>
+        </div>
       </div>
     </div>
   )

@@ -130,4 +130,7 @@ export const liveBackend = {
   getToken: token,
   async isAdmin() { return !!(await api('/api/admin-students?check=1')).admin },
   async listStudents() { return (await api('/api/admin-students')).students },
+  async adminData() { return api('/api/admin-students') },
+  async adminAction(action, payload = {}) { return api('/api/admin-action', { action, ...payload }) },
+  async sendMessage({ subject, body }) { return api('/api/message', { subject, body }) },
 }

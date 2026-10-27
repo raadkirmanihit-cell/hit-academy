@@ -1,6 +1,6 @@
 // Stripe calls this after a payment. It records the purchase, which unlocks the course.
 import Stripe from 'stripe'
-import { env, db, notifyOwner, PRODUCT_ID } from './_lib.js'
+import { env, db, notifyOwner, markRefunded, PRODUCT_ID } from './_lib.js'
 
 // Stripe signs the exact bytes it sent, so read the raw body.
 async function rawBody(req) {
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       const s = event.data.object
       if (s.payment_status === 'paid') {
         const userId = s.client_reference_id || s.metadata?.user_id
-        const { error } = await db().from('purchases').upsert({
+        const row = {
           user_id: userId,
           product_id: s.metadata?.product_id || PRODUCT_ID,
           status: 'paid',
@@ -33,7 +33,11 @@ export default async function handler(req, res) {
           currency: s.currency,
           stripe_session_id: s.id,
           withdrawal_waiver: s.metadata?.withdrawal_waiver === 'yes',
-        }, { onConflict: 'stripe_session_id' })
+        }
+        const extra = { payment_intent: typeof s.payment_intent === 'string' ? s.payment_intent : s.payment_intent?.id || null, livemode: !!event.livemode }
+        let { error } = await db().from('purchases').upsert({ ...row, ...extra }, { onConflict: 'stripe_session_id' })
+        // Before database update 2 is run, the extra columns don't exist yet: save the purchase without them.
+        if (error && /column|schema cache/i.test(error.message || '')) ({ error } = await db().from('purchases').upsert(row, { onConflict: 'stripe_session_id' }))
         if (error) throw error
         const { data: p } = await db().from('profiles').select('name, email').eq('id', userId).maybeSingle()
         await notifyOwner(`New course purchase: ${p?.name || s.customer_details?.name || 'a student'}`, [
@@ -48,7 +52,7 @@ export default async function handler(req, res) {
       if (pi) {
         const sessions = await stripe.checkout.sessions.list({ payment_intent: pi, limit: 1 })
         const id = sessions.data[0]?.id
-        if (id) await db().from('purchases').update({ status: 'refunded' }).eq('stripe_session_id', id)
+        if (id) await markRefunded(id)
       }
     }
     res.status(200).json({ received: true })
