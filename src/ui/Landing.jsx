@@ -11,7 +11,7 @@ const features = [
 ]
 
 export default function Landing() {
-  const { course, user, paid, go } = useApp()
+  const { course, modules, user, paid, go } = useApp()
   const cta = () => (user ? go(paid ? 'dashboard' : 'checkout') : go('signup'))
   const price = new Intl.NumberFormat('en-IE', { style: 'currency', currency: course.product.currency, maximumFractionDigits: 0 }).format(course.product.price)
 
@@ -30,7 +30,6 @@ export default function Landing() {
           </div>
           <div className="hero-art">
             <img src="img/m1/cover.webp" alt="Colleagues in a relaxed discussion around a table" />
-            <div className="hero-chip"><b>Module 1 is live.</b> The Negotiator's Blueprint: behaviour, style vs strategies and adaptability.</div>
           </div>
         </div>
       </section>
@@ -67,7 +66,7 @@ export default function Landing() {
               <li key={m.id}>
                 <span className="num">{String(m.number).padStart(2, '0')}</span>
                 <div><h4>{m.title}</h4><p className="muted small">{m.subtitle}</p></div>
-                <span className={'pill' + (m.number === 1 ? ' good' : '')}>{m.number === 1 ? 'Available' : 'Coming soon'}</span>
+                <span className={'pill' + (modules[m.id] ? ' good' : '')}>{modules[m.id] ? 'Included' : 'Coming soon'}</span>
               </li>
             ))}
           </ol>
