@@ -1,0 +1,151 @@
+// Graded quiz. Questions 1–21 come from Raad's module quiz, with the answers Raad marked.
+// `added: true` marks extra questions. Every option carries its own feedback (`fb`).
+export const quiz = {
+  passMark: 0.8,
+  questions: [
+    { id: 'q1', q: 'Good Cop / Bad Cop: Which of the following is a warning sign of the Good Cop / Bad Cop tactic?', options: [
+      { t: 'One negotiator offers consistent terms throughout', fb: 'Consistency is the opposite of the contrast this tactic relies on.' },
+      { t: 'Both negotiators are neutral and data-driven', fb: 'Neutral, data-driven negotiators are not playing roles.' },
+      { t: 'One is aggressive while the other is overly agreeable', correct: true, fb: 'Correct. One is harsh and inflexible, the other warm and understanding, and they bounce you between them.' },
+      { t: 'They quickly agree to your requests', fb: 'Quick agreement is not a sign of this tactic.' },
+    ] },
+    { id: 'q2', q: 'Take-It-or-Leave-It (Ultimatums): What phrase commonly signals an ultimatum is being used?', options: [
+      { t: '"We\'re open to options."', fb: 'That signals flexibility, not an ultimatum.' },
+      { t: '"This is our final offer."', correct: true, fb: 'Correct. "Final offer", "non-negotiable" and time-bound threats are the classic signs.' },
+      { t: '"Let\'s take more time to align."', fb: 'That slows things down, the opposite of an ultimatum.' },
+      { t: '"We\'ll revisit this later."', fb: 'That postpones; it does not force a decision.' },
+    ] },
+    { id: 'q3', q: 'Red Herring: Which of the following best defines a Red Herring tactic?', options: [
+      { t: 'A distraction by focusing on exaggerated or irrelevant issues', correct: true, fb: 'Correct. It sidetracks the discussion away from the critical terms.' },
+      { t: 'Presenting favorable options late in the process', fb: 'That is closer to a last-minute change.' },
+      { t: 'Using silence to manipulate emotions', fb: 'That is the silence tactic.' },
+      { t: 'Raising authority concerns without proof', fb: 'That is limited or higher authority.' },
+    ] },
+    { id: 'q4', q: 'Highball / Lowball: How should you counter a Highball or Lowball offer?', options: [
+      { t: 'Make a slightly higher counter', fb: 'A small move from their extreme number accepts it as the anchor.' },
+      { t: 'Appeal to emotion', fb: 'Don\'t respond emotionally. Use data.' },
+      { t: 'Re-anchor using market data', correct: true, fb: 'Correct. Re-anchor with market benchmarks, and ask how they arrived at their number.' },
+      { t: 'Agree quickly to avoid conflict', fb: 'That locks in the extreme number.' },
+    ] },
+    { id: 'q5', q: 'The Bogey: What is the purpose of the Bogey tactic?', options: [
+      { t: 'To emphasize irrelevant deadlines', fb: 'That is a false deadline.' },
+      { t: 'To delay the conversation', fb: 'That is deliberate delay.' },
+      { t: 'To feign that a minor issue is critical', correct: true, fb: 'Correct. The "critical" issue is later traded away for a bigger concession.' },
+      { t: 'To escalate emotions for leverage', fb: 'That is an emotional outburst.' },
+    ] },
+    { id: 'q6', q: 'Nibbling: What makes the Nibbling tactic effective?', options: [
+      { t: 'It\'s based on legal threats', fb: 'Nibbling is small and friendly, not a threat.' },
+      { t: 'It creates silence', fb: 'Silence is a different tactic.' },
+      { t: 'It asks for extras after the main deal is done, capitalizing on deal fatigue', correct: true, fb: 'Correct. After a long negotiation, people want to conclude, so they give in to "just one more thing".' },
+      { t: 'It reveals cost structures early', fb: 'Nibbling happens at the end, not early.' },
+    ] },
+    { id: 'q7', q: 'Strawman Proposal: Which of the following best defines the Strawman tactic?', options: [
+      { t: 'Repeating valid objections multiple times', fb: 'Repetition is not distortion.' },
+      { t: 'Misrepresenting your position to attack it', correct: true, fb: 'Correct. Often it begins with "So you\'re saying…" followed by an exaggeration.' },
+      { t: 'Overwhelming with data', fb: 'That is information overload.' },
+      { t: 'Appealing to higher authority', fb: 'That is a different tactic.' },
+    ] },
+    { id: 'q8', q: 'Silence: How does the Silence tactic typically influence negotiators?', options: [
+      { t: 'It encourages joint decision-making', fb: 'Used as a tactic, silence creates pressure, not collaboration.' },
+      { t: 'It builds rapport', fb: 'Used as pressure, silence creates discomfort.' },
+      { t: 'It pressures the other side to fill the void', correct: true, fb: 'Correct. People dislike silence and often fill it, sometimes with concessions.' },
+      { t: 'It clarifies misunderstandings', fb: 'Silence adds no information.' },
+    ] },
+    { id: 'q9', q: 'Limited Authority: Which phrase is a clear sign of the Limited Authority tactic?', options: [
+      { t: '"Let\'s revisit this tomorrow."', fb: 'That is a delay, not a claim about authority.' },
+      { t: '"I\'ll speak with our CFO next week."', fb: 'It mentions someone else, but the clearest sign is the claim of no power to decide.' },
+      { t: '"I don\'t have approval for that."', correct: true, fb: 'Correct. Claiming a lack of power to decide reduces their accountability and pressures you to concede.' },
+      { t: '"This aligns with our previous deal."', fb: 'That is a fairness argument.' },
+    ] },
+    { id: 'q10', q: 'False Deadlines: What is a key sign that a deadline is false or manufactured?', options: [
+      { t: 'It includes a legal clause', fb: 'A legal clause can make a deadline real.' },
+      { t: 'It\'s part of an internal review', fb: 'Internal reviews are often real constraints.' },
+      { t: 'It shifts after pushback', correct: true, fb: 'Correct. A real deadline doesn\'t move just because you asked a question.' },
+      { t: 'It comes from procurement', fb: 'The source alone doesn\'t make it false.' },
+    ] },
+    { id: 'q11', q: 'Emotional Outbursts: Which of the following is a counter to an emotional outburst?', options: [
+      { t: 'Respond with similar intensity', fb: 'Mirroring the emotion escalates the situation.' },
+      { t: 'Take a break and walk away', fb: 'A pause can help, but you propose it, and then you return to the issue.' },
+      { t: 'Calmly acknowledge and refocus on the issue', correct: true, fb: 'Correct. "I can see this is important to you. Let\'s work through it constructively."' },
+      { t: 'Escalate to senior management', fb: 'That avoids the conversation rather than handling it.' },
+    ] },
+    { id: 'q12', q: 'Playing Dumb: Which counter best addresses someone "playing dumb"?', options: [
+      { t: 'Use more technical jargon', fb: 'That gives them more to "not understand".' },
+      { t: 'Restart the entire negotiation', fb: 'That rewards the stalling.' },
+      { t: 'Reframe the concept and use documentation', correct: true, fb: 'Correct. Show it in writing, go step by step, and ask which part is unclear.' },
+      { t: 'Repeat yourself with emphasis', fb: 'Repetition shows frustration and doesn\'t move things forward.' },
+    ] },
+    { id: 'q13', q: 'Deliberate Delay: Which of the following is an effective response to deliberate delay?', options: [
+      { t: 'Offer concessions to speed things up', fb: 'That rewards the delay.' },
+      { t: 'Set a clear deadline for action', correct: true, fb: 'Correct. "We\'ll need confirmation by [date] to stay on track."' },
+      { t: 'Ask for final sign-off', fb: 'Asking alone doesn\'t create a timeline.' },
+      { t: 'Ignore and wait them out', fb: 'Waiting is exactly what the tactic wants.' },
+    ] },
+    { id: 'q14', q: 'Cherry Picking: How should you respond if someone cherry-picks only the favorable parts of your offer?', options: [
+      { t: 'Allow them to take what they want', fb: 'That weakens the whole value of your proposal.' },
+      { t: 'Emphasize that all terms are independent', fb: 'The opposite: the terms are linked.' },
+      { t: 'Reinforce how deal components are interlinked', correct: true, fb: 'Correct. "This pricing is tied to that commitment. They\'re part of a single package."' },
+      { t: 'Change your pricing model', fb: 'Offer alternatives, but keep the linkages.' },
+    ] },
+    { id: 'q15', q: 'Threats and Warnings: Which is the best way to reframe a threat?', options: [
+      { t: '"Let\'s take a break before this escalates."', fb: 'A break can help, but it doesn\'t reframe the threat.' },
+      { t: '"We have a backup plan anyway."', fb: 'This answers a threat with a counter-threat.' },
+      { t: '"Let\'s focus on mutual solutions."', correct: true, fb: 'Correct. Reframe from threats to solutions that work for both sides.' },
+      { t: '"We\'re not affected by that."', fb: 'Dismissive, and probably not true.' },
+    ] },
+    { id: 'q16', q: 'Appealing to Higher Authority: What is an effective counter to someone appealing to a higher authority?', options: [
+      { t: 'Pause the discussion', fb: 'Pausing hands control to the unseen authority.' },
+      { t: 'Ask to speak directly with the decision-maker', correct: true, fb: 'Correct. Request access or accountable representation, and confirm who decides as early as possible.' },
+      { t: 'Agree to wait indefinitely', fb: 'Set a clear approval timeline instead.' },
+      { t: 'Say you\'ll follow up later', fb: 'That lets the stall continue.' },
+    ] },
+    { id: 'q17', q: 'Bracketing: How is the Bracketing tactic typically used?', options: [
+      { t: 'By ignoring your position completely', fb: 'Bracketing uses your range; it doesn\'t ignore it.' },
+      { t: 'By placing their offer at the edge of your stated range', correct: true, fb: 'Correct. The midpoint then shifts in their favour.' },
+      { t: 'By delaying the offer until later', fb: 'That is a delay tactic.' },
+      { t: 'By threatening to walk away', fb: 'That is a threat or ultimatum.' },
+    ] },
+    { id: 'q18', q: 'The Flinch: What is the goal of using a flinch in negotiation?', options: [
+      { t: 'To buy time for a counter-offer', fb: 'Its aim is emotional, not time.' },
+      { t: 'To express surprise and provoke doubt', correct: true, fb: 'Correct. It triggers self-doubt in the proposer, which often leads to a quick concession.' },
+      { t: 'To avoid setting a precedent', fb: 'A flinch is about reaction, not precedent.' },
+      { t: 'To stall and gather more information', fb: 'That is closer to playing dumb.' },
+    ] },
+    { id: 'q19', q: 'Last-Minute Changes: How do you handle last-minute changes to a previously settled agreement?', options: [
+      { t: 'Accept them to maintain momentum', fb: 'Momentum is exactly what the tactic exploits.' },
+      { t: 'Pause and reassess all affected terms', correct: true, fb: 'Correct. "This changes our understanding. Let\'s review all impacts."' },
+      { t: 'Match their tactic with one of your own', fb: 'Escalating with tactics damages trust.' },
+      { t: 'Reject the negotiation', fb: 'Be ready to walk away, but first slow down and review.' },
+    ] },
+    { id: 'q20', q: 'What tactic is being used when one side tries to isolate more compliant team members?', options: [
+      { t: 'Bracketing', fb: 'Bracketing is about ranges.' },
+      { t: 'Divide and Conquer', correct: true, fb: 'Correct. "You seem more reasonable than your partner" is a classic sign.' },
+      { t: 'Playing Dumb', fb: 'Playing dumb is about feigned confusion.' },
+      { t: 'Nibbling', fb: 'Nibbling is about extras after the deal.' },
+    ] },
+    { id: 'q21', q: 'Overwhelming with Information: Which is a strong counter to information overload?', options: [
+      { t: 'Ignore the documents', fb: 'Ignoring them can look careless. Ask for the key points instead.' },
+      { t: 'Request a key summary', correct: true, fb: 'Correct. "What are the top three conclusions?" Then focus on those.' },
+      { t: 'Ask unrelated questions', fb: 'That adds confusion.' },
+      { t: 'Agree to their numbers', fb: 'Overload is designed to make you do exactly that.' },
+    ] },
+    { id: 'q22', added: true, q: 'Which sentence best describes the difference between anchoring and bracketing?', options: [
+      { t: 'They are two names for the same tactic', fb: 'They work together, but at different moments.' },
+      { t: 'Anchoring is for buyers, bracketing is for sellers', fb: 'Both sides can use either.' },
+      { t: 'Bracketing comes first, anchoring later', fb: 'The other way round.' },
+      { t: 'Anchoring decides where the conversation starts; bracketing decides where it settles', correct: true, fb: 'Correct. You anchor first, then place your number deliberately within their range.' },
+    ] },
+    { id: 'q23', added: true, q: 'After agreeing the price, a vendor says: "Just one more thing: could you add free onboarding?" What is the best response?', options: [
+      { t: '"If onboarding is added, what can you offer on your side to balance that?"', correct: true, fb: 'Correct. You recognise the nibble and tie any concession to reciprocation.' },
+      { t: '"Sure, no problem."', fb: 'Deal fatigue at work: you give away value for nothing.' },
+      { t: '"Then the whole deal is off."', fb: 'An overreaction that risks a good agreement.' },
+      { t: 'Ignore the request and sign', fb: 'Unresolved, it will come back later.' },
+    ] },
+    { id: 'q24', added: true, q: 'According to the module, when is it ethical to state the consequences of not agreeing?', options: [
+      { t: 'Whenever it speeds things up', fb: 'Speed alone does not make it ethical.' },
+      { t: 'When the consequence is invented but plausible', fb: 'An invented consequence is a bluff, and destroys trust when discovered.' },
+      { t: 'When it is a natural consequence and you are prepared to follow through', correct: true, fb: 'Correct. "If we don\'t sign by Friday, the schedule will shift." It informs rather than threatens.' },
+      { t: 'Only in personal relationships', fb: 'The principle is the same in business and personal life.' },
+    ] },
+  ],
+}

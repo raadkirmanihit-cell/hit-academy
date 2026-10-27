@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Break the Stalemate – Principled Negotiation Planner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,650;12..96,750&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap">
+<style>
+@page { size: A4; margin: 14mm 14mm 16mm; }
+* { box-sizing: border-box; }
+body { font: 10.5pt/1.45 "DM Sans", Arial, sans-serif; color: #1b2547; margin: 0; }
+h1, h2 { font-family: "Bricolage Grotesque", "DM Sans", sans-serif; color: #0b1a44; margin: 0; }
+h1 { font-size: 24pt; line-height: 1.1; }
+h2 { font-size: 15pt; margin: 0 0 3mm; display: flex; gap: 3mm; align-items: baseline; }
+h2 .n { font: 500 9pt "DM Mono", monospace; color: #a94f00; letter-spacing: .1em; }
+.eyebrow { font: 500 8pt "DM Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: #5d6888; }
+.head { display: flex; gap: 6mm; align-items: center; border-bottom: 3px solid #f7861b; padding-bottom: 5mm; margin-bottom: 6mm; }
+.head img { width: 20mm; height: 20mm; }
+.page { page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+p.lead { color: #33406a; margin: 0 0 4mm; }
+table { break-inside: avoid; width: 100%; border-collapse: collapse; margin-bottom: 5mm; }
+th, td { border: 1px solid #c9cfdf; padding: 2.2mm 2.5mm; vertical-align: top; text-align: left; }
+th { background: #eef1f8; font: 500 7.5pt "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: #33406a; }
+td.blank { height: 16mm; }
+.scale { white-space: nowrap; text-align: center; color: #5d6888; font-size: 9pt; }
+.box { border: 1px solid #c9cfdf; border-radius: 3mm; padding: 2.5mm 4mm; margin-bottom: 3.5mm; break-inside: avoid; }
+.box h3 { font-size: 10.5pt; margin: 0 0 1.5mm; }
+.lines { height: 15mm; background: repeating-linear-gradient(#fff 0 6.9mm, #d7dceb 6.9mm 7.2mm); }
+.lines.tall { height: 36mm; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.zone { border-radius: 3mm; padding: 3mm; min-height: 62mm; border: 1px solid #c9cfdf; }
+.zone b { display: block; font-family: "Bricolage Grotesque", sans-serif; font-size: 12pt; }
+.zone small { color: #5d6888; }
+.tip { background: #fff0e1; border-radius: 3mm; padding: 3mm 4mm; font-size: 9.5pt; margin-bottom: 4mm; }
+.chk { display: inline-block; width: 3.6mm; height: 3.6mm; border: 1.2px solid #5d6888; border-radius: .8mm; vertical-align: -0.6mm; margin-right: 1.5mm; }
+.foot { position: fixed; bottom: -9mm; left: 0; right: 0; font-size: 7.5pt; color: #8a93b0; display: flex; justify-content: space-between; }
+.legend span { margin-right: 4mm; }
+.voice { border-radius: 3mm; padding: 3mm; border: 1px solid #c9cfdf; break-inside: avoid; }
+.voice b { display: block; font-family: "Bricolage Grotesque", sans-serif; font-size: 11.5pt; }
+.voice small { color: #5d6888; display: block; margin-bottom: 2mm; }
+.lines.short { height: 8mm; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+ul.tight { margin: 0 0 3mm; padding-left: 5mm; }
+ul.tight li { margin-bottom: 1mm; }
+.needs td { padding: 1.2mm 2.5mm; height: 7mm; font-size: 9.5pt; }
+</style></head><body>
+<section class="page">
+  <div class="head">
+    <img src="../../public/img/brand/logo.webp" alt="">
+    <div><div class="eyebrow">Module 4 worksheet</div><h1>Break the Stalemate<br>Principled Negotiation Planner</h1></div>
+  </div>
+  <p class="lead">Use this worksheet before and after a negotiation, especially one that has stalled. It takes 20–25 minutes. Fill in the parts that help; skip the rest.</p>
+  <p class="lead"><b>Negotiation I'm preparing for:</b> _________________________________ &nbsp; <b>Date:</b> ________</p>
+
+  <h2><span class="n">01</span>Positions vs interests map</h2>
+  <p class="lead">Write each side's position (what they ask for), then the interests behind it (why they ask for it). Ask yourself "why?" and "why not?".</p>
+  <div class="grid2">
+    <table style="margin-bottom:3mm">
+      <tr><th>Me / my side</th></tr>
+      <tr><td><small>Position</small><div class="lines short"></div></td></tr>
+      <tr><td><small>Interests (list several)</small><div class="lines" style="height:17mm"></div></td></tr>
+    </table>
+    <table style="margin-bottom:3mm">
+      <tr><th>Them / their side</th></tr>
+      <tr><td><small>Position</small><div class="lines short"></div></td></tr>
+      <tr><td><small>Interests (my best guess, to test)</small><div class="lines" style="height:17mm"></div></td></tr>
+    </table>
+  </div>
+  <div class="grid2">
+    <div class="box"><h3>Interests we share:</h3><div class="lines"></div></div>
+    <div class="box"><h3>"How" / "What" questions to test theirs:</h3><div class="lines"></div></div>
+  </div>
+
+  <h2 style="margin-top:2mm"><span class="n">02</span>Six needs check</h2>
+  <p class="lead">Tick the needs most at stake for each side. The strongest interests are usually here.</p>
+  <table class="needs">
+    <tr><th style="width:44%">Need</th><th style="width:8%">Me</th><th style="width:8%">Them</th><th>What it looks like in this deal</th></tr>
+    <tr><td><b>Security</b> <small>safety, reliability, risk</small></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td></td></tr>
+    <tr><td><b>Economic well-being</b> <small>money, resources, terms</small></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td></td></tr>
+    <tr><td><b>Belonging</b> <small>acceptance, partnership</small></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td></td></tr>
+    <tr><td><b>Recognition</b> <small>respect, status, visibility</small></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td></td></tr>
+    <tr><td><b>Control / autonomy</b> <small>influence, choice</small></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td></td></tr>
+    <tr><td><b>Fairness</b> <small>just process and outcome</small></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td></td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2><span class="n">03</span>People and perception prep</h2>
+  <p class="lead">Separate the people from the problem before you walk in.</p>
+  <table>
+    <tr><th style="width:36%">Step</th><th>My notes</th></tr>
+    <tr><td><b>1 · Consider perception</b><br><small>How do they see this? What am I assuming about their intentions out of fear? Am I blaming them for my problem?</small></td><td class="blank" style="height:30mm"></td></tr>
+    <tr><td><b>2 · Acknowledge emotion</b><br><small>What are they likely to feel? What do I feel? How will I let them let off steam, without reacting?</small></td><td class="blank" style="height:30mm"></td></tr>
+    <tr><td><b>3 · Soft communication</b><br><small>Two "I" statements I will use instead of "you" statements. What is the purpose of what I say?</small></td><td class="blank" style="height:30mm"></td></tr>
+  </table>
+
+  <h2 style="margin-top:4mm"><span class="n">04</span>Options brainstorm: invent, then judge</h2>
+  <p class="lead"><b>Invent first:</b> write at least eight options without judging any of them. <b>Then judge:</b> tick the ones that meet my interests, theirs, or both. Options that tick both are your mutual gains.</p>
+  <table>
+    <tr><th style="width:6%">#</th><th>Option (no judging yet)</th><th style="width:12%">Meets mine</th><th style="width:12%">Meets theirs</th></tr>
+    <tr><td>1</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+    <tr><td>2</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+    <tr><td>3</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+    <tr><td>4</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+    <tr><td>5</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+    <tr><td>6</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+    <tr><td>7</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+    <tr><td>8</td><td class="blank" style="height:9.5mm"></td><td class="scale"><span class="chk"></span></td><td class="scale"><span class="chk"></span></td></tr>
+  </table>
+  <div class="tip"><b>Stuck?</b> Ask "What if…?" · wear another hat (customer, competitor, innovator) · change the <i>timing</i>, the <i>scope</i> or the <i>terms</i>, not just the price · brainstorm alone first, then combine.</div>
+</section>
+
+<section class="page">
+  <h2><span class="n">05</span>Objective criteria and pressure plan</h2>
+  <p class="lead">Decide which standards and procedures you will propose, and how you will respond to pressure.</p>
+  <table>
+    <tr><th style="width:36%">Fair standard</th><th>Source / evidence I will bring</th></tr>
+    <tr><td><span class="chk"></span>Market rates</td><td class="blank" style="height:11mm"></td></tr>
+    <tr><td><span class="chk"></span>Industry standards</td><td class="blank" style="height:11mm"></td></tr>
+    <tr><td><span class="chk"></span>Legal precedents / regulations</td><td class="blank" style="height:11mm"></td></tr>
+    <tr><td><span class="chk"></span>Expert opinion</td><td class="blank" style="height:11mm"></td></tr>
+    <tr><td><span class="chk"></span>Historical data / past agreements</td><td class="blank" style="height:11mm"></td></tr>
+  </table>
+  <div class="box"><h3>A fair procedure I could propose <small style="font-weight:400;color:#5d6888">(clear, consistent, transparent, impartial, participative; e.g. "one cuts, the other chooses", an independent valuer)</small></h3><div class="lines"></div></div>
+  <div class="box"><h3>My principles for this negotiation <small style="font-weight:400;color:#5d6888">(e.g. fairness, equality, legality)</small></h3><div class="lines"></div></div>
+  <table>
+    <tr><th style="width:36%">Pressure I might face</th><th>My response (redirect to principle)</th></tr>
+    <tr><td class="blank" style="height:15mm"></td><td><small style="color:#5d6888">"Let's stick to the agreed criteria." · "What standard would you suggest?"</small></td></tr>
+    <tr><td class="blank" style="height:15mm"></td><td></td></tr>
+    <tr><td class="blank" style="height:15mm"></td><td></td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2><span class="n">06</span>After-action review</h2>
+  <p class="lead">Fill this in within 24 hours of the negotiation.</p>
+  <table>
+    <tr><th style="width:42%">Question</th><th>What happened</th></tr>
+    <tr><td>Did I separate the people from the problem? Where did it become personal?</td><td class="blank" style="height:25mm"></td></tr>
+    <tr><td>Which of their interests did I uncover that I hadn't guessed?</td><td class="blank" style="height:25mm"></td></tr>
+    <tr><td>How many options did we put on the table before judging? Which one created mutual gain?</td><td class="blank" style="height:25mm"></td></tr>
+    <tr><td>Which objective criteria or fair procedures did we use? Did they accept them?</td><td class="blank" style="height:25mm"></td></tr>
+    <tr><td>Did I yield to pressure anywhere? What would I say next time?</td><td class="blank" style="height:25mm"></td></tr>
+    <tr><td>Soft, hard or principled: which approach did I mostly use?</td><td class="blank" style="height:25mm"></td></tr>
+  </table>
+  <div class="box"><h3>Agreed next steps (what, who, by when):</h3><div class="lines tall"></div></div>
+</section>
+</body></html>

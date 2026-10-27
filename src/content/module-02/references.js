@@ -1,0 +1,18 @@
+// `added: true` marks sources brought in beyond Raad's module (shown as "Beyond the module").
+export const references = {
+  shell2006: { short: 'Shell (2006)', text: 'Shell, G. R. (2006). Bargaining for advantage: Negotiation strategies for reasonable people (2nd ed.). Penguin Books.' },
+  voss2016: { short: 'Voss & Raz (2016)', text: 'Voss, C., & Raz, T. (2016). Never split the difference: Negotiating as if your life depended on it. Harper Business.' },
+  fisher2011: { short: 'Fisher, Ury & Patton (2011)', text: 'Fisher, R., Ury, W., & Patton, B. (2011). Getting to yes: Negotiating agreement without giving in (3rd ed.). Penguin Books.' },
+  dawson2012: { short: 'Dawson (2012)', text: 'Dawson, R. (2012). Secrets of power negotiating: Inside secrets from a master negotiator (15th anniversary ed.). Career Press.' },
+  karrass1974: { short: 'Karrass (1974)', text: 'Karrass, C. L. (1974). Give and take: The complete guide to negotiating strategies and tactics. Thomas Y. Crowell Company.' },
+  damasio1994: { short: 'Damasio (1994)', text: 'Damasio, A. R. (1994). Descartes\' error: Emotion, reason, and the human brain. G. P. Putnam\'s Sons.' },
+  goleman1995: { short: 'Goleman (1995)', text: 'Goleman, D. (1995). Emotional intelligence: Why it can matter more than IQ. Bantam Books.' },
+
+  lerner2015: { added: true, short: 'Lerner et al. (2015)', text: 'Lerner, J. S., Li, Y., Valdesolo, P., & Kassam, K. S. (2015). Emotion and decision making. Annual Review of Psychology, 66, 799–823.', url: 'https://doi.org/10.1146/annurev-psych-010213-115043' },
+  zaccaro2018: { added: true, short: 'Zaccaro et al. (2018)', text: 'Zaccaro, A., Piarulli, A., Laurino, M., Garbella, E., Menicucci, D., Neri, B., & Gemignani, A. (2018). How breath-control can change your life: A systematic review on psycho-physiological correlates of slow breathing. Frontiers in Human Neuroscience, 12, 353.', url: 'https://doi.org/10.3389/fnhum.2018.00353' },
+  brooks2014: { added: true, short: 'Brooks (2014)', text: 'Brooks, A. W. (2014). Get excited: Reappraising pre-performance anxiety as excitement. Journal of Experimental Psychology: General, 143(3), 1144–1158.', url: 'https://doi.org/10.1037/a0035325' },
+  lieberman2007: { added: true, short: 'Lieberman et al. (2007)', text: 'Lieberman, M. D., Eisenberger, N. I., Crockett, M. J., Tom, S. M., Pfeifer, J. H., & Way, B. M. (2007). Putting feelings into words: Affect labeling disrupts amygdala activity in response to affective stimuli. Psychological Science, 18(5), 421–428.', url: 'https://doi.org/10.1111/j.1467-9280.2007.01916.x' },
+  maddux2008: { added: true, short: 'Maddux, Mullen & Galinsky (2008)', text: 'Maddux, W. W., Mullen, E., & Galinsky, A. D. (2008). Chameleons bake bigger pies and take bigger pieces: Strategic behavioral mimicry facilitates negotiation outcomes. Journal of Experimental Social Psychology, 44(2), 461–468.', url: 'https://doi.org/10.1016/j.jesp.2007.02.003' },
+  galinsky2008: { added: true, short: 'Galinsky et al. (2008)', text: 'Galinsky, A. D., Maddux, W. W., Gilin, D., & White, J. B. (2008). Why it pays to get inside the head of your opponent: The differential effects of perspective taking and empathy in negotiations. Psychological Science, 19(4), 378–384.', url: 'https://doi.org/10.1111/j.1467-9280.2008.02096.x' },
+  schroeder2015: { added: true, short: 'Schroeder & Epley (2015)', text: 'Schroeder, J., & Epley, N. (2015). The sound of intellect: Speech reveals a thoughtful mind, increasing a job candidate\'s appeal. Psychological Science, 26(6), 877–891.', url: 'https://doi.org/10.1177/0956797615572906' },
+}
