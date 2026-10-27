@@ -10,6 +10,8 @@ const features = [
   { icon: 'device', title: 'Any device', text: 'Learn on your laptop at work or your phone on the train.' },
 ]
 
+const GOOGLE_REVIEWS = 'https://www.google.com/search?hl=en-DE&q=human+interactions+translated+reviews&uds=AJ5uw1_a2D0D09lxm8gpKKOTUn4rroxomuMMUq4TL01afLYbLYTGJTCwJBttE7EAUtqS7M1aSAZ4IWT2caGTJcBh38e1ba0um6AOxqeTu4b8W2r0P9q6UHGeDKLbbuRvn9S7ldp_NcG85hie7zP-hXGc8cY_P-SxnaB0dr2xelUR4hKL7JWMFNp0PiQVPP-4U187VeE_iIJg&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_4t2CVO9nnawaUR0K28fQryOQFqUeZ_9xiSZKejFYGP84ZpGz4SKlJgvDV0I7peLkJxuGNHUOidZ2hAyg1KNEpdOOcBFOZL33iNSSh4L_3wuPnI_RA%3D%3D'
+
 export default function Landing() {
   const { course, modules, user, paid, go } = useApp()
   const cta = () => (user ? go(paid ? 'dashboard' : 'checkout') : go('signup'))
@@ -81,7 +83,7 @@ export default function Landing() {
             <div className="quote"><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
             <div className="quote"><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
           </div>
-          <a className="google-link" href="https://share.google/KALONNhC3Vrc3lt7q" target="_blank" rel="noopener noreferrer">
+          <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
           </a>
           <div><button className="btn btn-dark" onClick={cta}>Start Module 1 <Icon.arrowR /></button></div>
