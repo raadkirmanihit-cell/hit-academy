@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     const body = await readJson(req)
     if (!body.waiver) return res.status(400).json({ error: 'Please confirm the box about immediate access first.' })
     if (await hasPaid(user.id)) return res.status(200).json({ alreadyPaid: true })
+    if (!process.env.STRIPE_SECRET_KEY) return res.status(503).json({ error: 'Online payment isn\'t switched on yet. Please try again later.' })
 
     const stripe = new Stripe(env('STRIPE_SECRET_KEY'))
     const base = siteUrl(req)
