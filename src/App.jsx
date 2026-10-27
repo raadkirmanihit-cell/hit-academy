@@ -27,6 +27,7 @@ export default function App() {
   const [admin, setAdmin] = useState(false)
   const toastTimer = useRef()
   const loaded = useRef(false) // progress is only saved after it has been loaded
+  const lastSaved = useRef('') // skip saving when nothing changed
 
   const notify = useCallback((msg, ms = 2800) => {
     setToast(msg)
@@ -42,7 +43,9 @@ export default function App() {
     setUser(u)
     if (!u) { setProgress(emptyProgress()); return }
     const saved = await backend.loadProgress(u.id).catch(() => null)
-    setProgress(saved || emptyProgress())
+    const start = saved || emptyProgress()
+    lastSaved.current = JSON.stringify(start)
+    setProgress(start)
     loaded.current = true
     const hasPaid = backend.hasAccess(u, course.product.id)
     go(hasPaid ? 'dashboard' : 'checkout', welcome ? { welcome: true } : {})
@@ -79,7 +82,11 @@ export default function App() {
   useEffect(() => {
     if (!user || !loaded.current) return
     clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(() => { backend.saveProgress(user.id, progress).catch(() => {}) }, isLive ? 1500 : 250)
+    const json = JSON.stringify(progress)
+    if (json === lastSaved.current) return
+    saveTimer.current = setTimeout(() => {
+      backend.saveProgress(user.id, progress).then(() => { lastSaved.current = json }, () => {})
+    }, isLive ? 1500 : 250)
     return () => clearTimeout(saveTimer.current)
   }, [progress, user])
 
@@ -109,7 +116,9 @@ export default function App() {
     },
     async resetProgress() {
       if (user) await backend.resetProgress(user.id)
-      setProgress(emptyProgress()); notify('Progress reset'); go('dashboard')
+      const fresh = emptyProgress()
+      lastSaved.current = JSON.stringify(fresh)
+      setProgress(fresh); notify('Progress reset'); go('dashboard')
     },
     openModule(moduleId, stepId) { go('module', { moduleId, stepId }) },
     markDone(moduleId, stepId) {
