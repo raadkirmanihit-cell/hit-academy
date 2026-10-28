@@ -38,7 +38,7 @@ export default function Landing() {
       <section className="section promo-section">
         <div className="wrap">
           {/* Course promo. Swap the file for Raad's own video once it's recorded. */}
-          <video className="promo-video" src="video/promo.mp4" poster="video/promo-poster.jpg" autoPlay muted loop playsInline controls preload="metadata" aria-label="30-second course overview" />
+          <video className="promo-video" src="video/promo.mp4" poster="video/promo-poster.jpg" autoPlay muted loop playsInline controls preload="metadata" aria-label="Course overview video, about one minute" />
         </div>
       </section>
 
