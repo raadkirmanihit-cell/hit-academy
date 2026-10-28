@@ -35,6 +35,12 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      <section className="section promo-section">
+        <div className="wrap">
+          {/* Course promo. Swap the file for Raad's own video once it's recorded. */}
+          <video className="promo-video" src="video/promo.mp4" poster="video/promo-poster.jpg" autoPlay muted loop playsInline controls preload="metadata" aria-label="30-second course overview" />
+        </div>
+      </section>
 
       <section className="section">
         <div className="wrap stack" style={{ gap: '2rem' }}>
