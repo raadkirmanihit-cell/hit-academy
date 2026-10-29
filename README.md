@@ -62,7 +62,7 @@ third element on a line is a coaching note.
 | `STRIPE_SECRET_KEY` | Stripe secret key (`sk_live_…`, or `sk_test_…` for testing) |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret of the Stripe webhook pointing to `/api/stripe-webhook` (events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`) |
 | `STRIPE_PRICE_ID` | Optional: a Stripe price to use instead of the built-in €119 |
-| `STRIPE_AUTOMATIC_TAX` | `true` once Stripe Tax is set up |
+| `STRIPE_AUTOMATIC_TAX` | Leave unset while H.I.T. is a Kleinunternehmer (no VAT, § 19 UStG). `true` only once you charge VAT and Stripe Tax is set up |
 | `ANTHROPIC_API_KEY` | Claude API key for the AI coach |
 | `COACH_MODEL`, `COACH_DAILY_LIMIT` | Optional: coach model (default `claude-opus-5-5`) and messages per student per day (default 80) |
 | `ADMIN_EMAILS` | Comma-separated emails that see the Students admin page |
