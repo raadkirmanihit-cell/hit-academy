@@ -12,13 +12,13 @@ export const TERMS_UPDATED = '29 October 2026'
 export const LEGAL = {
   name: 'Human Interactions Translated',
   short: 'H.I.T.',
-  entity: '[Legal name and legal form, e.g. "Raad Kirmani, trading as Human Interactions Translated"]',
-  address: '[Street and number], [Postcode] Offenbach am Main, Germany',
-  email: '[contact email, e.g. academy@humaninteractionstranslated.com]',
-  register: '[Commercial register and number, if registered]',
-  vatId: '[VAT ID, if any]',
+  entity: 'Raad Kirmani, trading as Human Interactions Translated',
+  owner: 'Raad Kirmani',
+  address: 'Mainzer Ring [house number], 63075 Offenbach am Main, Germany',
+  email: 'info@humaninteractionstranslated.com',
+  vatId: '', // VAT ID (USt-IdNr.), if you have one. Leave empty if not.
   website: 'https://humaninteractionstranslated.com',
-  privacyUrl: '[link to the privacy policy]',
+  privacyUrl: '/?page=privacy',
   court: 'Offenbach am Main',
 }
 
@@ -29,7 +29,7 @@ export const TERMS = [
     id: 'scope',
     title: '1. Who we are and what these terms cover',
     body: [
-      `These Terms and Conditions ("Terms") apply to every account and every purchase on H.I.T. Academy, the online learning platform of **${LEGAL.entity}**, ${LEGAL.address} ("${LEGAL.short}", "we", "us"). Contact: ${LEGAL.email}. ${LEGAL.register}. ${LEGAL.vatId}.`,
+      `These Terms and Conditions ("Terms") apply to every account and every purchase on H.I.T. Academy, the online learning platform of **${LEGAL.entity}**, ${LEGAL.address} ("${LEGAL.short}", "we", "us"). Contact: ${LEGAL.email}.${LEGAL.vatId ? ` VAT ID: ${LEGAL.vatId}.` : ''}`,
       'They cover the self-paced course "Negotiation & Conflict Resolution" and everything that comes with it: lessons, videos, audio, images, illustrations, activities, role-plays, quizzes, worksheets, the certificate of completion and the AI coach (together, the "Course Materials").',
       'You must accept these Terms when you create an account. By ticking the box at sign-up, you confirm that you have read them and agree to them. Terms that differ from these, including your own terms of business, do not apply unless we agree to them in writing.',
       'You can view, save and print these Terms at any time from the link at the bottom of every page.',
@@ -168,7 +168,7 @@ export const TERMS = [
     id: 'privacy',
     title: '14. Your personal data',
     body: [
-      `We process your personal data (name, email, payment confirmation, course progress, quiz results, messages to us and AI coach conversations) to provide the course, in line with the EU General Data Protection Regulation (GDPR). Details, including your rights and the service providers we use (such as Supabase for accounts, Stripe for payments, Vercel for hosting and Anthropic for the AI coach), are in our privacy policy: ${LEGAL.privacyUrl}.`,
+      `We process your personal data (name, email, payment confirmation, course progress, quiz results, messages to us and AI coach conversations) to provide the course, in line with the EU General Data Protection Regulation (GDPR). Details, including your rights and the service providers we use (such as Supabase for accounts, Stripe for payments, Vercel for hosting and Anthropic for the AI coach), are in our **Privacy Policy**, linked at the bottom of every page.`,
       'We record when you accepted these Terms, and which version you accepted, so that we can show that you agreed to them.',
     ],
   },

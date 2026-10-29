@@ -1,5 +1,5 @@
 import { useApp } from '../App.jsx'
-import { TermsLink } from './Terms.jsx'
+import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
 
 const features = [
@@ -97,7 +97,7 @@ export default function Landing() {
         </div>
       </section>
       <footer className="wrap" style={{ paddingBlock: '2rem', borderTop: '1px solid var(--line)' }}>
-        <p className="small muted">© 2026 Human Interactions Translated · Offenbach, Germany · All rights reserved · <TermsLink /></p>
+        <p className="small muted">© 2026 Human Interactions Translated · Offenbach, Germany · All rights reserved · <LegalLinks /></p>
       </footer>
     </>
   )

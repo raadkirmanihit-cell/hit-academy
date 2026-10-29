@@ -13,7 +13,7 @@ import CertificatePage from './ui/Certificate.jsx'
 import { CoachLauncher, PracticeStudio } from './coach/Coach.jsx'
 import AdminPage from './ui/Admin.jsx'
 import ContactPage from './ui/Contact.jsx'
-import TermsPage, { AcceptTerms, TermsLink } from './ui/Terms.jsx'
+import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
 import { TERMS_VERSION } from './content/terms.js'
 
 const Ctx = createContext(null)
@@ -72,7 +72,7 @@ export default function App() {
         }
       }
       if (u) await enter(u, { welcome: checkout === 'success' && backend.hasAccess(u, course.product.id) })
-      if (params.get('page') === 'terms') go('terms')
+      if (LEGAL_PAGES[params.get('page')]) go('legal', { page: params.get('page') })
       if (checkout === 'cancel') notify('Payment cancelled. You have not been charged.')
       if (u && checkout === 'success' && !backend.hasAccess(u, course.product.id)) notify('Payment received. Unlocking can take a minute: please reload this page shortly.', 8000)
       off = backend.onRecovery(() => go('newpass')) || (() => {})
@@ -154,7 +154,7 @@ export default function App() {
   if (!booted) return <div className="boot" aria-busy="true"><span className="boot-dot" /></div>
 
   let screen
-  if (view.name === 'terms') screen = <TermsPage />
+  if (view.name === 'legal') screen = <TermsPage key={view.page} page={view.page} />
   else if (view.name === 'newpass') screen = <AuthScreen mode="newpass" />
   else if (user && user.termsVersion !== TERMS_VERSION) screen = <AcceptTerms />
   else if (!user && !['landing', 'signup', 'signin', 'reset'].includes(view.name)) screen = <Landing />
@@ -176,7 +176,7 @@ export default function App() {
         <main>{screen}</main>
         {view.name !== 'landing' && (
           <footer className="wrap site-footer small muted">
-            © {new Date().getFullYear()} {course.org} · <TermsLink />
+            © {new Date().getFullYear()} {course.org} · <LegalLinks />
           </footer>
         )}
         <CoachLauncher />
