@@ -15,7 +15,7 @@ function certId(user) {
 async function draw(canvas, { name, course, date, id, locked, logo }) {
   const ctx = canvas.getContext('2d')
   canvas.width = W; canvas.height = H
-  try { await document.fonts.ready } catch { /* fonts optional */ }
+  try { await Promise.all(['italic 400 40px "DM Sans Variable"', '750 60px "Bricolage Grotesque Variable"', '500 18px "DM Mono"'].map((f) => document.fonts.load(f))); await document.fonts.ready } catch { /* fonts optional */ }
   const navy = '#0b1a44', orange = '#f7861b', ink = '#1b2547', muted = '#5d6888'
   ctx.fillStyle = '#fbfaf7'; ctx.fillRect(0, 0, W, H)
   // navy side band with orange rule
@@ -28,37 +28,37 @@ async function draw(canvas, { name, course, date, id, locked, logo }) {
   ctx.fillStyle = '#fff'; ctx.textAlign = 'center'
   ctx.font = '600 22px "DM Mono", monospace'
   ctx.fillText('HUMAN INTERACTIONS', 180, 380); ctx.fillText('TRANSLATED', 180, 410)
-  ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '400 20px "DM Sans", sans-serif'
+  ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '400 20px "DM Sans Variable", sans-serif'
   ctx.fillText('Offenbach, Germany', 180, 450)
 
   const x = 470
   ctx.textAlign = 'left'
   ctx.fillStyle = muted; ctx.font = '500 24px "DM Mono", monospace'
   ctx.fillText('CERTIFICATE OF COMPLETION', x, 190)
-  ctx.fillStyle = ink; ctx.font = '400 30px "DM Sans", sans-serif'
+  ctx.fillStyle = ink; ctx.font = '400 30px "DM Sans Variable", sans-serif'
   ctx.fillText('This certifies that', x, 290)
   ctx.fillStyle = navy
   let size = 96
-  do { ctx.font = `750 ${size}px "Bricolage Grotesque", "DM Sans", sans-serif`; size -= 4 } while (ctx.measureText(name).width > W - x - 120 && size > 40)
+  do { ctx.font = `750 ${size}px "Bricolage Grotesque Variable", "DM Sans Variable", sans-serif`; size -= 4 } while (ctx.measureText(name).width > W - x - 120 && size > 40)
   ctx.fillText(name, x, 400)
   ctx.fillStyle = orange; ctx.fillRect(x, 432, 140, 6)
-  ctx.fillStyle = ink; ctx.font = '400 30px "DM Sans", sans-serif'
+  ctx.fillStyle = ink; ctx.font = '400 30px "DM Sans Variable", sans-serif'
   ctx.fillText('has successfully completed the self-paced course', x, 510)
-  ctx.fillStyle = navy; ctx.font = '700 48px "Bricolage Grotesque", "DM Sans", sans-serif'
+  ctx.fillStyle = navy; ctx.font = '700 48px "Bricolage Grotesque Variable", "DM Sans Variable", sans-serif'
   ctx.fillText(course.title, x, 580)
-  ctx.fillStyle = muted; ctx.font = '400 24px "DM Sans", sans-serif'
+  ctx.fillStyle = muted; ctx.font = '400 24px "DM Sans Variable", sans-serif'
   ctx.fillText('Behaviour and strategy · strategic empathy · reading the unspoken · principled progress', x, 630)
   ctx.fillText('preparation · perception · handling objections', x, 664)
 
   ctx.strokeStyle = '#c9cfdf'; ctx.lineWidth = 2
   ctx.beginPath(); ctx.moveTo(x, 900); ctx.lineTo(x + 420, 900); ctx.stroke()
   ctx.beginPath(); ctx.moveTo(x + 560, 900); ctx.lineTo(x + 900, 900); ctx.stroke()
-  ctx.fillStyle = navy; ctx.font = 'italic 400 40px "DM Sans", sans-serif'
+  ctx.fillStyle = navy; ctx.font = 'italic 400 40px "DM Sans Variable", sans-serif'
   ctx.fillText(course.certificate.signatory, x, 880)
-  ctx.fillStyle = ink; ctx.font = '600 24px "DM Sans", sans-serif'
+  ctx.fillStyle = ink; ctx.font = '600 24px "DM Sans Variable", sans-serif'
   ctx.fillText(course.certificate.signatory, x, 940)
   ctx.fillText(date, x + 560, 880)
-  ctx.fillStyle = muted; ctx.font = '400 21px "DM Sans", sans-serif'
+  ctx.fillStyle = muted; ctx.font = '400 21px "DM Sans Variable", sans-serif'
   ctx.fillText(course.certificate.signatoryRole, x, 972)
   ctx.fillText('Date of completion', x + 560, 940)
   ctx.font = '500 18px "DM Mono", monospace'
@@ -66,7 +66,7 @@ async function draw(canvas, { name, course, date, id, locked, logo }) {
 
   if (locked) {
     ctx.save(); ctx.translate(W / 2 + 180, H / 2); ctx.rotate(-0.35)
-    ctx.fillStyle = 'rgba(192,58,43,.16)'; ctx.font = '800 150px "Bricolage Grotesque", sans-serif'; ctx.textAlign = 'center'
+    ctx.fillStyle = 'rgba(192,58,43,.16)'; ctx.font = '800 150px "Bricolage Grotesque Variable", sans-serif'; ctx.textAlign = 'center'
     ctx.fillText('PREVIEW', 0, 40); ctx.restore()
   }
 }

@@ -48,7 +48,6 @@ export const PRIVACY = [
         '**Stripe Payments Europe Ltd.** (Ireland) and its affiliates: payment processing, receipts and invoices. Stripe is also an independent controller for some data, for example for fraud prevention and its legal obligations. See stripe.com/privacy.',
         '**Anthropic PBC** (USA): the AI model behind the AI coach.',
         '**Resend** (USA), once switched on: delivery of our account and notification emails.',
-        '**Google Fonts** (Google Ireland Ltd. / Google LLC): the platform loads its fonts from Google\'s servers, so your browser sends your IP address to Google when a page loads.',
       ] },
       '**Transfers outside the EU.** Some providers are based in the USA or may access data from there. Transfers are protected by the EU–US Data Privacy Framework where the provider is certified under it, and otherwise by the EU Standard Contractual Clauses (Art. 45 and 46 GDPR).',
       'Apart from these providers, we only share your data where the law requires it, for example with tax authorities or our tax adviser.',

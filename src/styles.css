@@ -32,8 +32,8 @@
   --s-avoiding: #6b7fa8;
   --s-accommodating: #3b6fd6;
 
-  --f-display: "Bricolage Grotesque", "DM Sans", system-ui, sans-serif;
-  --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", "DM Sans Variable", system-ui, sans-serif;
+  --f-body: "DM Sans Variable", "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --r-s: 8px;
