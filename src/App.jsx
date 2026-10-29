@@ -13,6 +13,8 @@ import CertificatePage from './ui/Certificate.jsx'
 import { CoachLauncher, PracticeStudio } from './coach/Coach.jsx'
 import AdminPage from './ui/Admin.jsx'
 import ContactPage from './ui/Contact.jsx'
+import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
+import { TERMS_VERSION } from './content/terms.js'
 
 const Ctx = createContext(null)
 export const useApp = () => useContext(Ctx)
@@ -70,6 +72,7 @@ export default function App() {
         }
       }
       if (u) await enter(u, { welcome: checkout === 'success' && backend.hasAccess(u, course.product.id) })
+      if (LEGAL_PAGES[params.get('page')]) go('legal', { page: params.get('page') })
       if (checkout === 'cancel') notify('Payment cancelled. You have not been charged.')
       if (u && checkout === 'success' && !backend.hasAccess(u, course.product.id)) notify('Payment received. Unlocking can take a minute: please reload this page shortly.', 8000)
       off = backend.onRecovery(() => go('newpass')) || (() => {})
@@ -101,6 +104,10 @@ export default function App() {
     },
     async signIn(data) {
       const u = await backend.signIn(data)
+      await enter(u)
+    },
+    async acceptTerms() {
+      const u = await backend.acceptTerms(user)
       await enter(u)
     },
     async signOut() { await backend.signOut(); setAdmin(false); await enter(null); go('landing') },
@@ -147,7 +154,9 @@ export default function App() {
   if (!booted) return <div className="boot" aria-busy="true"><span className="boot-dot" /></div>
 
   let screen
-  if (view.name === 'newpass') screen = <AuthScreen mode="newpass" />
+  if (view.name === 'legal') screen = <TermsPage key={view.page} page={view.page} />
+  else if (view.name === 'newpass') screen = <AuthScreen mode="newpass" />
+  else if (user && user.termsVersion !== TERMS_VERSION) screen = <AcceptTerms />
   else if (!user && !['landing', 'signup', 'signin', 'reset'].includes(view.name)) screen = <Landing />
   else if (view.name === 'contact' && user) screen = <ContactPage />
   else if (user && !paid && !['checkout', 'landing'].includes(view.name)) screen = <Checkout />
@@ -165,6 +174,11 @@ export default function App() {
       <div className={authorMode ? 'author-mode' : ''}>
         <Topbar />
         <main>{screen}</main>
+        {view.name !== 'landing' && (
+          <footer className="wrap site-footer small muted">
+            © {new Date().getFullYear()} {course.org} · <LegalLinks />
+          </footer>
+        )}
         <CoachLauncher />
         {toast && <div className="toast fade-in" role="status">{toast}</div>}
       </div>

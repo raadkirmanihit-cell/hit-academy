@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../App.jsx'
+import { TermsCheckbox } from './Terms.jsx'
 
 const COPY = {
   signup: { eyebrow: 'Step 1 of 2 · Create account', title: 'Create your account', sub: 'Your progress and certificate are tied to this account.', button: 'Create account and continue' },
@@ -11,6 +12,7 @@ const COPY = {
 export default function AuthScreen({ mode }) {
   const { signUp, signIn, requestPasswordReset, setNewPassword, go } = useApp()
   const [form, setForm] = useState({ name: '', email: '', password: '' })
+  const [terms, setTerms] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(null) // 'confirm' | 'reset'
@@ -26,9 +28,10 @@ export default function AuthScreen({ mode }) {
     if (isUp && form.name.trim().length < 2) return setErr('Enter your full name. It appears on your certificate.')
     if (needsEmail && !/^\S+@\S+\.\S+$/.test(form.email)) return setErr('Enter a valid email address.')
     if (needsPassword && form.password.length < 8) return setErr('Use at least 8 characters for your password.')
+    if (isUp && !terms) return setErr('Please tick the box to accept the Terms and Conditions.')
     setBusy(true)
     try {
-      if (mode === 'signup') await signUp(form)
+      if (mode === 'signup') await signUp({ ...form, acceptTerms: true })
       else if (mode === 'signin') await signIn(form)
       else if (mode === 'reset') { await requestPasswordReset(form.email); setSent('reset'); setBusy(false) }
       else if (mode === 'newpass') await setNewPassword(form.password)
@@ -81,6 +84,7 @@ export default function AuthScreen({ mode }) {
             )}
           </div>
         )}
+        {isUp && <TermsCheckbox checked={terms} onChange={setTerms} />}
         {err && <p className="error" role="alert">{err}</p>}
         <button className="btn btn-primary" disabled={busy}>{busy ? 'One moment…' : c.button}</button>
         {mode !== 'newpass' && (

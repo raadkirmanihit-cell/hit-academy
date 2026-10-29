@@ -1,5 +1,6 @@
 // LIVE backend: Supabase for accounts and progress, Stripe (through /api/checkout) for payment.
 import { createClient } from '@supabase/supabase-js'
+import { TERMS_VERSION } from '../content/terms.js'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -48,7 +49,7 @@ async function loadUser(authUser) {
   if (!authUser) return null
   const sbc = client()
   const [{ data: profile }, { data: purchases }] = await Promise.all([
-    sbc.from('profiles').select('name, email, created_at').eq('id', authUser.id).maybeSingle(),
+    sbc.from('profiles').select('*').eq('id', authUser.id).maybeSingle(),
     sbc.from('purchases').select('product_id, status, amount, currency, created_at').eq('user_id', authUser.id),
   ])
   return {
@@ -56,6 +57,9 @@ async function loadUser(authUser) {
     email: authUser.email,
     name: profile?.name || authUser.user_metadata?.name || '',
     createdAt: profile?.created_at || authUser.created_at,
+    // Terms acceptance: from the database (update 3), else from the sign-up details.
+    termsVersion: profile?.terms_version || authUser.user_metadata?.terms_version || null,
+    termsAcceptedAt: profile?.terms_accepted_at || authUser.user_metadata?.terms_accepted_at || null,
     purchases: (purchases || []).map((p) => ({ productId: p.product_id, status: p.status, amount: p.amount, currency: p.currency, paidAt: p.created_at })),
   }
 }
@@ -76,10 +80,12 @@ export const liveBackend = {
     recoveryListeners.add(cb)
     return () => recoveryListeners.delete(cb)
   },
-  async signUp({ name, email, password }) {
+  async signUp({ name, email, password, acceptTerms }) {
+    // The database stores the acceptance with its own clock when the account is created.
+    const terms = acceptTerms ? { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() } : {}
     const { data, error } = await client().auth.signUp({
       email: email.trim().toLowerCase(), password,
-      options: { data: { name: name.trim() }, emailRedirectTo: window.location.origin },
+      options: { data: { name: name.trim(), ...terms }, emailRedirectTo: window.location.origin },
     })
     if (error) throw new Error(friendly(error))
     if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) throw new Error('An account with this email already exists. Sign in instead.')
@@ -101,6 +107,15 @@ export const liveBackend = {
   async setNewPassword(password) {
     const { error } = await client().auth.updateUser({ password })
     if (error) throw new Error(friendly(error))
+  },
+  // Records that a signed-in student accepted the current Terms (for accounts made before them).
+  async acceptTerms() {
+    const sbc = client()
+    const { error } = await sbc.rpc('accept_terms', { p_version: TERMS_VERSION })
+    // Before database update 3 is run, keep the record on the account itself.
+    const { error: e2 } = await sbc.auth.updateUser({ data: { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() } })
+    if (error && e2) throw new Error(friendly(e2))
+    return this.refreshUser()
   },
   async refreshUser() {
     const { data } = await client().auth.getUser()
