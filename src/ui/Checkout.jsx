@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useApp } from '../App.jsx'
 import { Icon } from './icons.jsx'
 import { TermsLink } from './Terms.jsx'
+import { LEGAL } from '../content/terms.js'
 
 export default function Checkout() {
   const { course, user, purchase, isLive } = useApp()
@@ -26,6 +27,7 @@ export default function Checkout() {
           <div>
             <div className="order-line"><span>{course.title}<br /><span className="small muted">{course.product.name}</span></span><span className="tnum">{fmt.format(course.product.price)}</span></div>
             <div className="order-line" style={{ borderBottom: 0, fontWeight: 700 }}><span>Total</span><span className="tnum">{fmt.format(course.product.price)}</span></div>
+            {LEGAL.smallBusiness && <p className="small muted">No VAT is charged: small business under § 19 UStG.</p>}
           </div>
           {isLive
             ? <p className="small muted">You'll pay securely on Stripe's payment page. Your receipt and invoice are sent by email.</p>

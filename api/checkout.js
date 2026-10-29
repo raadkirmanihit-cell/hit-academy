@@ -23,7 +23,8 @@ export default async function handler(req, res) {
       client_reference_id: user.id,
       metadata: { user_id: user.id, product_id: PRODUCT_ID, withdrawal_waiver: 'yes', waiver_at: new Date().toISOString() },
       payment_intent_data: { metadata: { user_id: user.id, product_id: PRODUCT_ID } },
-      invoice_creation: { enabled: true },
+      // Small business (§ 19 UStG): the invoice must say why no VAT is shown.
+      invoice_creation: { enabled: true, invoice_data: { footer: 'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. / No VAT is charged under § 19 UStG (small business).' } },
       automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === 'true' },
       ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { billing_address_collection: 'required' } : {}),
       allow_promotion_codes: true,

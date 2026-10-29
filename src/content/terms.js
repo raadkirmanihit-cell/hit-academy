@@ -14,9 +14,10 @@ export const LEGAL = {
   short: 'H.I.T.',
   entity: 'Raad Kirmani, trading as Human Interactions Translated',
   owner: 'Raad Kirmani',
-  address: 'Mainzer Ring [house number], 63075 Offenbach am Main, Germany',
+  address: 'Mainzer Ring 103, 63075 Offenbach am Main, Germany',
   email: 'info@humaninteractionstranslated.com',
   vatId: '', // VAT ID (USt-IdNr.), if you have one. Leave empty if not.
+  smallBusiness: true, // Kleinunternehmer under § 19 UStG: no VAT is charged.
   website: 'https://humaninteractionstranslated.com',
   privacyUrl: '/?page=privacy',
   court: 'Offenbach am Main',
@@ -49,7 +50,7 @@ export const TERMS = [
     id: 'contract',
     title: '3. Buying the course and price',
     body: [
-      'The price is shown on the course page and at checkout, in euros, including any VAT that applies. Payment is handled securely by our payment provider Stripe. We never see or store your card details.',
+      `The price is shown on the course page and at checkout, in euros. ${LEGAL.smallBusiness ? 'As a small business under § 19 of the German VAT Act (UStG), we do not charge VAT, so the price is the final price.' : 'It includes any VAT that applies.'} Payment is handled securely by our payment provider Stripe. We never see or store your card details.`,
       'Our online course page is an invitation for you to make an offer, not a binding offer. When you click the payment button, you make a binding offer to buy the course. The contract is concluded when your payment is confirmed and we unlock your access. You receive a confirmation and an invoice by email.',
       'The contract language is English.',
     ],

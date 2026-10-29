@@ -91,7 +91,7 @@ function Overview({ data, unread, setTab }) {
         <Stat label="Finished all 7 modules" value={finished} />
         <button className="card admin-stat-btn" onClick={() => setTab('messages')}><span className="small muted">New messages</span><strong>{unread}</strong></button>
       </div>
-      <p className="small muted">Revenue counts real payments only, before Stripe's fees and before VAT.{testCount ? ` ${testCount} test payment${testCount > 1 ? 's are' : ' is'} left out.` : ''}</p>
+      <p className="small muted">Revenue counts real payments only, before Stripe's fees.{testCount ? ` ${testCount} test payment${testCount > 1 ? 's are' : ' is'} left out.` : ''}</p>
       <div className="stack" style={{ gap: '.6rem' }}>
         <h3>Revenue by month</h3>
         <div className="card admin-scroll" style={{ padding: 0 }}>
