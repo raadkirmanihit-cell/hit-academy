@@ -125,9 +125,9 @@ export const liveBackend = {
     return !!user?.purchases?.some((p) => p.productId === productId && p.status === 'paid')
   },
   // Sends the student to Stripe's payment page. They come back to /?checkout=success.
-  async startCheckout(user, product, { waiver } = {}) {
-    const r = await api('/api/checkout', { waiver: !!waiver })
-    if (r.alreadyPaid) return this.refreshUser()
+  // choice: 'bundle' (all 7 modules) or a module id like 'm3'.
+  async startCheckout(user, choice, { waiver } = {}) {
+    const r = await api('/api/checkout', { waiver: !!waiver, choice })
     window.location.assign(r.url)
     return new Promise(() => {}) // the page is leaving
   },

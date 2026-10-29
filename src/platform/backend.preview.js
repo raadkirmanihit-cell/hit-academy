@@ -1,6 +1,7 @@
 // PREVIEW backend: accounts, purchases and progress live in the learner's browser.
 // Nothing is sent anywhere and no payment is taken. Used when the Supabase settings are absent
 // (the claude.ai preview and local development).
+import { quote, CURRENCY } from '../content/pricing.js'
 import { readJSON, writeJSON, remove } from './storage.js'
 import { TERMS_VERSION } from '../content/terms.js'
 
@@ -51,11 +52,13 @@ export const previewBackend = {
   hasAccess(user, productId) {
     return !!user?.purchases?.some((p) => p.productId === productId && p.status === 'paid')
   },
-  async startCheckout(user, product) {
+  async startCheckout(user, choice) {
     await wait(900)
+    const q = quote(choice, user.purchases)
+    if (q.error) throw new Error(q.error)
     const purchase = {
-      id: 'demo_' + Date.now().toString(36), productId: product.id, amount: product.price,
-      currency: product.currency, status: 'paid', paidAt: new Date().toISOString(), mode: 'preview',
+      id: 'demo_' + Date.now().toString(36), productId: q.productId, amount: q.cents / 100,
+      currency: CURRENCY, status: 'paid', paidAt: new Date().toISOString(), mode: 'preview',
     }
     return save({ ...user, purchases: [...(user.purchases || []), purchase] })
   },

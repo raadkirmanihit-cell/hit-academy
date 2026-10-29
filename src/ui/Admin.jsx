@@ -199,18 +199,19 @@ function Payments({ data, act }) {
     <div className="stack" style={{ gap: '1rem' }}>
       <div className="row" style={{ justifyContent: 'space-between', gap: '1rem' }}>
         <label className="row" style={{ gap: '.4rem' }}><input type="checkbox" checked={showTest} onChange={(e) => setShowTest(e.target.checked)} /> Show test payments</label>
-        <button className="btn btn-ghost btn-sm" onClick={() => downloadCsv('hit-academy-payments', ['Date', 'Name', 'Email', 'Amount', 'Currency', 'Status', 'Real payment', 'Refunded on', 'Stripe session'],
-          data.payments.map((p) => [p.paidAt, p.name, p.email, (p.amount || 0) / 100, p.currency, p.status, p.live ? 'yes' : 'test', p.refundedAt || '', p.sessionId]))}>Download as spreadsheet (CSV)</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => downloadCsv('hit-academy-payments', ['Date', 'Name', 'Email', 'Bought', 'Amount', 'Currency', 'Status', 'Real payment', 'Refunded on', 'Stripe session'],
+          data.payments.map((p) => [p.paidAt, p.name, p.email, p.item || 'Complete course', (p.amount || 0) / 100, p.currency, p.status, p.live ? 'yes' : 'test', p.refundedAt || '', p.sessionId]))}>Download as spreadsheet (CSV)</button>
       </div>
-      <p className="small muted">A refund goes back to the student's card through Stripe (it usually arrives within 5 to 10 days) and removes their access to the course. Stripe doesn't return its fee on refunds.</p>
+      <p className="small muted">A refund goes back to the student's card through Stripe (it usually arrives within 5 to 10 days) and removes their access to what they bought (the module, or the complete course). Stripe doesn't return its fee on refunds.</p>
       <div className="card admin-scroll" style={{ padding: 0 }}>
         <table className="admin-table">
-          <thead><tr><th>Date</th><th>Student</th><th>Amount</th><th>Status</th><th /></tr></thead>
+          <thead><tr><th>Date</th><th>Student</th><th>Bought</th><th>Amount</th><th>Status</th><th /></tr></thead>
           <tbody>
             {rows.map((p) => (
               <tr key={p.id}>
                 <td>{date(p.paidAt)}</td>
                 <td><b>{p.name || '–'}</b><br /><span className="small muted">{p.email}</span></td>
+                <td>{p.item || 'Complete course'}</td>
                 <td className="tnum">{money(p.amount, p.currency)} {!p.live && <span className="pill">Test</span>}</td>
                 <td>{p.status === 'refunded' ? <span className="pill orange">Refunded{p.refundedAt ? ` ${date(p.refundedAt)}` : ''}</span> : <span className="pill good">Paid</span>}</td>
                 <td style={{ textAlign: 'right' }}>
@@ -223,7 +224,7 @@ function Payments({ data, act }) {
                 </td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={5} className="muted">No payments yet.</td></tr>}
+            {!rows.length && <tr><td colSpan={6} className="muted">No payments yet.</td></tr>}
           </tbody>
         </table>
       </div>

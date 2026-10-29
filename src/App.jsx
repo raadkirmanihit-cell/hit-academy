@@ -16,6 +16,13 @@ import AdminPage from './ui/Admin.jsx'
 import ContactPage from './ui/Contact.jsx'
 import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
 import { TERMS_VERSION } from './content/terms.js'
+import { ownedModules } from './content/pricing.js'
+
+// Modules the student may open, and whether they bought anything at all.
+const ownedOf = (u) => ownedModules(u?.purchases)
+const hasAny = (u) => ownedOf(u).size > 0
+// After a Stripe payment: is the thing they just bought unlocked yet?
+const unlocked = (u, item) => (item && item !== 'bundle' ? ownedOf(u).has(item) : ownedOf(u).size === 7)
 
 const Ctx = createContext(null)
 export const useApp = () => useContext(Ctx)
@@ -24,7 +31,8 @@ export default function App() {
   const [booted, setBooted] = useState(false)
   const [user, setUser] = useState(null)
   const [progress, setProgress] = useState(emptyProgress)
-  const paid = backend.hasAccess(user, course.product.id)
+  const owned = useMemo(() => ownedOf(user), [user])
+  const paid = owned.size > 0
   const [view, setView] = useState({ name: 'landing' })
   const [toast, setToast] = useState(null)
   const [authorMode, setAuthorMode] = useState(false)
@@ -51,8 +59,7 @@ export default function App() {
     lastSaved.current = JSON.stringify(start)
     setProgress(start)
     loaded.current = true
-    const hasPaid = backend.hasAccess(u, course.product.id)
-    go(hasPaid ? 'dashboard' : 'checkout', welcome ? { welcome: true } : {})
+    go(hasAny(u) ? 'dashboard' : 'checkout', welcome ? { welcome: true } : {})
     if (isLive) backend.isAdmin().then(setAdmin, () => setAdmin(false))
   }, [go])
 
@@ -62,18 +69,20 @@ export default function App() {
     ;(async () => {
       const params = new URLSearchParams(window.location.search)
       const checkout = params.get('checkout')
+      const item = params.get('item') // what they just paid for: 'bundle' or a module id
       const coach = params.get('coach') // back from the coach subscription checkout or Stripe's subscription page
       // Sign in first: links from confirmation and reset emails carry the login in the URL.
       let u = await backend.init().catch(() => null)
       if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
-      if (u && checkout === 'success' && !backend.hasAccess(u, course.product.id)) {
+      if (u && checkout === 'success' && !unlocked(u, item)) {
         // Stripe confirms the payment to our server a few seconds after the redirect.
-        for (let i = 0; i < 10 && !backend.hasAccess(u, course.product.id); i++) {
+        for (let i = 0; i < 10 && !unlocked(u, item); i++) {
           await new Promise((r) => setTimeout(r, 1500))
           u = await backend.refreshUser().catch(() => u)
         }
       }
-      if (u) await enter(u, { welcome: checkout === 'success' && backend.hasAccess(u, course.product.id) })
+      if (u) await enter(u, { welcome: checkout === 'success' && unlocked(u, item) })
+      if (u && checkout === 'success' && item && item !== 'bundle' && unlocked(u, item)) go('module', { moduleId: item })
       if (LEGAL_PAGES[params.get('page')]) go('legal', { page: params.get('page') })
       if (checkout === 'cancel' || coach === 'cancel') notify('Payment cancelled. You have not been charged.')
       if (u && coach === 'success') {
@@ -87,7 +96,7 @@ export default function App() {
         notify(plan?.subscribed ? 'Your AI coach subscription is active. Ask away!' : 'Payment received. The coach unlocks in a minute: please reload this page shortly.', 6000)
       }
       if (u && coach === 'portal') refreshCoachPlan()
-      if (u && checkout === 'success' && !backend.hasAccess(u, course.product.id)) notify('Payment received. Unlocking can take a minute: please reload this page shortly.', 8000)
+      if (u && checkout === 'success' && !unlocked(u, item)) notify('Payment received. Unlocking can take a minute: please reload this page shortly.', 8000)
       off = backend.onRecovery(() => go('newpass')) || (() => {})
       setBooted(true)
     })()
@@ -110,7 +119,7 @@ export default function App() {
   useEffect(() => { window.scrollTo({ top: 0 }) }, [view.name, view.moduleId])
 
   const api = useMemo(() => ({
-    course, modules, user, paid, progress, view, go, notify, authorMode, setAuthorMode, admin, isLive,
+    course, modules, user, paid, owned, progress, view, go, notify, authorMode, setAuthorMode, admin, isLive,
     async signUp(data) {
       const u = await backend.signUp(data)
       await enter(u)
@@ -131,9 +140,11 @@ export default function App() {
       const u = await backend.refreshUser().catch(() => null)
       if (u) await enter(u); else go('signin')
     },
-    async purchase(opts) {
-      const u = await backend.startCheckout(user, course.product, opts)
-      setUser(u); go('dashboard', { welcome: true })
+    // choice: 'bundle' or a module id. On the live site this leaves for Stripe's payment page.
+    async purchase(choice, opts) {
+      const u = await backend.startCheckout(user, choice, opts)
+      setUser(u)
+      if (choice !== 'bundle') go('module', { moduleId: choice }); else go('dashboard', { welcome: true })
     },
     async resetProgress() {
       if (user) await backend.resetProgress(user.id)
@@ -162,7 +173,7 @@ export default function App() {
     completeModule(moduleId) {
       setProgress((p) => update(p, moduleId, (ms) => { if (!ms.completedAt) ms.completedAt = new Date().toISOString() }))
     },
-  }), [user, paid, progress, view, go, notify, authorMode, admin, enter])
+  }), [user, paid, owned, progress, view, go, notify, authorMode, admin, enter])
 
   if (!booted) return <div className="boot" aria-busy="true"><span className="boot-dot" /></div>
 
@@ -175,7 +186,8 @@ export default function App() {
   else if (user && !paid && !['checkout', 'landing'].includes(view.name)) screen = <Checkout />
   else if (view.name === 'landing') screen = <Landing />
   else if (['signup', 'signin', 'reset'].includes(view.name)) screen = <AuthScreen mode={view.name} />
-  else if (view.name === 'checkout') screen = <Checkout />
+  else if (view.name === 'checkout') screen = <Checkout choice={view.choice} />
+  else if (view.name === 'module' && modules[view.moduleId] && !owned.has(view.moduleId)) screen = <Checkout choice={view.moduleId} />
   else if (view.name === 'module' && modules[view.moduleId]) screen = <Player key={view.moduleId} module={modules[view.moduleId]} initialStep={view.stepId} />
   else if (view.name === 'certificate') screen = <CertificatePage />
   else if (view.name === 'practice') screen = <PracticeStudio />

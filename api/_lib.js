@@ -1,7 +1,8 @@
 // Shared helpers for the server functions in /api (files starting with _ are not routes).
 import { createClient } from '@supabase/supabase-js'
+import { BUNDLE_ID, COURSE_PRODUCT_IDS } from '../src/content/pricing.js'
 
-export const PRODUCT_ID = 'hit-negotiation-selfpaced' // must match course.product.id
+export const PRODUCT_ID = BUNDLE_ID // the complete course (all 7 modules); single modules are hit-negotiation-m1…m7
 
 export function env(name, required = true) {
   const v = process.env[name]
@@ -27,9 +28,16 @@ export async function requireUser(req) {
   return data.user
 }
 
+// The student's paid course purchases, as [{ productId, status }] (the shape pricing.js expects).
+export async function coursePurchases(userId) {
+  const { data, error } = await db().from('purchases').select('product_id, status').eq('user_id', userId).eq('status', 'paid').in('product_id', COURSE_PRODUCT_IDS)
+  if (error) throw error
+  return (data || []).map((p) => ({ productId: p.product_id, status: p.status }))
+}
+
+// Bought the complete course or at least one module.
 export async function hasPaid(userId) {
-  const { data } = await db().from('purchases').select('id').eq('user_id', userId).eq('product_id', PRODUCT_ID).eq('status', 'paid').limit(1)
-  return !!data?.length
+  return (await coursePurchases(userId)).length > 0
 }
 
 export function isAdmin(user) {

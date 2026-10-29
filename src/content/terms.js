@@ -51,7 +51,8 @@ export const TERMS = [
     title: '3. Buying the course and price',
     body: [
       `The price is shown on the course page and at checkout, in euros. ${LEGAL.smallBusiness ? 'As a small business under § 19 of the German VAT Act (UStG), we do not charge VAT, so the price is the final price.' : 'It includes any VAT that applies.'} Payment is handled securely by our payment provider Stripe. We never see or store your card details.`,
-      'Our online course page is an invitation for you to make an offer, not a binding offer. When you click the payment button, you make a binding offer to buy the course. The contract is concluded when your payment is confirmed and we unlock your access. You receive a confirmation and an invoice by email.',
+      '**What you can buy.** You can buy the complete course (all seven modules, currently €99) or single modules (currently €19 each). If you already own single modules, you can upgrade to the complete course and we credit €19 for each module you own. The price that applies is the one shown at checkout.',
+      'Our online course page is an invitation for you to make an offer, not a binding offer. When you click the payment button, you make a binding offer to buy what you selected (the complete course or a single module). The contract is concluded when your payment is confirmed and we unlock your access. You receive a confirmation and an invoice by email.',
       'The contract language is English.',
     ],
   },
@@ -59,7 +60,7 @@ export const TERMS = [
     id: 'access',
     title: '4. What you get and how long you have access',
     body: [
-      'After payment you get online access to all seven modules, the downloadable worksheets, the quizzes and, once you complete every module, a certificate of completion.',
+      'After payment you get online access to what you bought: all seven modules with the complete course, or the module you bought on its own, each with its worksheet and quiz. The certificate of completion requires all seven modules, so you can earn it once you own and complete every module.',
       '"Lifetime access" means access for as long as we offer the course online. If we ever stop offering it, we will tell you by email at least 3 months in advance, so that you can finish the course and download your worksheets and certificate.',
       'The course is delivered online only. You need a current web browser and an internet connection. We aim to keep the platform available at all times, but there may be short interruptions for maintenance, updates or reasons outside our control.',
       'We may update, improve, reorganise or replace parts of the Course Materials from time to time, for example to add new research or examples. We will not remove the core content of what you paid for without offering you a fair alternative.',
@@ -210,7 +211,7 @@ export const TERMS = [
       '**Model withdrawal form** (complete and return this form only if you wish to withdraw from the contract):',
       { list: [
         `To: ${LEGAL.entity}, ${LEGAL.address}, ${LEGAL.email}`,
-        'I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the supply of the following digital content (*) / for the provision of the following service (*): Negotiation & Conflict Resolution, self-paced online course (*) / AI coach subscription (*)',
+        'I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the supply of the following digital content (*) / for the provision of the following service (*): Negotiation & Conflict Resolution, self-paced online course: complete course (*) / Module no. ___ (*) / AI coach subscription (*)',
         'Ordered on (*) / received on (*):',
         'Name of consumer(s):',
         'Address of consumer(s):',

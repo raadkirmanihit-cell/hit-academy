@@ -1,3 +1,4 @@
+import { MODULE_PRICE } from '../content/pricing.js'
 import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
@@ -28,7 +29,7 @@ export default function Landing() {
             <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
             <div className="row" style={{ gap: '1.25rem' }}>
               <button className="btn btn-primary" onClick={cta}>{user && paid ? 'Go to my course' : 'Enroll now'} <Icon.arrowR /></button>
-              <div className="price-tag"><strong>{price}</strong><span className="muted" style={{ color: '#9aa5c6' }}>one-time · lifetime access</span></div>
+              <div className="price-tag"><strong>{price}</strong><span className="muted" style={{ color: '#9aa5c6' }}>all 7 modules · or €{MODULE_PRICE} per module · lifetime access</span></div>
             </div>
           </div>
           <div className="hero-art">
@@ -75,7 +76,7 @@ export default function Landing() {
               <li key={m.id}>
                 <span className="num">{String(m.number).padStart(2, '0')}</span>
                 <div><h4>{m.title}</h4><p className="muted small">{m.subtitle}</p></div>
-                <span className={'pill' + (modules[m.id] ? ' good' : '')}>{modules[m.id] ? 'Included' : 'Coming soon'}</span>
+                <span className={'pill' + (modules[m.id] ? ' good' : '')}>{modules[m.id] ? `Included · or €${MODULE_PRICE} alone` : 'Coming soon'}</span>
               </li>
             ))}
           </ol>

@@ -3,12 +3,14 @@ import { courseStats, flatSteps, moduleStats } from '../platform/progress.js'
 import { Icon } from './icons.jsx'
 import { CoachTeaser } from '../coach/Coach.jsx'
 import { CoachPlanCard } from '../coach/plan.jsx'
+import { offers, MODULE_PRICE } from '../content/pricing.js'
 
 export default function Dashboard() {
-  const { course, modules, user, progress, openModule, go, view } = useApp()
+  const { course, modules, user, progress, openModule, go, view, owned } = useApp()
+  const o = offers(user.purchases)
   const stats = courseStats(course, modules, progress)
-  const last = progress.last && modules[progress.last.moduleId] ? progress.last : null
-  const resumeModule = last ? modules[last.moduleId] : modules.m1
+  const last = progress.last && modules[progress.last.moduleId] && owned.has(progress.last.moduleId) ? progress.last : null
+  const resumeModule = last ? modules[last.moduleId] : modules[course.modules.find((m) => owned.has(m.id) && modules[m.id])?.id] || modules.m1
   const resumeSteps = flatSteps(resumeModule)
   const resumeStep = resumeSteps.find((s) => s.id === last?.stepId) || resumeSteps[0]
   const rs = moduleStats(resumeModule, progress)
@@ -49,12 +51,18 @@ export default function Dashboard() {
 
         <div className="stack">
           <h3>Course modules</h3>
+          {o.bundle && o.owned.size > 0 && (
+            <div className="card upgrade-card">
+              <div><strong>Unlock all 7 modules for €{o.bundle.price}</strong><p className="small muted">€{o.bundle.full} for the complete course, less €{o.bundle.credit} for the module{o.owned.size > 1 ? 's' : ''} you already own. Includes the certificate.</p></div>
+              <button className="btn btn-primary btn-sm" onClick={() => go('checkout', { choice: 'bundle' })}>Unlock all</button>
+            </div>
+          )}
           <div className="module-list">
             {course.modules.map((m) => {
               const mod = modules[m.id]
               const s = mod ? moduleStats(mod, progress) : null
               return (
-                <div key={m.id} className={'module-row' + (!mod ? ' locked' : '') + (s?.complete ? ' done' : '')}>
+                <div key={m.id} className={'module-row' + (!mod || !owned.has(m.id) ? ' locked' : '') + (s?.complete ? ' done' : '')}>
                   <span className="num">{s?.complete ? <Icon.check /> : m.number}</span>
                   <div style={{ minWidth: 0 }}>
                     <h4>{m.title}</h4>
@@ -65,7 +73,9 @@ export default function Dashboard() {
                       {s.best != null && <span className="tnum">· Quiz best {Math.round(s.best * 100)}%</span>}
                     </div>}
                   </div>
-                  {mod ? (
+                  {mod && !owned.has(m.id) ? (
+                    <button className="btn btn-sm" onClick={() => go('checkout', { choice: m.id })}><Icon.lock width="12" height="12" /> Unlock · €{MODULE_PRICE}</button>
+                  ) : mod ? (
                     <button className="btn btn-sm" onClick={() => openModule(m.id)}>{s.complete ? 'Review' : s.done ? 'Continue' : 'Start'}</button>
                   ) : (
                     <span className="pill"><Icon.lock width="12" height="12" /> Coming soon</span>
