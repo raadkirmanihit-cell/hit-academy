@@ -148,4 +148,17 @@ export const liveBackend = {
   async adminData() { return api('/api/admin-students') },
   async adminAction(action, payload = {}) { return api('/api/admin-action', { action, ...payload }) },
   async sendMessage({ subject, body }) { return api('/api/message', { subject, body }) },
+  // AI coach subscription: status, Stripe Checkout to subscribe, Stripe's page to cancel or change the card.
+  async coachPlan() { return api('/api/coach-plan') },
+  async subscribeCoach({ consent }) {
+    const r = await api('/api/coach-plan', { action: 'subscribe', consent: !!consent })
+    if (r.alreadySubscribed) return r
+    window.location.assign(r.url)
+    return new Promise(() => {}) // the page is leaving
+  },
+  async coachPortal() {
+    const r = await api('/api/coach-plan', { action: 'portal' })
+    window.location.assign(r.url)
+    return new Promise(() => {})
+  },
 }

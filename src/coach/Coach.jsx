@@ -8,6 +8,7 @@ import { buildChunks, retrieve, formatExcerpts, library } from './knowledge.js'
 import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
 import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
+import { useCoachPlan, usedOneMessage, coachLocked, CoachPaywall, PlanNote } from './plan.jsx'
 
 const MicIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
 const SpeakerIcon = ({ off }) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" />{off ? <path d="M17 9l5 6M22 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}</svg>
@@ -68,6 +69,8 @@ const ERRORS = {
   refused: 'The coach can\'t help with that. Try rephrasing your question.',
   network: 'Connection problem. Please check your internet and try again.',
 }
+// Server says the free messages are used up: switch the coach to the subscribe card.
+const noteError = (e) => { if (e?.code === 'needs_subscription') coachLocked() }
 const errorText = (e) => (isLive && e?.message && e.code !== 'cancelled' ? e.message : ERRORS[e?.code]) || 'Something went wrong. Please try again.'
 
 // Coach replies use **bold** and "- " bullets only.
@@ -101,10 +104,13 @@ const SUGGESTIONS = [
 export function CoachLauncher() {
   const { user, paid, view, modules, progress } = useApp()
   const [open, setOpen] = useState(false)
+  const [subscribe, setSubscribe] = useState(false)
   useEffect(() => {
-    const h = () => setOpen(true)
+    const h = () => { setSubscribe(false); setOpen(true) }
+    const s = () => { setSubscribe(true); setOpen(true) }
     window.addEventListener('open-coach', h)
-    return () => window.removeEventListener('open-coach', h)
+    window.addEventListener('coach-subscribe', s)
+    return () => { window.removeEventListener('open-coach', h); window.removeEventListener('coach-subscribe', s) }
   }, [])
   if (!user || !paid || !['dashboard', 'module', 'practice'].includes(view.name)) return null
   // Where the learner is, so the coach can include that page.
@@ -117,14 +123,16 @@ export function CoachLauncher() {
   return (
     <>
       {!open && <button className="coach-fab" onClick={() => setOpen(true)} aria-label="Ask the AI coach"><span className="coach-dot" aria-hidden="true">AI</span> Ask the coach</button>}
-      {open && <CoachPanel ctx={ctx} onClose={() => setOpen(false)} />}
+      {open && <CoachPanel ctx={ctx} subscribe={subscribe} onClose={() => setOpen(false)} />}
     </>
   )
 }
 
-function CoachPanel({ ctx, onClose }) {
+function CoachPanel({ ctx, subscribe, onClose }) {
   const kb = useKb()
   const { ready, sample } = useSample()
+  const { locked, plan } = useCoachPlan()
+  const showPaywall = locked || (subscribe && plan && !plan.subscribed && !plan.preview)
   const [turns, setTurns] = useState([])
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
@@ -154,9 +162,11 @@ function CoachPanel({ ctx, onClose }) {
         cache: false, signal: ctl.current.signal, onText: ({ text }) => setLive(text),
       })
       setTurns((t) => [...t, { role: 'assistant', content: text }])
+      usedOneMessage()
       if (voiceOn.current) voice.speak(text)
     } catch (e) {
       if (e?.text) setTurns((t) => [...t, { role: 'assistant', content: e.text + ' …' }])
+      noteError(e)
       if (e?.code !== 'cancelled') setErr(errorText(e))
     } finally { setBusy(false); setLive('') }
   }
@@ -174,7 +184,7 @@ function CoachPanel({ ctx, onClose }) {
         </div>
       </header>
       <div className="coach-body">
-        {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : (
+        {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : showPaywall ? <CoachPaywall compact /> : (
           <>
             {turns.length === 0 && (
               <div className="coach-intro">
@@ -193,7 +203,8 @@ function CoachPanel({ ctx, onClose }) {
           </>
         )}
       </div>
-      {sample && (
+      {sample && !showPaywall && <PlanNote />}
+      {sample && !showPaywall && (
         <form className="coach-input" onSubmit={(e) => { e.preventDefault(); ask(draft) }}>
           <textarea rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={voice.listening ? 'Listening… speak now' : 'Ask about a negotiation or a conflict…'}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(draft) } }} aria-label="Your question" />
@@ -223,6 +234,7 @@ export function Spar({ scenarioId, compact }) {
   const [err, setErr] = useState('')
   const ctl = useRef(null)
   const end = useRef(null)
+  const { locked } = useCoachPlan()
   const voice = useVoice({ alt: true })
   const voiceOn = useRef(false); voiceOn.current = voice.voiceOn
   useEffect(() => { if (turns) end.current?.scrollIntoView({ block: 'nearest' }) }, [turns, live])
@@ -244,9 +256,11 @@ export function Spar({ scenarioId, compact }) {
       const { text } = await sample(input, { cache: false, modelTier: 'quick', signal: ctl.current.signal, onText: ({ text }) => setLive(text.replace('[END]', '')) })
       const done = text.includes('[END]')
       setTurns((t) => [...t, { role: 'assistant', content: text.replace('[END]', '').trim() }])
+      usedOneMessage()
       if (voiceOn.current) voice.speak(text.replace('[END]', ''))
       if (done) setEnded(true)
     } catch (e) {
+      noteError(e)
       if (e?.code !== 'cancelled') setErr(errorText(e))
     } finally { setBusy(false); setLive('') }
   }
@@ -259,8 +273,10 @@ export function Spar({ scenarioId, compact }) {
     try {
       const r = await sample.json(FEEDBACK_PROMPT(sc, transcript, excerpts), { cache: false })
       setReport(r && typeof r === 'object' ? r : null)
+      usedOneMessage()
       if (!r || typeof r !== 'object') setErr('The feedback report could not be created. Please try again.')
     } catch (e) {
+      noteError(e)
       setErr(e?.code === 'invalid_json' ? 'The feedback report could not be read. Please try again.' : errorText(e))
     } finally { setReporting(false) }
   }
@@ -278,7 +294,7 @@ export function Spar({ scenarioId, compact }) {
           <p className="small muted">You'll negotiate with {sc.counterpart.name} ({sc.counterpart.role}), played by the AI. Type or say what you would say. When you're done, ask for your feedback report.</p>
         </div>
       </div>
-      {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : !turns ? (
+      {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? <CoachPaywall compact={compact} /> : !turns ? (
         <div className="row" style={{ gap: '.6rem' }}>
           <button className="btn btn-primary" onClick={start}>Start the negotiation</button>
           <VoiceToggle voice={voice} />
@@ -292,6 +308,7 @@ export function Spar({ scenarioId, compact }) {
           </div>
           {err && <p className="small coach-err" role="alert">{err}</p>}
           {voice.micNote && <p className="small muted">{voice.micNote}</p>}
+          <PlanNote />
           {!ended && (
             <form className="coach-input" onSubmit={(e) => { e.preventDefault(); send(draft) }}>
               <textarea rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={voice.listening ? 'Listening… speak now' : `Your reply to ${sc.counterpart.name}…`}

@@ -11,6 +11,7 @@ import Dashboard from './ui/Dashboard.jsx'
 import Player from './ui/Player.jsx'
 import CertificatePage from './ui/Certificate.jsx'
 import { CoachLauncher, PracticeStudio } from './coach/Coach.jsx'
+import { refreshCoachPlan } from './coach/plan.jsx'
 import AdminPage from './ui/Admin.jsx'
 import ContactPage from './ui/Contact.jsx'
 import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
@@ -61,9 +62,10 @@ export default function App() {
     ;(async () => {
       const params = new URLSearchParams(window.location.search)
       const checkout = params.get('checkout')
+      const coach = params.get('coach') // back from the coach subscription checkout or Stripe's subscription page
       // Sign in first: links from confirmation and reset emails carry the login in the URL.
       let u = await backend.init().catch(() => null)
-      if (checkout || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
+      if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
       if (u && checkout === 'success' && !backend.hasAccess(u, course.product.id)) {
         // Stripe confirms the payment to our server a few seconds after the redirect.
         for (let i = 0; i < 10 && !backend.hasAccess(u, course.product.id); i++) {
@@ -73,7 +75,18 @@ export default function App() {
       }
       if (u) await enter(u, { welcome: checkout === 'success' && backend.hasAccess(u, course.product.id) })
       if (LEGAL_PAGES[params.get('page')]) go('legal', { page: params.get('page') })
-      if (checkout === 'cancel') notify('Payment cancelled. You have not been charged.')
+      if (checkout === 'cancel' || coach === 'cancel') notify('Payment cancelled. You have not been charged.')
+      if (u && coach === 'success') {
+        // Stripe confirms the subscription to our server a few seconds after the redirect.
+        let plan = null
+        for (let i = 0; i < 10 && !plan?.subscribed; i++) {
+          plan = await backend.coachPlan().catch(() => null)
+          if (!plan?.subscribed) await new Promise((r) => setTimeout(r, 1500))
+        }
+        await refreshCoachPlan()
+        notify(plan?.subscribed ? 'Your AI coach subscription is active. Ask away!' : 'Payment received. The coach unlocks in a minute: please reload this page shortly.', 6000)
+      }
+      if (u && coach === 'portal') refreshCoachPlan()
       if (u && checkout === 'success' && !backend.hasAccess(u, course.product.id)) notify('Payment received. Unlocking can take a minute: please reload this page shortly.', 8000)
       off = backend.onRecovery(() => go('newpass')) || (() => {})
       setBooted(true)

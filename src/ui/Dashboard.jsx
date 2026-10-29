@@ -2,6 +2,7 @@ import { useApp } from '../App.jsx'
 import { courseStats, flatSteps, moduleStats } from '../platform/progress.js'
 import { Icon } from './icons.jsx'
 import { CoachTeaser } from '../coach/Coach.jsx'
+import { CoachPlanCard } from '../coach/plan.jsx'
 
 export default function Dashboard() {
   const { course, modules, user, progress, openModule, go, view } = useApp()
@@ -44,6 +45,7 @@ export default function Dashboard() {
         </div>
 
         <CoachTeaser />
+        <CoachPlanCard />
 
         <div className="stack">
           <h3>Course modules</h3>

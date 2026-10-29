@@ -6,7 +6,7 @@
 //
 // Fill in the company details in LEGAL. Anything still in [square brackets] is a placeholder.
 
-export const TERMS_VERSION = '2026-10-29'
+export const TERMS_VERSION = '2026-10-29-coach'
 export const TERMS_UPDATED = '29 October 2026'
 
 export const LEGAL = {
@@ -31,7 +31,7 @@ export const TERMS = [
     title: '1. Who we are and what these terms cover',
     body: [
       `These Terms and Conditions ("Terms") apply to every account and every purchase on H.I.T. Academy, the online learning platform of **${LEGAL.entity}**, ${LEGAL.address} ("${LEGAL.short}", "we", "us"). Contact: ${LEGAL.email}.${LEGAL.vatId ? ` VAT ID: ${LEGAL.vatId}.` : ''}`,
-      'They cover the self-paced course "Negotiation & Conflict Resolution" and everything that comes with it: lessons, videos, audio, images, illustrations, activities, role-plays, quizzes, worksheets, the certificate of completion and the AI coach (together, the "Course Materials").',
+      'They cover the self-paced course "Negotiation & Conflict Resolution" and everything that comes with it: lessons, videos, audio, images, illustrations, activities, role-plays, quizzes, worksheets, the certificate of completion and the AI coach (together, the "Course Materials"). They also cover the optional monthly AI coach subscription (section 10).',
       'You must accept these Terms when you create an account. By ticking the box at sign-up, you confirm that you have read them and agree to them. Terms that differ from these, including your own terms of business, do not apply unless we agree to them in writing.',
       'You can view, save and print these Terms at any time from the link at the bottom of every page.',
     ],
@@ -71,6 +71,7 @@ export const TERMS = [
     body: [
       'If you buy as a consumer, you have a legal right to withdraw from the contract within 14 days without giving any reason. The full withdrawal information and a model form are in the section **"Withdrawal information"** at the end of these Terms.',
       '**Early loss of the right of withdrawal for digital content.** The course is digital content that is not supplied on a physical medium. At checkout you can ask us to give you access immediately. If you do so and confirm that you know you then lose your right of withdrawal, your right of withdrawal ends as soon as we unlock your access (§ 356 (5) of the German Civil Code, BGB). We confirm your consent and acknowledgement in your order confirmation email.',
+      '**AI coach subscription.** The AI coach subscription is a digital service, and you have a 14-day right of withdrawal from the day you subscribe. At checkout you can ask us to start the AI coach straight away. If you do so and then withdraw within the 14 days, you pay a proportionate amount for the days you had the AI coach, and we refund the rest (§ 357a (2) BGB). Your right of withdrawal for the subscription is not lost by using the AI coach, and cancelling the subscription is always possible as described in section 10.',
       'Any refund outside the legal right of withdrawal is at our discretion. Write to us if something has gone wrong and we will look at it fairly.',
     ],
   },
@@ -129,12 +130,17 @@ export const TERMS = [
   },
   {
     id: 'ai-coach',
-    title: '10. The AI coach',
+    title: '10. The AI coach and the AI coach subscription',
     body: [
-      'The course includes an AI coach that answers questions and lets you practise conversations. It is powered by an artificial-intelligence language model from a third-party provider (Anthropic).',
+      'The AI coach answers questions and lets you practise conversations with AI counterparts. It is powered by an artificial-intelligence language model from a third-party provider (Anthropic).',
+      '**Free taster and subscription.** Students who bought the course can try the AI coach with a small number of free messages (currently 10). After that, the AI coach is available only with the AI coach subscription. The AI coach subscription is not part of the course price.',
+      `**Price and payment.** The AI coach subscription costs **€12 per month**${LEGAL.smallBusiness ? ' (no VAT is charged under § 19 UStG, so this is the final price)' : ', including any VAT that applies'}. It is paid in advance each month through Stripe, starting on the day you subscribe. You can take it out only while you have access to the course. The contract is concluded when Stripe confirms your first payment and we switch on your subscription. You receive a confirmation and an invoice by email every month.`,
+      '**Term and cancellation.** The subscription runs month by month and renews automatically until you cancel it. You can cancel at any time, with effect from the end of the month you have already paid for, using the **"Cancel subscription here"** button on your dashboard, or by email to us. You keep the AI coach until the end of that month and are not charged again. We may end the subscription with one month\'s notice by email. Our right to end it for good cause stays unaffected.',
+      '**Fair use.** The subscription includes up to 300 AI coach messages per billing month, and a daily limit, so that the service stays fast and affordable for everyone. Unused messages do not carry over. If a renewal payment fails, Stripe tries again for a short period; if it still fails, the subscription ends.',
+      '**Price changes.** We may change the monthly price for the future, for example if our costs for the AI provider change. We will tell you by email at least 6 weeks before the change applies. If you do not agree, you can cancel before the new price applies; your price stays the same until then.',
       'The AI coach is a **learning aid only**. Its answers are generated automatically, can be incomplete, wrong or unsuitable for your situation, and are not reviewed by a person before you see them. Section 8 applies to the AI coach in full. Check anything important before relying on it.',
       'Do not enter sensitive personal data into the AI coach, such as health information, other people\'s confidential information, or trade secrets. Use made-up names where you can.',
-      'We may limit how often the AI coach can be used (fair use), and we may change or withdraw the AI coach. It is an extra feature and not an essential part of the course you buy.',
+      'We may improve and change the AI coach, for example by using a newer AI model. If we stop offering the AI coach, your subscription ends at the end of the month you have paid for and you are not charged again; any amount you paid for a period after that is refunded. The AI coach is not an essential part of the course; the course itself remains available as described in section 4.',
     ],
   },
   {
@@ -199,11 +205,12 @@ export const TERMS = [
       `To exercise your right of withdrawal, you must inform us (${LEGAL.entity}, ${LEGAL.address}, email: ${LEGAL.email}) of your decision to withdraw from this contract by a clear statement, for example a letter sent by post or an email. You may use the model withdrawal form below, but you do not have to.`,
       'To meet the withdrawal deadline, it is sufficient for you to send your notice of withdrawal before the withdrawal period has expired.',
       '**Effects of withdrawal.** If you withdraw from this contract, we will reimburse all payments we received from you without undue delay and in any event within 14 days of the day we are informed of your decision to withdraw. We will use the same means of payment you used for the original transaction, unless you have expressly agreed otherwise. You will not be charged any fees for this reimbursement.',
+      '**AI coach subscription.** If you asked us to start the AI coach subscription during the withdrawal period, you must pay us an amount which is in proportion to what has been provided until you have informed us of your withdrawal, in comparison with the full coverage of the contract.',
       '**Early expiry of the right of withdrawal.** Your right of withdrawal for a contract for digital content not supplied on a physical medium expires when we have begun to perform the contract (unlock your access), after you have expressly agreed that we begin before the end of the withdrawal period and have acknowledged that you thereby lose your right of withdrawal, and we have confirmed this to you.',
       '**Model withdrawal form** (complete and return this form only if you wish to withdraw from the contract):',
       { list: [
         `To: ${LEGAL.entity}, ${LEGAL.address}, ${LEGAL.email}`,
-        'I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the supply of the following digital content: Negotiation & Conflict Resolution, self-paced online course',
+        'I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the supply of the following digital content (*) / for the provision of the following service (*): Negotiation & Conflict Resolution, self-paced online course (*) / AI coach subscription (*)',
         'Ordered on (*) / received on (*):',
         'Name of consumer(s):',
         'Address of consumer(s):',

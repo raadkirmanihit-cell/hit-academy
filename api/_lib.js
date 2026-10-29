@@ -90,3 +90,72 @@ export async function requireAdmin(req) {
   if (!isAdmin(user)) throw Object.assign(new Error('Admins only.'), { status: 403 })
   return user
 }
+
+// ---- AI coach subscription -------------------------------------------------
+
+export const COACH_PRICE_CENTS = 1200 // €12 a month (used when STRIPE_COACH_PRICE_ID isn't set)
+export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free messages for course buyers
+export const COACH_MONTHLY_LIMIT = Number(process.env.COACH_MONTHLY_LIMIT || 300) // fair use per billing month
+// past_due: Stripe is still retrying a failed renewal, so access stays on until it gives up.
+const ACTIVE = new Set(['active', 'trialing', 'past_due'])
+
+const dayOf = (d) => new Date(d).toISOString().slice(0, 10)
+const missingTable = (e) => /relation|schema cache|does not exist|column/i.test(e?.message || '')
+
+export async function getCoachSubscription(userId) {
+  const { data, error } = await db().from('coach_subscriptions').select('*').eq('user_id', userId).maybeSingle()
+  if (error && missingTable(error)) return null // database update 4 not run yet
+  if (error) throw error
+  return data
+}
+
+// What the student may do with the coach right now.
+export async function coachAccess(userId) {
+  const sub = await getCoachSubscription(userId)
+  const subscribed = !!sub && ACTIVE.has(sub.status) && (!sub.current_period_end || new Date(sub.current_period_end) > Date.now() - 3 * 864e5)
+  const since = subscribed ? dayOf(sub.current_period_start || new Date(Date.now() - 30 * 864e5)) : '1970-01-01'
+  const { data: used, error } = await db().rpc('coach_usage_since', { p_user: userId, p_since: since })
+  // Before update 4 the counter function is missing: count nothing, so nobody is locked out by mistake.
+  const count = error ? 0 : used || 0
+  return {
+    subscribed,
+    status: sub?.status || 'none',
+    periodEnd: sub?.current_period_end || null,
+    cancelAtPeriodEnd: !!sub?.cancel_at_period_end,
+    hasCustomer: !!sub?.stripe_customer_id,
+    used: count,
+    limit: subscribed ? COACH_MONTHLY_LIMIT : COACH_TASTER,
+    left: Math.max(0, (subscribed ? COACH_MONTHLY_LIMIT : COACH_TASTER) - count),
+    price: COACH_PRICE_CENTS,
+  }
+}
+
+// Saves a Stripe subscription object on the student's row.
+export async function saveSubscription(sub, { userId, consentAt } = {}) {
+  const item = sub.items?.data?.[0]
+  const ts = (s) => (s ? new Date(s * 1000).toISOString() : null)
+  // Newer Stripe API versions keep the billing period on the item, older ones on the subscription.
+  const start = item?.current_period_start ?? sub.current_period_start
+  const end = item?.current_period_end ?? sub.current_period_end
+  const uid = userId || sub.metadata?.user_id
+  if (!uid) { console.error('Coach subscription without user id', sub.id); return null }
+  const row = {
+    user_id: uid,
+    stripe_customer_id: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
+    stripe_subscription_id: sub.id,
+    status: sub.status,
+    amount: item?.price?.unit_amount ?? null,
+    currency: item?.price?.currency ?? sub.currency ?? null,
+    current_period_start: ts(start),
+    current_period_end: ts(end),
+    cancel_at_period_end: !!sub.cancel_at_period_end || !!sub.cancel_at,
+    canceled_at: ts(sub.canceled_at),
+    started_at: ts(sub.start_date),
+    livemode: !!sub.livemode,
+    updated_at: new Date().toISOString(),
+    ...(consentAt || sub.metadata?.consent_at ? { consent_at: consentAt || sub.metadata.consent_at } : {}),
+  }
+  const { error } = await db().from('coach_subscriptions').upsert(row, { onConflict: 'user_id' })
+  if (error) throw error
+  return row
+}

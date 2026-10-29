@@ -44,13 +44,14 @@ export default function AdminPage() {
         <button className="btn btn-ghost btn-sm" onClick={() => { setData(null); load() }}>Refresh</button>
       </div>
       <div className="tabs" role="tablist">
-        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
+        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
           <button key={id} className="tab" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
       {tab === 'overview' && <Overview data={data} unread={unread} setTab={setTab} />}
       {tab === 'students' && <Students data={data} act={act} />}
       {tab === 'payments' && <Payments data={data} act={act} />}
+      {tab === 'coach' && <CoachSubs data={data} />}
       {tab === 'messages' && <Messages data={data} act={act} />}
     </div>
   )
@@ -89,9 +90,10 @@ function Overview({ data, unread, setTab }) {
         <Stat label="Paid students" value={paidStudents} sub={students.length ? `${Math.round((paidStudents / students.length) * 100)}% of registered` : ''} />
         <Stat label="Active this week" value={active7} />
         <Stat label="Finished all 7 modules" value={finished} />
+        <button className="card admin-stat-btn" onClick={() => setTab('coach')}><span className="small muted">AI coach subscribers</span><strong className="tnum">{(data.coach?.subscriptions || []).filter((c) => c.live && ACTIVE.has(c.status)).length}</strong></button>
         <button className="card admin-stat-btn" onClick={() => setTab('messages')}><span className="small muted">New messages</span><strong>{unread}</strong></button>
       </div>
-      <p className="small muted">Revenue counts real payments only, before Stripe's fees.{testCount ? ` ${testCount} test payment${testCount > 1 ? 's are' : ' is'} left out.` : ''}</p>
+      <p className="small muted">Revenue here is course sales only; AI coach subscriptions are on the AI coach tab. It counts real payments only, before Stripe's fees.{testCount ? ` ${testCount} test payment${testCount > 1 ? 's are' : ' is'} left out.` : ''}</p>
       <div className="stack" style={{ gap: '.6rem' }}>
         <h3>Revenue by month</h3>
         <div className="card admin-scroll" style={{ padding: 0 }}>
@@ -224,6 +226,85 @@ function Payments({ data, act }) {
             {!rows.length && <tr><td colSpan={5} className="muted">No payments yet.</td></tr>}
           </tbody>
         </table>
+      </div>
+    </div>
+  )
+}
+
+const ACTIVE = new Set(['active', 'trialing', 'past_due'])
+const SUB_STATUS = { active: ['Active', 'good'], trialing: ['Active', 'good'], past_due: ['Payment failed, retrying', 'orange'], canceled: ['Ended', ''], unpaid: ['Unpaid', 'orange'], incomplete: ['Not completed', ''], incomplete_expired: ['Not completed', ''] }
+
+// AI coach subscriptions: who subscribes, monthly revenue, cancellations. Refunds and cancellations are done in Stripe.
+function CoachSubs({ data }) {
+  const [showTest, setShowTest] = useState(true)
+  const { subscriptions = [], payments = [], ready } = data.coach || {}
+  const subs = subscriptions.filter((c) => showTest || c.live)
+  const live = payments.filter((p) => p.live)
+  const activeLive = subscriptions.filter((c) => c.live && ACTIVE.has(c.status))
+  const mrr = activeLive.filter((c) => !c.cancelAtPeriodEnd).reduce((a, c) => a + (c.amount || 0), 0)
+  const gross = live.reduce((a, p) => a + (p.amount || 0), 0)
+  const refunded = live.filter((p) => p.status === 'refunded').reduce((a, p) => a + (p.amount || 0), 0)
+  const months = useMemo(() => {
+    const m = new Map()
+    for (const p of live) {
+      const k = monthKey(p.paidAt)
+      const r = m.get(k) || { n: 0, gross: 0, refunds: 0 }
+      r.n += 1; r.gross += p.amount || 0
+      if (p.status === 'refunded') r.refunds += p.amount || 0
+      m.set(k, r)
+    }
+    return [...m.entries()].sort((a, b) => b[0].localeCompare(a[0]))
+  }, [live])
+
+  if (!ready) return <p className="muted">Run database update 4 (supabase/update-4-coach-subscription.sql) in Supabase to see AI coach subscriptions here.</p>
+  return (
+    <div className="stack" style={{ gap: '1.5rem' }}>
+      <div className="admin-stats">
+        <Stat label="Active subscribers" value={activeLive.length} sub={`${activeLive.filter((c) => c.cancelAtPeriodEnd).length} cancelled, running to month end`} />
+        <Stat label="Monthly recurring revenue" value={money(mrr)} sub="from subscribers who haven't cancelled" />
+        <Stat label="Coach revenue so far (after refunds)" value={money(gross - refunded)} />
+        <Stat label="Ended subscriptions" value={subscriptions.filter((c) => c.live && c.status === 'canceled').length} />
+      </div>
+      <p className="small muted">Real payments only, before Stripe's fees. To refund a coach payment or end a subscription early, open the customer in your Stripe dashboard; this board updates by itself.</p>
+      <div className="stack" style={{ gap: '.6rem' }}>
+        <h3>Coach revenue by month</h3>
+        <div className="card admin-scroll" style={{ padding: 0 }}>
+          <table className="admin-table">
+            <thead><tr><th>Month</th><th>Payments</th><th>Earned</th><th>Refunded</th><th>Net</th></tr></thead>
+            <tbody>
+              {months.map(([k, r]) => (
+                <tr key={k}><td>{monthName(k)}</td><td className="tnum">{r.n}</td><td className="tnum">{money(r.gross)}</td><td className="tnum">{money(r.refunds)}</td><td className="tnum"><b>{money(r.gross - r.refunds)}</b></td></tr>
+              ))}
+              {!months.length && <tr><td colSpan={5} className="muted">No real coach payments yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="stack" style={{ gap: '.6rem' }}>
+        <div className="row" style={{ justifyContent: 'space-between', gap: '1rem' }}>
+          <h3>Subscribers</h3>
+          <label className="row small" style={{ gap: '.4rem' }}><input type="checkbox" checked={showTest} onChange={(e) => setShowTest(e.target.checked)} /> Show test subscriptions</label>
+        </div>
+        <div className="card admin-scroll" style={{ padding: 0 }}>
+          <table className="admin-table">
+            <thead><tr><th>Student</th><th>Since</th><th>Price</th><th>Status</th><th>Paid until</th></tr></thead>
+            <tbody>
+              {subs.map((c, i) => {
+                const [label, tone] = SUB_STATUS[c.status] || [c.status, '']
+                return (
+                  <tr key={i}>
+                    <td><b>{c.name || '–'}</b><br /><span className="small muted">{c.email}</span></td>
+                    <td>{date(c.startedAt)}</td>
+                    <td className="tnum">{money(c.amount, c.currency)}/month {!c.live && <span className="pill">Test</span>}</td>
+                    <td><span className={'pill ' + tone}>{label}</span>{c.cancelAtPeriodEnd && ACTIVE.has(c.status) && <><br /><span className="small muted">Cancelled, ends {date(c.periodEnd)}</span></>}</td>
+                    <td>{c.status === 'canceled' ? date(c.canceledAt) : date(c.periodEnd)}</td>
+                  </tr>
+                )
+              })}
+              {!subs.length && <tr><td colSpan={5} className="muted">No subscribers yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
