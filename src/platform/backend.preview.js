@@ -2,6 +2,7 @@
 // Nothing is sent anywhere and no payment is taken. Used when the Supabase settings are absent
 // (the claude.ai preview and local development).
 import { readJSON, writeJSON, remove } from './storage.js'
+import { TERMS_VERSION } from '../content/terms.js'
 
 const K = { session: 'hit.session', users: 'hit.users', progress: (id) => `hit.progress.${id}` }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -23,12 +24,12 @@ export const previewBackend = {
   mode: 'preview',
   async init() { return current() },
   onRecovery() {},
-  async signUp({ name, email }) {
+  async signUp({ name, email, acceptTerms }) {
     await wait(250)
     email = email.trim().toLowerCase()
     if (readJSON(K.users, {})[email]) throw new Error('An account with this email already exists. Sign in instead.')
     // Preview mode never stores passwords.
-    const user = save({ id: newId(), name: name.trim(), email, createdAt: new Date().toISOString(), purchases: [] })
+    const user = save({ id: newId(), name: name.trim(), email, createdAt: new Date().toISOString(), purchases: [], ...(acceptTerms ? { termsVersion: TERMS_VERSION, termsAcceptedAt: new Date().toISOString() } : {}) })
     writeJSON(K.session, { email })
     return user
   },
@@ -44,6 +45,9 @@ export const previewBackend = {
   async requestPasswordReset() { await wait(400) },
   async setNewPassword() { await wait(300) },
   async refreshUser() { return current() },
+  async acceptTerms(user) {
+    return save({ ...current(), termsVersion: TERMS_VERSION, termsAcceptedAt: new Date().toISOString() })
+  },
   hasAccess(user, productId) {
     return !!user?.purchases?.some((p) => p.productId === productId && p.status === 'paid')
   },

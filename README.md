@@ -21,6 +21,10 @@ npm run build      # production build in dist/
 - `api/` – server functions on Vercel: `checkout` (Stripe payment page), `stripe-webhook` (records
   payments), `coach` (AI coach via the Claude API), `notify-signup`, `admin-students`.
 - `supabase/schema.sql` – database tables and security rules. Run once in the Supabase SQL Editor.
+  Existing databases run the numbered updates instead (`update-2-admin-board.sql`, `update-3-terms.sql`).
+- `src/content/terms.js` – Terms and Conditions (page at `/?page=terms`). Students must tick the box at sign-up;
+  the database records the version and time. Raise `TERMS_VERSION` after changing the text and every
+  student is asked to accept the new version at their next visit.
 - `src/ui/`, `src/activities/`, `src/diagrams/` – screens, interactive activity types, SVG diagrams.
 
 ## Adding a module

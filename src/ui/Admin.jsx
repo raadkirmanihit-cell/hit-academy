@@ -134,8 +134,8 @@ function Students({ data, act }) {
             <option value="all">Everyone</option><option value="paid">Paid</option><option value="unpaid">Not paid yet</option>
           </select></div>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={() => downloadCsv('hit-academy-students', ['Name', 'Email', 'Registered', 'Paid', 'Modules completed', 'Quizzes passed', 'Last active'],
-          data.students.map((r) => [r.name, r.email, r.registered, r.paidAt || '', r.modulesCompleted, r.quizzesPassed, r.lastActive || '']))}>Download as spreadsheet (CSV)</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => downloadCsv('hit-academy-students', ['Name', 'Email', 'Registered', 'Paid', 'Modules completed', 'Quizzes passed', 'Last active', 'Terms accepted', 'Terms version'],
+          data.students.map((r) => [r.name, r.email, r.registered, r.paidAt || '', r.modulesCompleted, r.quizzesPassed, r.lastActive || '', r.termsAcceptedAt || '', r.termsVersion || '']))}>Download as spreadsheet (CSV)</button>
       </div>
       <p className="small muted">Tap a student to see their progress in each module.</p>
       <div className="card admin-scroll" style={{ padding: 0 }}>
@@ -152,6 +152,7 @@ function Students({ data, act }) {
                 {open === r.id && (
                   <tr className="admin-detail"><td colSpan={7}>
                     <div className="stack" style={{ gap: '1rem' }}>
+                      <p className="small muted">Terms and Conditions: {r.termsAcceptedAt ? <>accepted {dateTime(r.termsAcceptedAt)} (version {r.termsVersion})</> : 'not accepted yet'}</p>
                       <table className="admin-table admin-mini">
                         <thead><tr><th>Module</th><th>Lessons</th><th>Best quiz score</th><th>Status</th></tr></thead>
                         <tbody>

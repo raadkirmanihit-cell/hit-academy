@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../App.jsx'
 import { Icon } from './icons.jsx'
+import { TermsLink } from './Terms.jsx'
 
 export default function Checkout() {
   const { course, user, purchase, isLive } = useApp()
@@ -31,8 +32,9 @@ export default function Checkout() {
             : <div className="notice">Preview checkout: no card details are collected and no payment is taken. In the live course this button opens a secure payment page from the payment provider.</div>}
           <label className="waiver">
             <input type="checkbox" checked={waiver} onChange={(e) => setWaiver(e.target.checked)} />
-            <span>I want access to the course immediately. I understand that I lose my 14-day right of withdrawal once access begins.</span>
+            <span>I expressly agree that you give me access to the course immediately, before the 14-day withdrawal period ends. I understand that I lose my right of withdrawal once access begins.</span>
           </label>
+          <p className="small muted">This purchase is subject to our <TermsLink />, including the withdrawal information.</p>
           {err && <p className="error" role="alert">{err}</p>}
           <button className="btn btn-primary" disabled={busy || !waiver} onClick={async () => {
             setBusy(true); setErr('')
