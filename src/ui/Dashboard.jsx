@@ -4,6 +4,9 @@ import { Icon } from './icons.jsx'
 import { CoachTeaser } from '../coach/Coach.jsx'
 import { CoachPlanCard } from '../coach/plan.jsx'
 import { offers, MODULE_PRICE, BUNDLE_COACH_MONTHS, FREE_MODULES, euro } from '../content/pricing.js'
+import { useState } from 'react'
+import { pitch, moduleInside, previewBlock } from '../content/module-pitch.js'
+import { Blocks } from './Blocks.jsx'
 
 export default function Dashboard() {
   const { course, modules, user, progress, openModule, go, view, owned, launch } = useApp()
@@ -70,7 +73,8 @@ export default function Dashboard() {
                   <div style={{ minWidth: 0 }}>
                     <h4>{m.title}</h4>
                     <p className="small muted">{m.subtitle}</p>
-                    {s && <div className="row small muted" style={{ marginTop: '.35rem' }}>
+                    {FREE_MODULES.includes(m.id) && !s?.done && pitch[m.id] && <p className="pitch-identity small">{pitch[m.id].identity} <span className="pill good">Free</span></p>}
+                    {s && (owned.has(m.id) || s.pct > 0) && <div className="row small muted" style={{ marginTop: '.35rem' }}>
                       <div className="bar" style={{ width: 140 }}><span style={{ width: s.pct + '%' }} /></div>
                       <span className="tnum">{s.pct}%</span>
                       {s.best != null && <span className="tnum">· Quiz best {Math.round(s.best * 100)}%</span>}
@@ -78,6 +82,8 @@ export default function Dashboard() {
                   </div>
                   {FREE_MODULES.includes(m.id) && !s?.done && o.remaining.length > 0 ? (
                     <button className="btn btn-sm btn-primary" onClick={() => openModule(m.id)}>Start free</button>
+                  ) : mod && !owned.has(m.id) && pitch[m.id] ? (
+                    <span className="pill"><Icon.lock width="12" height="12" /> {euro(MODULE_PRICE)}</span>
                   ) : mod && !owned.has(m.id) ? (
                     <button className="btn btn-sm" onClick={() => go('checkout', { choice: m.id })}><Icon.lock width="12" height="12" /> Unlock · {euro(MODULE_PRICE)}</button>
                   ) : mod ? (
@@ -85,6 +91,7 @@ export default function Dashboard() {
                   ) : (
                     <span className="pill"><Icon.lock width="12" height="12" /> Coming soon</span>
                   )}
+                  {mod && !owned.has(m.id) && pitch[m.id] && <ModulePitch mod={mod} onUnlock={() => go('checkout', { choice: m.id })} />}
                 </div>
               )
             })}
@@ -113,6 +120,51 @@ export default function Dashboard() {
           <button className="btn" onClick={() => go('contact')}>Message Raad</button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// The sales panel under a locked module: who you'll become, three skills, where you'll use it,
+// what's inside, and one exercise to try for free.
+function ModulePitch({ mod, onUnlock }) {
+  const p = pitch[mod.id]
+  const inside = moduleInside(mod)
+  const pv = previewBlock(mod)
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="pitch">
+      <p className="pitch-identity">{p.identity}</p>
+      <div className="pitch-grid">
+        <div>
+          <span className="eyebrow">You'll be able to</span>
+          <ul className="pitch-skills">{p.skills.map((t) => <li key={t}><Icon.check width="14" height="14" /> {t}</li>)}</ul>
+        </div>
+        <div className="stack" style={{ gap: '.9rem' }}>
+          <div>
+            <span className="eyebrow">Where you'll use it</span>
+            <div className="pitch-tags">{p.useIt.map((t) => <span key={t} className="pill orange">{t}</span>)}</div>
+          </div>
+          <div>
+            <span className="eyebrow">What's inside</span>
+            <ul className="pitch-inside small muted">{inside.usp.map((t) => <li key={t} className="usp">{t}</li>)}{inside.core.map((t) => <li key={t}>{t}</li>)}</ul>
+          </div>
+        </div>
+      </div>
+      <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
+        <button className="btn btn-primary btn-sm" onClick={onUnlock}>Unlock Module {mod.number} · {euro(MODULE_PRICE)}</button>
+        {pv && <button className="btn btn-sm" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Close the preview' : `${pv.label} (free)`}</button>}
+      </div>
+      {pv && open && (
+        <div className="pitch-preview fade-in">
+          <span className="eyebrow">Free preview · Lesson {pv.lesson}</span>
+          {pv.note && <p className="small muted">{pv.note}</p>}
+          <Blocks blocks={[pv.block]} module={mod} step={pv.step} />
+          <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span className="small muted">Liked it? The whole module works like this.</span>
+            <button className="btn btn-primary btn-sm" onClick={onUnlock}>Unlock · {euro(MODULE_PRICE)}</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
