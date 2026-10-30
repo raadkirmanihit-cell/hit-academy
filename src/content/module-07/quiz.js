@@ -119,7 +119,7 @@ export const quiz = {
     ] },
     { id: 'q20', q: 'What tactic is being used when one side tries to isolate more compliant team members?', options: [
       { t: 'Bracketing', fb: 'Bracketing is about ranges.' },
-      { t: 'Divide and Conquer', correct: true, fb: 'Correct. "You seem more reasonable than your partner" is a classic sign.' },
+      { t: 'Divide and Conquer', correct: true, fb: 'Correct. "You seem more reasonable than your colleague" is a classic sign.' },
       { t: 'Playing Dumb', fb: 'Playing dumb is about feigned confusion.' },
       { t: 'Nibbling', fb: 'Nibbling is about extras after the deal.' },
     ] },
@@ -145,7 +145,7 @@ export const quiz = {
       { t: 'Whenever it speeds things up', fb: 'Speed alone does not make it ethical.' },
       { t: 'When the consequence is invented but plausible', fb: 'An invented consequence is a bluff, and destroys trust when discovered.' },
       { t: 'When it is a natural consequence and you are prepared to follow through', correct: true, fb: 'Correct. "If we don\'t sign by Friday, the schedule will shift." It informs rather than threatens.' },
-      { t: 'Only in personal relationships', fb: 'The principle is the same in business and personal life.' },
+      { t: 'Only with colleagues inside your own company', fb: 'The principle is the same with clients, suppliers and colleagues.' },
     ] },
   ],
 }
