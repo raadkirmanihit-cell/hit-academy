@@ -8,9 +8,8 @@
 // - preview: one exercise from the module that anyone can try for free on the dashboard.
 //   `step` is the step id in the module, `t` the block type, `id` the activity id (for 'activity').
 //
-// The "What's inside" counts (lessons, exercises, role-play, quiz questions, worksheet) are
-// worked out from the module content itself, in moduleInside() below, so they stay true when a
-// module changes.
+// "What's inside" lists the same core items for every module (see moduleInside below), with no
+// counts or times, so modules sold at the same price look equal.
 
 export const pitch = {
   m1: {
@@ -100,7 +99,7 @@ export function previewBlock(mod) {
 
 // Tools that get their own line under "What's inside".
 const TOOLS = {
-  voices: (b) => `${b.items.length} voice recordings by Raad`,
+  voices: () => 'Voice recordings by Raad',
   breathing: () => 'Guided breathing exercise',
   silence: () => 'Guided pause practice',
   options: () => 'Invent-then-judge option board',
@@ -111,26 +110,17 @@ const TOOLS = {
 }
 const PRACTICE = new Set(['activity', 'flipCards', 'situationCards'])
 
-// "What's inside", counted from the module content.
+// "What's inside": the same core list for every module (no counts or durations, so modules
+// at the same price look equal), plus the tools that are special to this module.
+const CORE = ['Short lessons', 'Interactive exercises', 'A branching role-play', 'Example dialogues']
 export function moduleInside(mod) {
   const blocks = blocksOf(mod)
-  const lessons = mod.sections.filter((s) => s.kind === 'lesson').length
-  const roleplays = blocks.filter((b) => b.t === 'activity' && b.kind === 'branching').length
-  const exercises = blocks.filter((b) => PRACTICE.has(b.t) && !(b.t === 'activity' && b.kind === 'branching')).length
-  const scenes = blocks.filter((b) => b.t === 'scene' || b.t === 'compareDialogues').length
   const tools = [...new Set(blocks.filter((b) => TOOLS[b.t]).map((b) => TOOLS[b.t](b)))]
-  const quiz = mod.quiz?.questions?.length || 0
-  const worksheet = blocks.some((b) => b.t === 'worksheet')
-  const n = (k, one, many) => `${k} ${k === 1 ? one : many}`
   return [
     ...(pitch[mod.id]?.extra || []),
-    n(lessons, 'short lesson', 'short lessons'),
-    exercises && n(exercises, 'interactive exercise', 'interactive exercises'),
-    roleplays && n(roleplays, 'branching role-play', 'branching role-plays'),
-    scenes && n(scenes, 'example dialogue', 'example dialogues'),
+    ...CORE,
     ...tools,
-    quiz && n(quiz, 'quiz question', 'quiz questions'),
-    worksheet && 'Printable planning worksheet',
-    mod.duration && `About ${mod.duration}`,
+    'Knowledge-check quiz',
+    blocks.some((b) => b.t === 'worksheet') && 'Printable planning worksheet',
   ].filter(Boolean)
 }
