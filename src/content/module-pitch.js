@@ -22,7 +22,7 @@ export const pitch = {
     useIt: ['Salary review', 'Team disagreement', 'Supplier price talk'],
   },
   m2: {
-    usp: ['Voice recordings by Raad', 'Guided breathing exercise'],
+    usp: ['Voice recordings for each approach', 'Guided breathing exercise'],
     identity: 'Stay calm when others get heated, and turn tension into trust.',
     skills: [
       'Hear the emotional conversation behind the one about price and deadlines.',
