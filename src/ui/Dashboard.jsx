@@ -146,7 +146,7 @@ function ModulePitch({ mod, onUnlock }) {
           </div>
           <div>
             <span className="eyebrow">What's inside</span>
-            <ul className="pitch-inside small muted">{inside.map((t) => <li key={t}>{t}</li>)}</ul>
+            <ul className="pitch-inside small muted">{inside.usp.map((t) => <li key={t} className="usp">{t}</li>)}{inside.core.map((t) => <li key={t}>{t}</li>)}</ul>
           </div>
         </div>
       </div>

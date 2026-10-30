@@ -4,15 +4,15 @@
 // - identity: who the student becomes. One line.
 // - skills: three concrete things they will be able to do.
 // - useIt: real situations where they will use it.
-// - extra: optional lines added to the top of "What's inside".
+// - usp: the two "What's inside" lines unique to this module (always exactly two).
 // - preview: one exercise from the module that anyone can try for free on the dashboard.
 //   `step` is the step id in the module, `t` the block type, `id` the activity id (for 'activity').
 //
-// "What's inside" lists the same core items for every module (see moduleInside below), with no
-// counts or times, so modules sold at the same price look equal.
+// "What's inside" is the same 8 lines for every module: 2 unique (usp) + 6 shared (see moduleInside).
 
 export const pitch = {
   m1: {
+    usp: ['Strategy selector tool', 'Adapt-your-style drill'],
     identity: 'Know exactly how you come across, and choose your approach on purpose.',
     skills: [
       'Recognise aggressive, passive, manipulative and assertive behaviour, in others and in yourself.',
@@ -22,6 +22,7 @@ export const pitch = {
     useIt: ['Salary review', 'Team disagreement', 'Supplier price talk'],
   },
   m2: {
+    usp: ['Voice recordings by Raad', 'Guided breathing exercise'],
     identity: 'Stay calm when others get heated, and turn tension into trust.',
     skills: [
       'Hear the emotional conversation behind the one about price and deadlines.',
@@ -32,6 +33,7 @@ export const pitch = {
     preview: { step: 'l4-voices', t: 'voices', label: 'Listen to the three voices', note: 'Hear Raad demonstrate the assertive, midnight and playful voice.' },
   },
   m3: {
+    usp: ['Guided pause practice', 'Scripts to turn a polite yes into commitment'],
     identity: 'Hear what people really mean, even when they say "yes".',
     skills: [
       'Tell a polite "yes" from a real commitment, and turn one into the other.',
@@ -42,6 +44,7 @@ export const pitch = {
     preview: { step: 'l3-practice', t: 'activity', id: 'a-ask-for-no', label: 'Try: ask for the "no"' },
   },
   m4: {
+    usp: ['Invent-then-judge option board', 'Six human needs guide'],
     identity: 'Get a stuck conversation moving without giving in.',
     skills: [
       'Separate the people from the problem, so you can be soft on one and firm on the other.',
@@ -52,6 +55,7 @@ export const pitch = {
     preview: { step: 'l3-practice', t: 'activity', id: 'a-position-interest', label: 'Try: position or interest?' },
   },
   m5: {
+    usp: ['BATNA strength meter', 'Deal-zone (ZOPA) lab'],
     identity: 'Walk into any negotiation already knowing your walk-away point.',
     skills: [
       'Set your ideal outcome, your walk-away point and what you can trade.',
@@ -62,6 +66,7 @@ export const pitch = {
     preview: { step: 'l3-strengthen', t: 'batnaMeter', label: 'Try the BATNA meter' },
   },
   m6: {
+    usp: ['Anchoring lab', 'Six perception principles in action'],
     identity: 'Frame your offer so the other side sees its value, with integrity.',
     skills: [
       'Set a credible anchor, or reset one when the other side goes first.',
@@ -72,6 +77,7 @@ export const pitch = {
     preview: { step: 'l3-what', t: 'anchorLab', label: 'Try the anchor lab' },
   },
   m7: {
+    usp: ['20 tactics, each with counter-scripts', 'Ethical-use check for every tactic'],
     identity: 'Stay in control when the other side plays hardball.',
     skills: [
       'Recognise 20 common tactics, from ultimatums to last-minute add-ons.',
@@ -79,7 +85,6 @@ export const pitch = {
       'Know when a tactic is fair to use, and when it crosses into manipulation.',
     ],
     useIt: ['Vendor pressure', 'Salary talk', '"Final offer" ultimatums'],
-    extra: ['20 tactics, each with counter-scripts'],
     preview: { step: 'l2-counter', t: 'activity', id: 'a-counter-pressure', label: 'Try: choose the counter' },
   },
 }
@@ -97,30 +102,9 @@ export function previewBlock(mod) {
   return b ? { block: b, step, lesson: section.title, ...p } : null
 }
 
-// Tools that get their own line under "What's inside".
-const TOOLS = {
-  voices: () => 'Voice recordings by Raad',
-  breathing: () => 'Guided breathing exercise',
-  silence: () => 'Guided pause practice',
-  options: () => 'Invent-then-judge option board',
-  batnaMeter: () => 'BATNA strength meter',
-  zopa: () => 'Deal-zone (ZOPA) lab',
-  anchorLab: () => 'Anchoring lab',
-  selector: () => 'Strategy selector',
-}
-const PRACTICE = new Set(['activity', 'flipCards', 'situationCards'])
-
-// "What's inside": the same core list for every module (no counts or durations, so modules
-// at the same price look equal), plus the tools that are special to this module.
-const CORE = ['Short lessons', 'Interactive exercises', 'A branching role-play', 'Example dialogues']
+// "What's inside": every module has the same 8 lines, so modules sold at the same price look
+// equal: its two unique lines (usp) first, then the same six for every module. No counts or times.
+export const CORE_INSIDE = ['Short lessons', 'Interactive exercises', 'A branching role-play', 'Example dialogues', 'Knowledge-check quiz', 'Printable planning worksheet']
 export function moduleInside(mod) {
-  const blocks = blocksOf(mod)
-  const tools = [...new Set(blocks.filter((b) => TOOLS[b.t]).map((b) => TOOLS[b.t](b)))]
-  return [
-    ...(pitch[mod.id]?.extra || []),
-    ...CORE,
-    ...tools,
-    'Knowledge-check quiz',
-    blocks.some((b) => b.t === 'worksheet') && 'Printable planning worksheet',
-  ].filter(Boolean)
+  return { usp: pitch[mod.id]?.usp || [], core: CORE_INSIDE }
 }

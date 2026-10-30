@@ -1159,3 +1159,4 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .pitch-preview { display: grid; gap: 1rem; padding: 1rem; border-radius: var(--r-m); background: var(--surface-2); }
 @media (max-width: 720px) { .pitch-grid { grid-template-columns: 1fr; } }
 
+.pitch-inside li.usp { color: var(--ink); font-weight: 600; }
