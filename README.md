@@ -19,9 +19,11 @@ npm run build      # production build in dist/
   It picks `backend.live.js` (Supabase + Stripe) when the Supabase settings exist, otherwise
   `backend.preview.js` (browser storage, no payment: used by the claude.ai preview).
 - `api/` – server functions on Vercel: `checkout` (Stripe payment page), `stripe-webhook` (records
-  payments), `coach` (AI coach via the Claude API), `notify-signup`, `admin-students`.
+  payments and keeps the coach subscription in sync), `coach` (AI coach via the Claude API),
+  `coach-plan` (AI coach subscription: status, subscribe, Stripe's cancel page), `notify-signup`, `admin-students`.
 - `supabase/schema.sql` – database tables and security rules. Run once in the Supabase SQL Editor.
-  Existing databases run the numbered updates instead (`update-2-admin-board.sql`, `update-3-terms.sql`).
+  Existing databases run the numbered updates instead (`update-2-admin-board.sql`, `update-3-terms.sql`,
+  `update-4-coach-subscription.sql`).
 - `src/content/terms.js` and `privacy.js` – Terms and Conditions, Privacy Policy and Legal notice (pages at `/?page=terms`, `privacy`, `imprint`; company details in `LEGAL`). Students must tick the box at sign-up;
   the database records the version and time. Raise `TERMS_VERSION` after changing the text and every
   student is asked to accept the new version at their next visit.
@@ -60,13 +62,20 @@ third element on a line is a coaching note.
 | `VITE_SUPABASE_ANON_KEY` | Supabase publishable key (public) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key (server only) |
 | `STRIPE_SECRET_KEY` | Stripe secret key (`sk_live_…`, or `sk_test_…` for testing) |
-| `STRIPE_WEBHOOK_SECRET` | Signing secret of the Stripe webhook pointing to `/api/stripe-webhook` (events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`) |
-| `STRIPE_PRICE_ID` | Optional: a Stripe price to use instead of the built-in €119 |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret of the Stripe webhook pointing to `/api/stripe-webhook` (events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`) |
+| `STRIPE_PRICE_ID` | Optional: a Stripe price for the full €99 complete course (single modules at €19 and upgrades are always priced by the app, see `src/content/pricing.js`) |
+| `STRIPE_COACH_PRICE_ID` | Optional: a monthly Stripe price for the AI coach subscription instead of the built-in €12/month |
 | `STRIPE_AUTOMATIC_TAX` | Leave unset while H.I.T. is a Kleinunternehmer (no VAT, § 19 UStG). `true` only once you charge VAT and Stripe Tax is set up |
 | `ANTHROPIC_API_KEY` | Claude API key for the AI coach |
 | `COACH_MODEL`, `COACH_DAILY_LIMIT` | Optional: coach model (default `claude-opus-5-5`) and messages per student per day (default 80) |
+| `COACH_TASTER`, `COACH_MONTHLY_LIMIT` | Optional: free coach messages for course buyers (default 10) and messages per subscriber per billing month (default 300) |
 | `ADMIN_EMAILS` | Comma-separated emails that see the Students admin page |
 | `RESEND_API_KEY`, `NOTIFY_EMAIL`, `NOTIFY_FROM` | Optional: email notifications for new registrations and purchases |
 | `SITE_URL` | Optional: e.g. `https://academy.humaninteractionstranslated.com` |
 
 In Supabase, set Authentication → URL Configuration → Site URL to the website address.
+
+**AI coach subscription (€12/month).** Course buyers get 10 free coach messages, then need the subscription.
+In Stripe: turn on the customer portal (Settings → Billing → Customer portal → allow cancelling, at the end of
+the billing period) so the "Cancel subscription here" button works,. The § 19 UStG invoice footer is set by the app on every
+Stripe customer (`INVOICE_FOOTER` in `api/_lib.js`), so course invoices and monthly coach invoices all carry it.

@@ -1,7 +1,8 @@
 // The AI coach on the live site: streams Claude's reply as plain text.
-// Only students who bought the course can use it, with a daily fair-use limit.
+// Course buyers get a few free messages; after that it needs the monthly coach subscription.
+// Subscribers have a monthly fair-use cap, and everyone has a daily limit.
 import Anthropic from '@anthropic-ai/sdk'
-import { env, db, requireUser, hasPaid, readJson, fail } from './_lib.js'
+import { env, db, requireUser, hasPaid, readJson, fail, coachAccess } from './_lib.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
 const DAILY_LIMIT = Number(process.env.COACH_DAILY_LIMIT || 80)
@@ -12,8 +13,16 @@ export default async function handler(req, res) {
   let user
   try {
     user = await requireUser(req)
-    if (!(await hasPaid(user.id))) return res.status(403).json({ error: 'The AI coach is part of the paid course.', code: 'not_granted' })
+    if (!(await hasPaid(user.id))) return res.status(403).json({ error: 'The AI coach is for students who bought the course.', code: 'not_granted' })
   } catch (e) { return fail(res, e) }
+
+  let access
+  try { access = await coachAccess(user.id) } catch (e) { return fail(res, e) }
+  if (access.left <= 0) {
+    return access.subscribed
+      ? res.status(429).json({ error: `You have used this month's ${access.limit} coach messages. ${access.periodEnd ? `They renew on ${new Date(access.periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.` : 'They renew with your next monthly payment.'}`, code: 'monthly_limit' })
+      : res.status(402).json({ error: 'Your free coach messages are used up. Subscribe to keep coaching.', code: 'needs_subscription' })
+  }
 
   let messages, tier
   try {

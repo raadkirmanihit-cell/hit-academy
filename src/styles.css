@@ -1118,3 +1118,29 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 @media print {
   .topbar, .preview-banner, .site-footer, .terms button, .terms-toc, .coach-fab { display: none !important; }
 }
+
+/* AI coach subscription */
+.coach-paywall { display: grid; gap: .7rem; padding: 1.2rem; border: 1px solid var(--line, rgba(0,0,0,.1)); border-top: 4px solid var(--orange); border-radius: 14px; background: var(--surface); }
+.coach-paywall.compact { padding: 1rem; }
+.coach-paywall h4 { margin: 0; }
+.coach-paywall ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .25rem; }
+.coach-price { margin: 0; }
+.coach-price strong { font-size: 1.6rem; }
+.coach-plan-note { margin: 0; padding: .4rem 1rem 0; color: var(--muted); }
+.spar .coach-plan-note { padding: 0; }
+.linklike { background: none; border: 0; padding: 0; font: inherit; color: var(--orange-ink); font-weight: 600; text-decoration: underline; cursor: pointer; }
+.coach-plan-card { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; padding: 1.2rem 1.4rem; }
+.coach-plan-card h4 { margin: .1rem 0; }
+@media (max-width: 760px) { .coach-plan-card { grid-template-columns: 1fr; } }
+
+/* Checkout: complete course or a single module */
+.buy-options { display: grid; gap: .7rem; }
+.buy-option { display: grid; grid-template-columns: auto 1fr auto; gap: .8rem; align-items: start; padding: 1rem; border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--surface); }
+.buy-option.on { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-soft); }
+.buy-option input[type=radio] { margin-top: .25rem; width: 18px; height: 18px; accent-color: var(--orange); }
+.buy-main { display: grid; gap: .35rem; min-width: 0; }
+.buy-main select { font: inherit; padding: .45rem .5rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); max-width: 100%; }
+.buy-price { font-weight: 700; font-size: 1.15rem; display: grid; justify-items: end; gap: .3rem; white-space: nowrap; }
+.upgrade-card { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; padding: 1rem 1.2rem; border-left: 4px solid var(--orange); }
+.upgrade-card p { margin: .2rem 0 0; }
+@media (max-width: 560px) { .upgrade-card { grid-template-columns: 1fr; } }
