@@ -1,7 +1,7 @@
 // Stripe calls this after a payment. It records the course purchase (which unlocks the course)
 // and keeps the AI coach subscription in sync: new, renewed, failed, cancelled, refunded.
 import Stripe from 'stripe'
-import { env, db, notifyOwner, markRefunded, saveSubscription, PRODUCT_ID, INVOICE_FOOTER } from './_lib.js'
+import { env, db, notifyOwner, markRefunded, saveSubscription, grantBundleCoach, PRODUCT_ID, INVOICE_FOOTER } from './_lib.js'
 import { moduleFromProduct } from '../src/content/pricing.js'
 
 // Stripe signs the exact bytes it sent, so read the raw body.
@@ -42,6 +42,8 @@ export default async function handler(req, res) {
         // Before database update 2 is run, the extra columns don't exist yet: save the purchase without them.
         if (error && /column|schema cache/i.test(error.message || '')) ({ error } = await db().from('purchases').upsert(row, { onConflict: 'stripe_session_id' }))
         if (error) throw error
+        // The complete course comes with 3 months of the AI coach.
+        if (row.product_id === PRODUCT_ID) await grantBundleCoach(userId, { livemode: !!event.livemode })
         const { data: p } = await db().from('profiles').select('name, email').eq('id', userId).maybeSingle()
         const mod = moduleFromProduct(row.product_id)
         const what = mod ? `Module ${mod.slice(1)}` : 'the complete course'

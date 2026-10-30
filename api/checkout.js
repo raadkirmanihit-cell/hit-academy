@@ -1,16 +1,22 @@
-// Starts a Stripe Checkout payment for the signed-in student and returns the payment page URL.
-// body.choice: 'bundle' (all 7 modules, €99, less €19 per module already owned) or a module id like 'm3' (€19).
+// GET: whether the launch price for the complete course is on (no sign-in needed).
+// POST: starts a Stripe Checkout payment for the signed-in student and returns the payment page URL.
+//   body.choice: 'bundle' (all 7 modules: €99, or €79 at launch, less €19 per module already bought)
+//   or a module id like 'm3' (€19). Module 1 is free.
 import Stripe from 'stripe'
-import { env, requireUser, coursePurchases, readJson, siteUrl, fail, INVOICE_FOOTER } from './_lib.js'
+import { env, requireUser, coursePurchases, readJson, siteUrl, fail, INVOICE_FOOTER, launchStatus } from './_lib.js'
 import { quote } from '../src/content/pricing.js'
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST.' })
+  if (req.method === 'GET') {
+    try { return res.status(200).json(await launchStatus()) } catch (e) { return fail(res, e) }
+  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Use GET or POST.' })
   try {
     const user = await requireUser(req)
     const body = await readJson(req)
     if (!body.waiver) return res.status(400).json({ error: 'Please confirm the box about immediate access first.' })
-    const q = quote(body.choice || 'bundle', await coursePurchases(user.id))
+    const [purchases, launch] = await Promise.all([coursePurchases(user.id), launchStatus()])
+    const q = quote(body.choice || 'bundle', purchases, { launch: launch.launch })
     if (q.error) return res.status(400).json({ error: q.error })
     if (!process.env.STRIPE_SECRET_KEY) return res.status(503).json({ error: 'Online payment isn\'t switched on yet. Please try again later.' })
 

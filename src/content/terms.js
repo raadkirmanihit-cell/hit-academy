@@ -6,7 +6,7 @@
 //
 // Fill in the company details in LEGAL. Anything still in [square brackets] is a placeholder.
 
-export const TERMS_VERSION = '2026-10-29-coach'
+export const TERMS_VERSION = '2026-10-30'
 export const TERMS_UPDATED = '29 October 2026'
 
 export const LEGAL = {
@@ -51,7 +51,9 @@ export const TERMS = [
     title: '3. Buying the course and price',
     body: [
       `The price is shown on the course page and at checkout, in euros. ${LEGAL.smallBusiness ? 'As a small business under § 19 of the German VAT Act (UStG), we do not charge VAT, so the price is the final price.' : 'It includes any VAT that applies.'} Payment is handled securely by our payment provider Stripe. We never see or store your card details.`,
-      '**What you can buy.** You can buy the complete course (all seven modules, currently €99) or single modules (currently €19 each). If you already own single modules, you can upgrade to the complete course and we credit €19 for each module you own. The price that applies is the one shown at checkout.',
+      '**Free Module 1.** Module 1 and a small number of AI coach messages (currently 10) are free with every account. No payment details are needed for them.',
+      '**What you can buy.** You can buy the complete course (all seven modules, currently €99) or single modules 2 to 7 (currently €24.99 each). The complete course includes 3 months of the AI coach (see section 10). If you already own single modules, you can upgrade to the complete course and pay only the difference: we credit €24.99 for each module you bought. The price that applies is the one shown at checkout.',
+      '**Launch price.** For a limited time the complete course costs €79 instead of €99. The launch price applies to the first 100 students who buy the complete course, and ends earlier if we announce an end date on the course page. The checkout shows whether it still applies.',
       'Our online course page is an invitation for you to make an offer, not a binding offer. When you click the payment button, you make a binding offer to buy what you selected (the complete course or a single module). The contract is concluded when your payment is confirmed and we unlock your access. You receive a confirmation and an invoice by email.',
       'The contract language is English.',
     ],
@@ -60,7 +62,7 @@ export const TERMS = [
     id: 'access',
     title: '4. What you get and how long you have access',
     body: [
-      'After payment you get online access to what you bought: all seven modules with the complete course, or the module you bought on its own, each with its worksheet and quiz. The certificate of completion requires all seven modules, so you can earn it once you own and complete every module.',
+      'Every account has access to Module 1. After payment you also get online access to what you bought: all seven modules with the complete course, or the module you bought on its own, each with its worksheet and quiz. The certificate of completion requires all seven modules, so you can earn it once you own and complete every module.',
       '"Lifetime access" means access for as long as we offer the course online. If we ever stop offering it, we will tell you by email at least 3 months in advance, so that you can finish the course and download your worksheets and certificate.',
       'The course is delivered online only. You need a current web browser and an internet connection. We aim to keep the platform available at all times, but there may be short interruptions for maintenance, updates or reasons outside our control.',
       'We may update, improve, reorganise or replace parts of the Course Materials from time to time, for example to add new research or examples. We will not remove the core content of what you paid for without offering you a fair alternative.',
@@ -73,7 +75,8 @@ export const TERMS = [
       'If you buy as a consumer, you have a legal right to withdraw from the contract within 14 days without giving any reason. The full withdrawal information and a model form are in the section **"Withdrawal information"** at the end of these Terms.',
       '**Early loss of the right of withdrawal for digital content.** The course is digital content that is not supplied on a physical medium. At checkout you can ask us to give you access immediately. If you do so and confirm that you know you then lose your right of withdrawal, your right of withdrawal ends as soon as we unlock your access (§ 356 (5) of the German Civil Code, BGB). We confirm your consent and acknowledgement in your order confirmation email.',
       '**AI coach subscription.** The AI coach subscription is a digital service, and you have a 14-day right of withdrawal from the day you subscribe. At checkout you can ask us to start the AI coach straight away. If you do so and then withdraw within the 14 days, you pay a proportionate amount for the days you had the AI coach, and we refund the rest (§ 357a (2) BGB). Your right of withdrawal for the subscription is not lost by using the AI coach, and cancelling the subscription is always possible as described in section 10.',
-      'Any refund outside the legal right of withdrawal is at our discretion. Write to us if something has gone wrong and we will look at it fairly.',
+      '**14-day money-back guarantee.** In addition to your legal rights, if you are not happy with a course purchase (the complete course or a single module), email us within 14 days of the purchase and we refund the full price, without asking for a reason. The refund goes back to the payment method you used, normally within 5 to 10 days, and your access to what you bought ends. This voluntary guarantee applies once per purchase and also applies if your legal right of withdrawal has already ended. For the AI coach subscription, the rules in this section and section 10 apply.',
+      'Any other refund is at our discretion. Write to us if something has gone wrong and we will look at it fairly.',
     ],
   },
   {
@@ -134,8 +137,10 @@ export const TERMS = [
     title: '10. The AI coach and the AI coach subscription',
     body: [
       'The AI coach answers questions and lets you practise conversations with AI counterparts. It is powered by an artificial-intelligence language model from a third-party provider (Anthropic).',
-      '**Free taster and subscription.** Students who bought the course can try the AI coach with a small number of free messages (currently 10). After that, the AI coach is available only with the AI coach subscription. The AI coach subscription is not part of the course price.',
-      `**Price and payment.** The AI coach subscription costs **€12 per month**${LEGAL.smallBusiness ? ' (no VAT is charged under § 19 UStG, so this is the final price)' : ', including any VAT that applies'}. It is paid in advance each month through Stripe, starting on the day you subscribe. You can take it out only while you have access to the course. The contract is concluded when Stripe confirms your first payment and we switch on your subscription. You receive a confirmation and an invoice by email every month.`,
+      '**Free taster.** Every account can try the AI coach with a small number of free messages (currently 10).',
+      '**Included with the complete course.** When you buy the complete course, you get the AI coach for 3 months from the day of purchase, with the same fair-use limit as the subscription. The included months end automatically. Nothing is charged and no subscription starts unless you choose to subscribe. If you subscribe while your included months are still running, your first payment is taken on the day they end. If the complete course is refunded, the included months end too.',
+      '**Subscription.** Apart from the free taster and the included months, the AI coach is available only with the AI coach subscription. The subscription is not part of the course price.',
+      `**Price and payment.** The AI coach subscription costs **€19.99 per month**${LEGAL.smallBusiness ? ' (no VAT is charged under § 19 UStG, so this is the final price)' : ', including any VAT that applies'}. It is paid in advance each month through Stripe, starting on the day you subscribe (or on the day your included months end). The contract is concluded when Stripe confirms your first payment and we switch on your subscription. You receive a confirmation and an invoice by email every month.`,
       '**Term and cancellation.** The subscription runs month by month and renews automatically until you cancel it. You can cancel at any time, with effect from the end of the month you have already paid for, using the **"Cancel subscription here"** button on your dashboard, or by email to us. You keep the AI coach until the end of that month and are not charged again. We may end the subscription with one month\'s notice by email. Our right to end it for good cause stays unaffected.',
       '**Fair use.** The subscription includes up to 300 AI coach messages per billing month, and a daily limit, so that the service stays fast and affordable for everyone. Unused messages do not carry over. If a renewal payment fails, Stripe tries again for a short period; if it still fails, the subscription ends.',
       '**Price changes.** We may change the monthly price for the future, for example if our costs for the AI provider change. We will tell you by email at least 6 weeks before the change applies. If you do not agree, you can cancel before the new price applies; your price stays the same until then.',

@@ -1,6 +1,6 @@
 // Shared helpers for the server functions in /api (files starting with _ are not routes).
 import { createClient } from '@supabase/supabase-js'
-import { BUNDLE_ID, COURSE_PRODUCT_IDS } from '../src/content/pricing.js'
+import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS } from '../src/content/pricing.js'
 
 export const PRODUCT_ID = BUNDLE_ID // the complete course (all 7 modules); single modules are hit-negotiation-m1…m7
 
@@ -101,8 +101,51 @@ export async function notifyOwner(subject, lines, { replyTo } = {}) {
   } catch (e) { console.error('Notification email failed', e) }
 }
 
+// The AI coach months included with the complete course. Never replaces a paid subscription,
+// and never charges anything: when they end, the student can choose to subscribe.
+export async function grantBundleCoach(userId, { livemode = false } = {}) {
+  const cur = await getCoachSubscription(userId)
+  if (cur && ['active', 'trialing', 'past_due'].includes(cur.status)) return null
+  if (cur?.status === 'included' && new Date(cur.current_period_end) > Date.now()) return null // already granted (Stripe may send the same event twice)
+  const now = new Date()
+  const row = {
+    user_id: userId,
+    status: 'included',
+    stripe_subscription_id: null,
+    current_period_start: now.toISOString(),
+    current_period_end: new Date(now.getTime() + BUNDLE_COACH_MONTHS * MONTH).toISOString(),
+    cancel_at_period_end: true,
+    started_at: now.toISOString(),
+    amount: 0,
+    currency: 'eur',
+    livemode: !!livemode,
+    updated_at: now.toISOString(),
+    ...(cur?.stripe_customer_id ? {} : { stripe_customer_id: null }),
+  }
+  const { error } = await db().from('coach_subscriptions').upsert(row, { onConflict: 'user_id' })
+  if (error && !missingTable(error)) throw error
+  return row
+}
+
+// Launch price for the complete course: on for the first LAUNCH_BUYERS real package sales,
+// and (if LAUNCH_PRICE_UNTIL is set, e.g. 2026-12-31) until that date.
+export async function launchStatus() {
+  const until = process.env.LAUNCH_PRICE_UNTIL ? new Date(`${process.env.LAUNCH_PRICE_UNTIL}T23:59:59Z`) : null
+  if (process.env.LAUNCH_PRICE === 'off' || (until && until < new Date())) return { launch: false }
+  const { count, error } = await db().from('purchases').select('id', { count: 'exact', head: true })
+    .eq('product_id', BUNDLE_ID).eq('status', 'paid').eq('livemode', true)
+  const sold = error ? 0 : count || 0
+  if (sold >= LAUNCH_BUYERS) return { launch: false }
+  return { launch: true, left: LAUNCH_BUYERS - sold, until: until ? until.toISOString() : null }
+}
+
 // Marks a purchase refunded (works before and after database update 2).
+// Refunding the complete course also ends the coach months that came with it.
 export async function markRefunded(sessionId) {
+  const { data: p } = await db().from('purchases').select('user_id, product_id').eq('stripe_session_id', sessionId).maybeSingle()
+  if (p?.product_id === BUNDLE_ID) {
+    await db().from('coach_subscriptions').update({ current_period_end: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('user_id', p.user_id).eq('status', 'included')
+  }
   let { error } = await db().from('purchases').update({ status: 'refunded', refunded_at: new Date().toISOString() }).eq('stripe_session_id', sessionId)
   if (error && /column|schema cache/i.test(error.message || '')) ({ error } = await db().from('purchases').update({ status: 'refunded' }).eq('stripe_session_id', sessionId))
   if (error) throw error
@@ -116,11 +159,13 @@ export async function requireAdmin(req) {
 
 // ---- AI coach subscription -------------------------------------------------
 
-export const COACH_PRICE_CENTS = 1200 // €12 a month (used when STRIPE_COACH_PRICE_ID isn't set)
-export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free messages for course buyers
-export const COACH_MONTHLY_LIMIT = Number(process.env.COACH_MONTHLY_LIMIT || 300) // fair use per billing month
+export const COACH_PRICE_CENTS = 1999 // €19.99 a month (used when STRIPE_COACH_PRICE_ID isn't set)
+export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free messages for every account
+export const COACH_MONTHLY_LIMIT = Number(process.env.COACH_MONTHLY_LIMIT || 300) // fair use per month
 // past_due: Stripe is still retrying a failed renewal, so access stays on until it gives up.
-const ACTIVE = new Set(['active', 'trialing', 'past_due'])
+// included: the coach months that come with the complete course (no Stripe subscription).
+const ACTIVE = new Set(['active', 'trialing', 'past_due', 'included'])
+const MONTH = 30 * 864e5
 
 const dayOf = (d) => new Date(d).toISOString().slice(0, 10)
 const missingTable = (e) => /relation|schema cache|does not exist|column/i.test(e?.message || '')
@@ -135,8 +180,14 @@ export async function getCoachSubscription(userId) {
 // What the student may do with the coach right now.
 export async function coachAccess(userId) {
   const sub = await getCoachSubscription(userId)
-  const subscribed = !!sub && ACTIVE.has(sub.status) && (!sub.current_period_end || new Date(sub.current_period_end) > Date.now() - 3 * 864e5)
-  const since = subscribed ? dayOf(sub.current_period_start || new Date(Date.now() - 30 * 864e5)) : '1970-01-01'
+  // A paid subscription gets 3 days' grace while Stripe confirms the renewal; included months end on the day.
+  const grace = sub?.status === 'included' ? 0 : 3 * 864e5
+  const subscribed = !!sub && ACTIVE.has(sub.status) && (!sub.current_period_end || new Date(sub.current_period_end) > Date.now() - grace)
+  // The monthly allowance counts from the start of the current month of access
+  // (the included coach months count as three separate months).
+  let start = sub?.current_period_start ? new Date(sub.current_period_start).getTime() : Date.now() - MONTH
+  if (sub?.status === 'included') start += Math.floor((Date.now() - start) / MONTH) * MONTH
+  const since = subscribed ? dayOf(start) : '1970-01-01'
   const { data: used, error } = await db().rpc('coach_usage_since', { p_user: userId, p_since: since })
   // Before update 4 the counter function is missing: count nothing, so nobody is locked out by mistake.
   const count = error ? 0 : used || 0
@@ -145,6 +196,7 @@ export async function coachAccess(userId) {
     status: sub?.status || 'none',
     periodEnd: sub?.current_period_end || null,
     cancelAtPeriodEnd: !!sub?.cancel_at_period_end,
+    included: sub?.status === 'included',
     hasCustomer: !!sub?.stripe_customer_id,
     used: count,
     limit: subscribed ? COACH_MONTHLY_LIMIT : COACH_TASTER,

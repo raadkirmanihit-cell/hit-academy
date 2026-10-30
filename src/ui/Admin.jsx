@@ -233,7 +233,7 @@ function Payments({ data, act }) {
 }
 
 const ACTIVE = new Set(['active', 'trialing', 'past_due'])
-const SUB_STATUS = { active: ['Active', 'good'], trialing: ['Active', 'good'], past_due: ['Payment failed, retrying', 'orange'], canceled: ['Ended', ''], unpaid: ['Unpaid', 'orange'], incomplete: ['Not completed', ''], incomplete_expired: ['Not completed', ''] }
+const SUB_STATUS = { included: ['Included with course', 'good'], active: ['Active', 'good'], trialing: ['Active', 'good'], past_due: ['Payment failed, retrying', 'orange'], canceled: ['Ended', ''], unpaid: ['Unpaid', 'orange'], incomplete: ['Not completed', ''], incomplete_expired: ['Not completed', ''] }
 
 // AI coach subscriptions: who subscribes, monthly revenue, cancellations. Refunds and cancellations are done in Stripe.
 function CoachSubs({ data }) {
@@ -242,6 +242,7 @@ function CoachSubs({ data }) {
   const subs = subscriptions.filter((c) => showTest || c.live)
   const live = payments.filter((p) => p.live)
   const activeLive = subscriptions.filter((c) => c.live && ACTIVE.has(c.status))
+  const includedLive = subscriptions.filter((c) => c.live && c.status === 'included' && new Date(c.periodEnd) > Date.now())
   const mrr = activeLive.filter((c) => !c.cancelAtPeriodEnd).reduce((a, c) => a + (c.amount || 0), 0)
   const gross = live.reduce((a, p) => a + (p.amount || 0), 0)
   const refunded = live.filter((p) => p.status === 'refunded').reduce((a, p) => a + (p.amount || 0), 0)
@@ -264,6 +265,7 @@ function CoachSubs({ data }) {
         <Stat label="Active subscribers" value={activeLive.length} sub={`${activeLive.filter((c) => c.cancelAtPeriodEnd).length} cancelled, running to month end`} />
         <Stat label="Monthly recurring revenue" value={money(mrr)} sub="from subscribers who haven't cancelled" />
         <Stat label="Coach revenue so far (after refunds)" value={money(gross - refunded)} />
+        <Stat label="Coach included with course" value={includedLive.length} sub="3 free months, not paying yet" />
         <Stat label="Ended subscriptions" value={subscriptions.filter((c) => c.live && c.status === 'canceled').length} />
       </div>
       <p className="small muted">Real payments only, before Stripe's fees. To refund a coach payment or end a subscription early, open the customer in your Stripe dashboard; this board updates by itself.</p>
