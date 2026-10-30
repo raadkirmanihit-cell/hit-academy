@@ -94,7 +94,7 @@ function Unavailable() {
 
 const SUGGESTIONS = [
   'I need to ask my manager for a raise next week.',
-  'My landlord wants to raise my rent by 15%.',
+  'A key supplier wants to raise prices by 15%.',
   'My business partner and I keep arguing about priorities.',
   'How do I respond to "this is our final offer"?',
 ]

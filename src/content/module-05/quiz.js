@@ -107,7 +107,7 @@ export const quiz = {
       id: 'q11',
       q: 'Which of the following is a key takeaway from the Ultimate Preparation Checklist?',
       options: [
-        { t: 'Preparation only matters for high-stakes deals', fb: 'The checklist applies to any negotiation, from a salary talk to a family decision.' },
+        { t: 'Preparation only matters for high-stakes deals', fb: 'The checklist applies to any negotiation, from a salary talk to a supplier renewal.' },
         { t: 'Understanding the other party\'s BATNA and leverage improves outcomes', correct: true, fb: 'Correct. Knowing their alternatives, priorities and constraints is part of thorough preparation.' },
         { t: 'Avoid discussing trade-offs until late in the process', fb: 'Trade-offs are planned in advance and used throughout.' },
         { t: 'Focus exclusively on your own goals', fb: 'Understanding the other party is item 3 of the checklist.' },

@@ -3,7 +3,7 @@
 // Blocks of type 'research' (and items marked { added: true }) are material added beyond the module.
 import { references } from './references.js'
 import { quiz } from './quiz.js'
-import { libraryScene, doorbellScene } from './dialogues.js'
+import { officeScene, printerScene } from './dialogues.js'
 import * as act from './activities.js'
 
 const img = (name) => `img/m4/${name}.webp`
@@ -78,8 +78,8 @@ const m4 = {
             { t: 'p', text: `**Position or interest?** The same demand can rest on a very different reason:` },
             { t: 'table', head: ['Situation', 'Position (what they ask for)', 'Interest (why they ask for it)'], rows: [
               ['A company asks for a discount', 'To save money', 'Their budget is limited this quarter'],
-              ['A person wants a specific restaurant', 'They like the food', 'It\'s their favourite place to celebrate special occasions'],
-              ['A friend insists on meeting earlier', 'It\'s more convenient for them', 'They have other commitments later and want to give you their full attention'],
+              ['A manager wants the project review moved to Monday', 'It suits their calendar', 'They present to the board on Tuesday and want the team\'s latest figures first'],
+              ['A client insists on an earlier delivery date', 'They want it sooner', 'Their own product launch depends on it, and they need time to test before go-live'],
             ] },
             { t: 'callout', tone: 'tip', title: 'Notice what the interest unlocks', text: `"Save money" leaves only one lever: price. "Budget is limited this quarter" opens several: deferred payment, a smaller first order, a phased start. Interests give you more ways to say yes.` },
           ],
@@ -191,7 +191,7 @@ const m4 = {
               { eyebrow: 'Why 3', title: 'Enhances collaboration', color: 'var(--orange)', text: 'Addressing underlying needs builds trust and cooperation, improving the chance of satisfying both parties.' },
               { eyebrow: 'Why 4', title: 'Avoids deadlock', color: 'var(--orange)', text: 'Shifting from positions to interests stops negotiations from stalling over uncompromising demands.' },
             ] },
-            { t: 'scene', ...libraryScene },
+            { t: 'scene', ...officeScene },
           ],
         },
         {
@@ -293,8 +293,8 @@ const m4 = {
               { title: 'Fair standards', list: ['**Market rates:** what similar goods or services cost.', '**Industry standards:** accepted norms and benchmarks.', '**Legal precedents:** what courts or regulations have established.', '**Expert opinions:** independent, qualified judgement.', '**Historical data:** what was agreed or achieved before.'] },
               { title: 'Fair procedures', list: ['**Clarity:** clearly defined rules and processes.', '**Consistency:** the same process for all similar situations.', '**Transparency:** decisions and criteria are open and accessible.', '**Impartiality:** no bias or favouritism.', '**Participation:** all parties can contribute or appeal.'] },
             ] },
-            { t: 'quote', text: 'Two kids need a cake to be split equally. Solution: one kid splits, the other picks.', by: 'Example of a fair procedure' },
-            { t: 'callout', tone: 'key', title: 'Why the cake procedure works', text: `Nobody has to trust anybody. The child who cuts has every reason to cut equal pieces, because the other child chooses first. The procedure is **clear, impartial and transparent**, so both accept the result. The same logic works for adults: one side drafts the package, the other chooses which half to take; or both agree on an independent valuer before either knows the number.` },
+            { t: 'quote', text: 'Two partners closing a joint venture must split its assets fairly. Solution: one side divides them into two packages, the other picks first.', by: 'Example of a fair procedure' },
+            { t: 'callout', tone: 'key', title: 'Why "one divides, the other chooses" works', text: `Nobody has to trust anybody. The side that divides has every reason to make both packages equal in value, because the other side chooses first. The procedure is **clear, impartial and transparent**, so both accept the result. The same logic works in many business settings: one side drafts the package, the other chooses which half to take; or both agree on an independent valuer before either knows the number.` },
           ],
         },
         {
@@ -353,10 +353,10 @@ const m4 = {
           ],
         },
         {
-          id: 'l5-example', title: 'Example: the malfunctioning doorbell',
+          id: 'l5-example', title: 'Example: the failed production printer',
           blocks: [
-            { t: 'p', text: `Here are all four steps in a single, everyday conversation. Watch for the standards, the questions, and the moment of pressure.` },
-            { t: 'scene', ...doorbellScene },
+            { t: 'p', text: `Here are all four steps in a single supplier conversation. Watch for the standards, the questions, and the moment of pressure.` },
+            { t: 'scene', ...printerScene },
           ],
         },
         {

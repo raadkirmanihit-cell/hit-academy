@@ -45,7 +45,7 @@ const m7 = {
   tags: ['Objection handling', 'Counter-tactics', 'Integrity'],
   duration: '130–150 min',
   author: 'Raad Kirmani',
-  summary: `Negotiation is a strategic battle of psychology and emotional intelligence. This module is your guide to 20 common objection tactics: what each one is, why it works, the warning signs, how to counter it, and how to use it ethically. Every tactic comes with real-world scripts from salary talks, vendor deals, workplaces and personal relationships, so that you are ready for any negotiation.`,
+  summary: `Negotiation is a strategic battle of psychology and emotional intelligence. This module is your guide to 20 common objection tactics: what each one is, why it works, the warning signs, how to counter it, and how to use it ethically. Every tactic comes with real-world scripts from salary talks, vendor deals, client meetings and the workplace, so that you are ready for any negotiation.`,
   objectives: [
     'Decode any tactic with five questions: what it is, why it works, its warning signs, how to counter it and how to use it ethically.',
     'Recognise the warning signs of 20 common objection tactics, grouped into four families.',
@@ -79,7 +79,7 @@ const m7 = {
           blocks: [
             { t: 'p', text: 'The 20 tactics in this module are grouped into four families. Each family has its own lesson, with one page per tactic and two practice activities at the end.' },
             { t: 'diagram', name: 'TacticFamilies', caption: 'The four families of objection tactics, and the lesson that covers each one.' },
-            { t: 'callout', tone: 'tip', title: 'How to study this module', list: ['Read one tactic at a time, and say the counter scripts out loud.', 'Notice which tactics you have already met, at work or at home.', 'Use the worksheet to prepare your counters before your next negotiation.'] },
+            { t: 'callout', tone: 'tip', title: 'How to study this module', list: ['Read one tactic at a time, and say the counter scripts out loud.', 'Notice which tactics you have already met with clients, suppliers or colleagues.', 'Use the worksheet to prepare your counters before your next negotiation.'] },
           ],
         },
       ],
@@ -117,10 +117,10 @@ const m7 = {
         {
           id: 'l2-ultimatum-scripts', title: 'Ultimatums and threats: example scripts',
           blocks: [
-            { t: 'person', img: img('threats'), alt: 'A man pointing aggressively at another man in a dim corridor, an exit sign behind them', ratio: '518/1024', tall: true, small: true, eyebrow: 'Three scripts', name: 'Ultimatums and threats in action', text: 'An ultimatum in a salary negotiation, a threat from a long-term client, and a breakup used as leverage. In each one, notice the same moves: stay calm, question the pressure, reframe toward solutions, and rely on a real alternative.' },
+            { t: 'person', img: img('threats'), alt: 'A man pointing aggressively at another man in a dim corridor, an exit sign behind them', ratio: '518/1024', tall: true, small: true, eyebrow: 'Three scripts', name: 'Ultimatums and threats in action', text: 'An ultimatum in a salary negotiation, a threat from a long-term client, and a resignation threat from a team member. In each one, notice the same moves: stay calm, question the pressure, reframe toward solutions, and rely on a real alternative.' },
             { t: 'scene', ...sc.ultimatumScene },
             { t: 'scene', ...sc.threatBusinessScene },
-            { t: 'scene', ...sc.threatPersonalScene },
+            { t: 'scene', ...sc.threatResignationScene },
           ],
         },
         tactic({
@@ -180,8 +180,8 @@ const m7 = {
             { title: 'Walk through your rationale calmly', list: ['**"Let\'s walk through how we arrived at that figure."**'] },
           ],
           ethics: ['Use it sparingly, to signal genuine discomfort or pushback.', 'Pair it with a justification or alternative options.'],
-          scenes: [sc.flinchBusinessScene, sc.flinchFriendScene],
-          after: [{ t: 'callout', tone: 'key', title: 'Offer structure, not concessions', text: 'In both scripts, the response to the flinch is to explain, then offer to adjust the **scope** (fewer services, a shorter trip), never the **rate**. This keeps your price credible.' }],
+          scenes: [sc.flinchBusinessScene, sc.flinchBudgetScene],
+          after: [{ t: 'callout', tone: 'key', title: 'Offer structure, not concessions', text: 'In both scripts, the response to the flinch is to explain, then offer to adjust the **scope** (fewer services, a smaller group), never the **rate**. This keeps your price credible.' }],
         }),
         ...practice('l2', act.spotPressure, act.counterPressure),
       ],
@@ -325,7 +325,7 @@ const m7 = {
             { title: 'Take control', list: ['**"Let\'s revisit the core issues we\'re here to resolve."**'] },
           ],
           ethics: ['Provide data for transparency, not intimidation.', 'Summarise the key points upfront, and offer the full details as backup.'],
-          scenes: [sc.overwhelmBusinessScene, sc.overwhelmFriendScene],
+          scenes: [sc.overwhelmBusinessScene, sc.overwhelmSupplierScene],
         }),
         tactic({
           id: 'l4-delay', title: 'Deliberate delay', image: 'delay', ratio: '760/1024',
@@ -398,7 +398,7 @@ const m7 = {
           alt: 'A chessboard broken apart, with pieces scattered across the cracks',
           def: 'Exploiting team dynamics to create misalignment or to pressure individuals.',
           why: 'It reduces **cohesion** and can isolate more compliant team members.',
-          signs: ['Attempts to speak to individuals privately.', 'Comments like "You seem more reasonable than your partner."'],
+          signs: ['Attempts to speak to individuals privately.', 'Comments like "You seem more reasonable than your colleague."'],
           counter: [
             { title: 'Maintain a unified front', list: ['**"I appreciate that, but we are aligned as a team."**'] },
             { title: 'Use time-outs to regroup', list: ['**"Let\'s take a few minutes to align internally and come back with a clear response."**'] },
@@ -419,7 +419,7 @@ const m7 = {
             { title: 'Be ready to walk away', list: ['**"We can\'t accept this without proper review."**'] },
           ],
           ethics: ['Clarify outstanding issues early.', 'Present additions as clarifications or minor adjustments, and only when that is what they really are.'],
-          scenes: [sc.lastMinuteBusinessScene, sc.lastMinutePersonalScene],
+          scenes: [sc.lastMinuteBusinessScene, sc.lastMinuteOfferScene],
         }),
         ...practice('l5', act.spotAuthority, act.counterAuthority),
       ],
@@ -454,7 +454,7 @@ const m7 = {
               ['Good cop / bad cop', 'One harsh voice, one warm voice', '"Let\'s focus on the facts."'],
               ['Limited authority', '"I need to check with my manager."', '"Who is the final decision-maker? Can they join?"'],
               ['Higher authority', '"Legal won\'t approve that."', '"What specific concern would they have with this term?"'],
-              ['Divide and conquer', '"You seem more reasonable than your partner."', '"We are aligned as a team." Take a time-out.'],
+              ['Divide and conquer', '"You seem more reasonable than your colleague."', '"We are aligned as a team." Take a time-out.'],
               ['Last-minute changes', '"Before we sign, we just need to add…"', '"This changes our understanding. Let\'s review all impacts."'],
             ], caption: 'The 20 tactics of this module, with the warning sign and the first counter for each.' },
           ],

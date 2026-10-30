@@ -29,7 +29,7 @@ export const pitch = {
       'Keep your composure under pressure with breathing, grounding and anchor phrases.',
       'De-escalate an angry counterpart with your voice, labels, mirrors and an Allegation Assessment.',
     ],
-    useIt: ['Furious client', 'Tense team meeting', 'Family argument'],
+    useIt: ['Furious client', 'Tense team meeting', 'Upset colleague'],
     preview: { step: 'l4-voices', t: 'voices', label: 'Listen to the three voices', note: 'Hear Raad demonstrate the assertive, midnight and playful voice.' },
   },
   m3: {
@@ -62,7 +62,7 @@ export const pitch = {
       'Know your BATNA and theirs, and find the zone where a deal is possible.',
       'Spot your leverage and build a full preparation plan with one checklist.',
     ],
-    useIt: ['Job offer or raise', 'Contract negotiation', 'Big purchase'],
+    useIt: ['Job offer or raise', 'Contract negotiation', 'Supplier renewal'],
     preview: { step: 'l3-strengthen', t: 'batnaMeter', label: 'Try the BATNA meter' },
   },
   m6: {
