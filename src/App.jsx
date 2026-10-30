@@ -35,6 +35,7 @@ export default function App() {
   const paid = owned.size > 0
   const [view, setView] = useState({ name: 'landing' })
   const [toast, setToast] = useState(null)
+  const [launch, setLaunch] = useState({ launch: false }) // launch price for the complete course
   const [authorMode, setAuthorMode] = useState(false)
   const [admin, setAdmin] = useState(false)
   const toastTimer = useRef()
@@ -72,6 +73,7 @@ export default function App() {
       const item = params.get('item') // what they just paid for: 'bundle' or a module id
       const coach = params.get('coach') // back from the coach subscription checkout or Stripe's subscription page
       // Sign in first: links from confirmation and reset emails carry the login in the URL.
+      backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
       if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
       if (u && checkout === 'success' && !unlocked(u, item)) {
@@ -119,7 +121,7 @@ export default function App() {
   useEffect(() => { window.scrollTo({ top: 0 }) }, [view.name, view.moduleId])
 
   const api = useMemo(() => ({
-    course, modules, user, paid, owned, progress, view, go, notify, authorMode, setAuthorMode, admin, isLive,
+    course, modules, user, paid, owned, launch, progress, view, go, notify, authorMode, setAuthorMode, admin, isLive,
     async signUp(data) {
       const u = await backend.signUp(data)
       await enter(u)
@@ -173,7 +175,7 @@ export default function App() {
     completeModule(moduleId) {
       setProgress((p) => update(p, moduleId, (ms) => { if (!ms.completedAt) ms.completedAt = new Date().toISOString() }))
     },
-  }), [user, paid, owned, progress, view, go, notify, authorMode, admin, enter])
+  }), [user, paid, owned, launch, progress, view, go, notify, authorMode, admin, enter])
 
   if (!booted) return <div className="boot" aria-busy="true"><span className="boot-dot" /></div>
 

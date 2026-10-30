@@ -1,4 +1,4 @@
-import { MODULE_PRICE } from '../content/pricing.js'
+import { MODULE_PRICE, euro, BUNDLE_PRICE, LAUNCH_PRICE, BUNDLE_COACH_MONTHS, FREE_MODULES } from '../content/pricing.js'
 import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
@@ -15,9 +15,9 @@ const features = [
 const GOOGLE_REVIEWS = 'https://www.google.com/search?hl=en-DE&q=human+interactions+translated+reviews&uds=AJ5uw1_a2D0D09lxm8gpKKOTUn4rroxomuMMUq4TL01afLYbLYTGJTCwJBttE7EAUtqS7M1aSAZ4IWT2caGTJcBh38e1ba0um6AOxqeTu4b8W2r0P9q6UHGeDKLbbuRvn9S7ldp_NcG85hie7zP-hXGc8cY_P-SxnaB0dr2xelUR4hKL7JWMFNp0PiQVPP-4U187VeE_iIJg&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_4t2CVO9nnawaUR0K28fQryOQFqUeZ_9xiSZKejFYGP84ZpGz4SKlJgvDV0I7peLkJxuGNHUOidZ2hAyg1KNEpdOOcBFOZL33iNSSh4L_3wuPnI_RA%3D%3D'
 
 export default function Landing() {
-  const { course, modules, user, paid, go } = useApp()
-  const cta = () => (user ? go(paid ? 'dashboard' : 'checkout') : go('signup'))
-  const price = new Intl.NumberFormat('en-IE', { style: 'currency', currency: course.product.currency, maximumFractionDigits: 0 }).format(course.product.price)
+  const { course, modules, user, go, launch } = useApp()
+  const cta = () => (user ? go('dashboard') : go('signup'))
+  const bundle = launch.launch ? LAUNCH_PRICE : BUNDLE_PRICE
 
   return (
     <>
@@ -28,9 +28,10 @@ export default function Landing() {
             <h1>Master difficult conversations <em>when the stakes are high</em></h1>
             <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
             <div className="row" style={{ gap: '1.25rem' }}>
-              <button className="btn btn-primary" onClick={cta}>{user && paid ? 'Go to my course' : 'Enroll now'} <Icon.arrowR /></button>
-              <div className="price-tag"><strong>{price}</strong><span className="muted" style={{ color: '#9aa5c6' }}>all 7 modules · or €{MODULE_PRICE} per module · lifetime access</span></div>
+              <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button>
+              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_COACH_MONTHS} months AI coach · or {euro(MODULE_PRICE)} per module</span></div>
             </div>
+            <p className="small" style={{ color: '#9aa5c6', margin: 0 }}>Module 1 and 10 AI coach messages are free: just sign up with your email, no card needed. 14-day money-back guarantee on every purchase.</p>
           </div>
           <div className="hero-art">
             <img src="img/m1/cover.webp" alt="Colleagues in a relaxed discussion around a table" />
@@ -76,7 +77,7 @@ export default function Landing() {
               <li key={m.id}>
                 <span className="num">{String(m.number).padStart(2, '0')}</span>
                 <div><h4>{m.title}</h4><p className="muted small">{m.subtitle}</p></div>
-                <span className={'pill' + (modules[m.id] ? ' good' : '')}>{modules[m.id] ? `Included · or €${MODULE_PRICE} alone` : 'Coming soon'}</span>
+                <span className={'pill' + (modules[m.id] ? ' good' : '')}>{!modules[m.id] ? 'Coming soon' : FREE_MODULES.includes(m.id) ? 'Free' : `Included · or ${euro(MODULE_PRICE)} alone`}</span>
               </li>
             ))}
           </ol>

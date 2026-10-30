@@ -72,6 +72,7 @@ export const previewBackend = {
   async adminAction() { await wait(300); return { ok: true } },
   async sendMessage() { await wait(500); return { ok: true } },
   // The preview has no payments: the coach is simply open.
+  async launchStatus() { return { launch: true, left: 100, until: null } },
   async coachPlan() { return { paid: true, subscribed: true, preview: true, left: Infinity } },
   async subscribeCoach() { await wait(300); return { alreadySubscribed: true } },
   async coachPortal() { await wait(300) },

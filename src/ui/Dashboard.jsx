@@ -3,11 +3,11 @@ import { courseStats, flatSteps, moduleStats } from '../platform/progress.js'
 import { Icon } from './icons.jsx'
 import { CoachTeaser } from '../coach/Coach.jsx'
 import { CoachPlanCard } from '../coach/plan.jsx'
-import { offers, MODULE_PRICE } from '../content/pricing.js'
+import { offers, MODULE_PRICE, BUNDLE_COACH_MONTHS, FREE_MODULES, euro } from '../content/pricing.js'
 
 export default function Dashboard() {
-  const { course, modules, user, progress, openModule, go, view, owned } = useApp()
-  const o = offers(user.purchases)
+  const { course, modules, user, progress, openModule, go, view, owned, launch } = useApp()
+  const o = offers(user.purchases, { launch: launch.launch })
   const stats = courseStats(course, modules, progress)
   const last = progress.last && modules[progress.last.moduleId] && owned.has(progress.last.moduleId) ? progress.last : null
   const resumeModule = last ? modules[last.moduleId] : modules[course.modules.find((m) => owned.has(m.id) && modules[m.id])?.id] || modules.m1
@@ -51,9 +51,12 @@ export default function Dashboard() {
 
         <div className="stack">
           <h3>Course modules</h3>
-          {o.bundle && o.owned.size > 0 && (
+          {o.bundle && (
             <div className="card upgrade-card">
-              <div><strong>Unlock all 7 modules for €{o.bundle.price}</strong><p className="small muted">€{o.bundle.full} for the complete course, less €{o.bundle.credit} for the module{o.owned.size > 1 ? 's' : ''} you already own. Includes the certificate.</p></div>
+              <div>
+                <strong>Unlock all 7 modules for {euro(o.bundle.price)}{o.bundle.launch && !o.bundle.credit ? ` (launch price, normally ${euro(o.bundle.regular)})` : ''}</strong>
+                <p className="small muted">{o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the modules you bought. ` : ''}Save {euro(o.bundle.saving)} compared with buying them one by one. Includes {BUNDLE_COACH_MONTHS} months of the AI coach and the certificate.</p>
+              </div>
               <button className="btn btn-primary btn-sm" onClick={() => go('checkout', { choice: 'bundle' })}>Unlock all</button>
             </div>
           )}
@@ -73,8 +76,10 @@ export default function Dashboard() {
                       {s.best != null && <span className="tnum">· Quiz best {Math.round(s.best * 100)}%</span>}
                     </div>}
                   </div>
-                  {mod && !owned.has(m.id) ? (
-                    <button className="btn btn-sm" onClick={() => go('checkout', { choice: m.id })}><Icon.lock width="12" height="12" /> Unlock · €{MODULE_PRICE}</button>
+                  {FREE_MODULES.includes(m.id) && !s?.done && o.remaining.length > 0 ? (
+                    <button className="btn btn-sm btn-primary" onClick={() => openModule(m.id)}>Start free</button>
+                  ) : mod && !owned.has(m.id) ? (
+                    <button className="btn btn-sm" onClick={() => go('checkout', { choice: m.id })}><Icon.lock width="12" height="12" /> Unlock · {euro(MODULE_PRICE)}</button>
                   ) : mod ? (
                     <button className="btn btn-sm" onClick={() => openModule(m.id)}>{s.complete ? 'Review' : s.done ? 'Continue' : 'Start'}</button>
                   ) : (

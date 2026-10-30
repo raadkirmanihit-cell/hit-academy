@@ -132,7 +132,7 @@ function CoachPanel({ ctx, subscribe, onClose }) {
   const kb = useKb()
   const { ready, sample } = useSample()
   const { locked, plan } = useCoachPlan()
-  const showPaywall = locked || (subscribe && plan && !plan.subscribed && !plan.preview)
+  const showPaywall = locked || (subscribe && plan && (!plan.subscribed || plan.included) && !plan.preview)
   const [turns, setTurns] = useState([])
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)

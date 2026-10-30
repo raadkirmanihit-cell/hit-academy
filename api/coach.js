@@ -1,8 +1,8 @@
 // The AI coach on the live site: streams Claude's reply as plain text.
-// Course buyers get a few free messages; after that it needs the monthly coach subscription.
+// Every account gets a few free messages; after that it needs the monthly coach subscription.
 // Subscribers have a monthly fair-use cap, and everyone has a daily limit.
 import Anthropic from '@anthropic-ai/sdk'
-import { env, db, requireUser, hasPaid, readJson, fail, coachAccess } from './_lib.js'
+import { env, db, requireUser, readJson, fail, coachAccess } from './_lib.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
 const DAILY_LIMIT = Number(process.env.COACH_DAILY_LIMIT || 80)
@@ -13,7 +13,6 @@ export default async function handler(req, res) {
   let user
   try {
     user = await requireUser(req)
-    if (!(await hasPaid(user.id))) return res.status(403).json({ error: 'The AI coach is for students who bought the course.', code: 'not_granted' })
   } catch (e) { return fail(res, e) }
 
   let access

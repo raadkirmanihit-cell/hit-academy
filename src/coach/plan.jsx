@@ -1,11 +1,12 @@
-// The student's AI coach plan: free messages left, or the €12/month subscription.
+// The student's AI coach plan: free messages left, included months, or the €19.99/month subscription.
 // One shared copy for the whole page, so the coach panel, sparring and dashboard agree.
 import { useEffect, useState } from 'react'
 import { backend, isLive } from '../platform/backend.js'
 import { TermsLink } from '../ui/Terms.jsx'
 import { LEGAL } from '../content/terms.js'
 
-export const COACH_PRICE = 12 // € per month, shown on the page (Stripe holds the real price)
+export const COACH_PRICE = '19.99' // € per month, shown on the page (Stripe holds the real price)
+export const COACH_MONTHLY = 300 // messages a month (fair use), must match COACH_MONTHLY_LIMIT on the server
 
 let state = { loading: true, plan: null }
 const listeners = new Set()
@@ -51,6 +52,7 @@ export function PlanNote() {
   const { plan } = useCoachPlan()
   if (!isLive || !plan || plan.preview) return null
   if (!plan.subscribed) return <p className="coach-plan-note small">{plan.left > 0 ? `${plan.left} free coach message${plan.left === 1 ? '' : 's'} left.` : 'Your free coach messages are used up.'} <button type="button" className="linklike" onClick={() => window.dispatchEvent(new Event('coach-subscribe'))}>Subscribe for €{COACH_PRICE}/month</button></p>
+  if (plan.included && plan.left > 30) return null
   if (plan.left <= 30) return <p className="coach-plan-note small">{plan.left} of this month's {plan.limit} coach messages left.</p>
   return null
 }
@@ -62,16 +64,18 @@ export function CoachPaywall({ compact }) {
   const [err, setErr] = useState('')
   const { plan } = useCoachPlan()
   const usedUp = plan && !plan.subscribed && plan.left <= 0
+  const included = plan?.included && plan.subscribed // still in the coach months that came with the course
   return (
     <div className={'coach-paywall' + (compact ? ' compact' : '')}>
       <span className="eyebrow">AI coach subscription</span>
-      <h4>{usedUp ? 'Keep coaching with the AI coach' : 'Unlock the AI coach'}</h4>
-      {usedUp && <p className="small muted">You've used your free coach messages.</p>}
+      <h4>{included ? 'Keep the AI coach after your included months' : usedUp ? 'Keep coaching with the AI coach' : 'Unlock the AI coach'}</h4>
+      {usedUp && <p className="small muted">{plan.included ? 'Your included coach months have ended.' : 'You\'ve used your free coach messages.'}</p>}
+      {included && <p className="small muted">Your coach is included until {day(plan.periodEnd)}. If you subscribe now, the first payment is taken on that day, not before.</p>}
       <p className="coach-price"><strong className="tnum">€{COACH_PRICE}</strong> <span className="muted">per month · cancel any time</span></p>
       <ul className="small">
         <li>Ask about any negotiation or conflict you're facing</li>
         <li>Live sparring with AI counterparts, with feedback reports</li>
-        <li>Up to 300 coach messages a month (fair use)</li>
+        <li>Up to {COACH_MONTHLY} coach messages a month (fair use)</li>
       </ul>
       {LEGAL.smallBusiness && <p className="small muted">No VAT is charged: small business under § 19 UStG.</p>}
       <label className="waiver">
@@ -99,7 +103,12 @@ export function CoachPlanCard() {
     <div className="card coach-plan-card">
       <div className="stack" style={{ gap: '.3rem' }}>
         <span className="eyebrow">AI coach subscription</span>
-        {plan.subscribed ? (
+        {plan.subscribed && plan.included ? (
+          <>
+            <h4>Included with your course until {day(plan.periodEnd)}</h4>
+            <p className="small muted">{plan.left} of {plan.limit} coach messages left this month. When the included months end, the coach stops unless you choose to subscribe (€{COACH_PRICE}/month). Nothing is charged automatically.</p>
+          </>
+        ) : plan.subscribed ? (
           <>
             <h4>{plan.cancelAtPeriodEnd ? 'Cancelled' : plan.status === 'past_due' ? 'Payment problem' : 'Active'} · €{COACH_PRICE}/month</h4>
             <p className="small muted">
@@ -112,14 +121,16 @@ export function CoachPlanCard() {
           </>
         ) : (
           <>
-            <h4>{plan.left > 0 ? `${plan.left} free coach message${plan.left === 1 ? '' : 's'} left` : 'Free coach messages used up'}</h4>
+            <h4>{plan.left > 0 ? `${plan.left} free coach message${plan.left === 1 ? '' : 's'} left` : plan.included ? 'Your included coach months have ended' : 'Free coach messages used up'}</h4>
             <p className="small muted">Subscribe for €{COACH_PRICE} a month to keep using the AI coach and the practice studio. Cancel any time.</p>
           </>
         )}
         {err && <p className="error small" role="alert">{err}</p>}
       </div>
       <div className="row" style={{ gap: '.5rem' }}>
-        {plan.subscribed
+        {plan.subscribed && plan.included
+          ? <button className="btn" onClick={() => window.dispatchEvent(new Event('coach-subscribe'))}>Continue after {day(plan.periodEnd).replace(/ \d{4}$/, '')}</button>
+          : plan.subscribed
           ? <>
               {plan.status === 'past_due' && <button className="btn btn-primary" disabled={busy} onClick={portal}>Update card</button>}
               {/* The cancel button the law asks for (§ 312k BGB): it opens Stripe's page, where one more click cancels. */}

@@ -41,7 +41,7 @@ export default function Topbar() {
           {!user && (
             <div className="row">
               <button className="btn btn-ghost btn-sm" onClick={() => go('signin')}>Sign in</button>
-              <button className="btn btn-primary btn-sm" onClick={() => go('signup')}>Enroll</button>
+              <button className="btn btn-primary btn-sm" onClick={() => go('signup')}>Start free</button>
             </div>
           )}
           {user && (

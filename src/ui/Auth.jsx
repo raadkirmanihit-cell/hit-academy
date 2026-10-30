@@ -3,7 +3,7 @@ import { useApp } from '../App.jsx'
 import { TermsCheckbox } from './Terms.jsx'
 
 const COPY = {
-  signup: { eyebrow: 'Step 1 of 2 · Create account', title: 'Create your account', sub: 'Your progress and certificate are tied to this account.', button: 'Create account and continue' },
+  signup: { eyebrow: 'Free account · no card needed', title: 'Create your free account', sub: 'Start Module 1 for free right away. Your progress and certificate are tied to this account.', button: 'Create account and start' },
   signin: { eyebrow: 'Welcome back', title: 'Sign in', sub: 'Pick up exactly where you left off.', button: 'Sign in' },
   reset: { eyebrow: 'Forgot your password?', title: 'Reset your password', sub: 'Enter your email and we\'ll send you a link to choose a new password.', button: 'Send reset link' },
   newpass: { eyebrow: 'Almost done', title: 'Choose a new password', sub: 'Use at least 8 characters.', button: 'Save new password' },

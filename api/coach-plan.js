@@ -1,16 +1,15 @@
 // The AI coach subscription for the signed-in student.
 //   GET                          -> what the student may do with the coach (free messages left, subscription status)
-//   POST { action: 'subscribe' } -> Stripe Checkout page for the €12/month subscription
+//   POST { action: 'subscribe' } -> Stripe Checkout page for the €19.99/month subscription
 //   POST { action: 'portal' }    -> Stripe's page to cancel the subscription or change the card
 import Stripe from 'stripe'
-import { env, requireUser, hasPaid, readJson, siteUrl, fail, coachAccess, getCoachSubscription, COACH_PRICE_CENTS, stripeCustomerFor } from './_lib.js'
+import { env, requireUser, readJson, siteUrl, fail, coachAccess, getCoachSubscription, COACH_PRICE_CENTS, stripeCustomerFor } from './_lib.js'
 
 export default async function handler(req, res) {
   try {
     const user = await requireUser(req)
     if (req.method === 'GET') {
-      const paid = await hasPaid(user.id)
-      return res.status(200).json({ paid, ...(paid ? await coachAccess(user.id) : { subscribed: false, left: 0 }) })
+      return res.status(200).json(await coachAccess(user.id))
     }
     if (req.method !== 'POST') return res.status(405).json({ error: 'Use GET or POST.' })
 
@@ -27,10 +26,12 @@ export default async function handler(req, res) {
     }
 
     if (body.action === 'subscribe') {
-      if (!(await hasPaid(user.id))) return res.status(403).json({ error: 'The coach subscription is for students who bought the course.' })
       if (!body.consent) return res.status(400).json({ error: 'Please confirm the box about starting the coach right away first.' })
       const access = await coachAccess(user.id)
-      if (access.subscribed) return res.status(200).json({ alreadySubscribed: true })
+      if (access.subscribed && !access.included) return res.status(200).json({ alreadySubscribed: true })
+      // Still in the coach months included with the course: the subscription starts when they end.
+      const trialEnd = access.included && access.periodEnd && new Date(access.periodEnd) > Date.now() + 2 * 864e5
+        ? Math.floor(new Date(access.periodEnd).getTime() / 1000) : null
       const consentAt = new Date().toISOString()
       const priceId = process.env.STRIPE_COACH_PRICE_ID
       const session = await stripe.checkout.sessions.create({
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
         customer: await stripeCustomerFor(stripe, user, sub?.stripe_customer_id),
         client_reference_id: user.id,
         metadata: { user_id: user.id, kind: 'coach', consent_at: consentAt },
-        subscription_data: { metadata: { user_id: user.id, kind: 'coach', consent_at: consentAt } },
+        subscription_data: { metadata: { user_id: user.id, kind: 'coach', consent_at: consentAt }, ...(trialEnd ? { trial_end: trialEnd } : {}) },
         automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === 'true' },
         ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { billing_address_collection: 'required' } : {}),
         allow_promotion_codes: true,
