@@ -1,7 +1,7 @@
 // Stripe calls this after a payment. It records the course purchase (which unlocks the course)
 // and keeps the AI coach subscription in sync: new, renewed, failed, cancelled, refunded.
 import Stripe from 'stripe'
-import { env, db, notifyOwner, markRefunded, saveSubscription, PRODUCT_ID } from './_lib.js'
+import { env, db, notifyOwner, markRefunded, saveSubscription, PRODUCT_ID, INVOICE_FOOTER } from './_lib.js'
 import { moduleFromProduct } from '../src/content/pricing.js'
 
 // Stripe signs the exact bytes it sent, so read the raw body.
@@ -82,6 +82,9 @@ async function coachCheckoutDone(stripe, s) {
   if (!subId) return
   const sub = await stripe.subscriptions.retrieve(subId)
   if (!isCoach(sub)) return
+  // Make sure renewals carry the § 19 UStG footer, whichever way the customer was created.
+  const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer?.id
+  if (customer) await stripe.customers.update(customer, { invoice_settings: { footer: INVOICE_FOOTER } }).catch((e) => console.error('Invoice footer not set', e.message))
   const row = await saveSubscription(sub, { userId: s.client_reference_id || sub.metadata.user_id })
   const p = row && await userName(row.user_id)
   await notifyOwner(`New AI coach subscriber: ${p?.name || s.customer_details?.name || 'a student'}`, [

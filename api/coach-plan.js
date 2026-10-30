@@ -3,7 +3,7 @@
 //   POST { action: 'subscribe' } -> Stripe Checkout page for the €12/month subscription
 //   POST { action: 'portal' }    -> Stripe's page to cancel the subscription or change the card
 import Stripe from 'stripe'
-import { env, requireUser, hasPaid, readJson, siteUrl, fail, coachAccess, getCoachSubscription, COACH_PRICE_CENTS } from './_lib.js'
+import { env, requireUser, hasPaid, readJson, siteUrl, fail, coachAccess, getCoachSubscription, COACH_PRICE_CENTS, stripeCustomerFor } from './_lib.js'
 
 export default async function handler(req, res) {
   try {
@@ -38,8 +38,9 @@ export default async function handler(req, res) {
         line_items: [priceId
           ? { price: priceId, quantity: 1 }
           : { quantity: 1, price_data: { currency: 'eur', unit_amount: COACH_PRICE_CENTS, recurring: { interval: 'month' }, product_data: { name: 'H.I.T. AI Negotiation Coach (monthly)' } } }],
-        // Reuse the Stripe customer from an earlier subscription, so the portal shows everything in one place.
-        ...(sub?.stripe_customer_id ? { customer: sub.stripe_customer_id } : { customer_email: user.email }),
+        // One Stripe customer per student (reused, so the portal shows everything in one place),
+        // carrying the § 19 UStG footer for the first invoice and every monthly renewal.
+        customer: await stripeCustomerFor(stripe, user, sub?.stripe_customer_id),
         client_reference_id: user.id,
         metadata: { user_id: user.id, kind: 'coach', consent_at: consentAt },
         subscription_data: { metadata: { user_id: user.id, kind: 'coach', consent_at: consentAt } },

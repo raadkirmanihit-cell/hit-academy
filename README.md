@@ -77,5 +77,5 @@ In Supabase, set Authentication → URL Configuration → Site URL to the websit
 
 **AI coach subscription (€12/month).** Course buyers get 10 free coach messages, then need the subscription.
 In Stripe: turn on the customer portal (Settings → Billing → Customer portal → allow cancelling, at the end of
-the billing period) so the "Cancel subscription here" button works, and add the § 19 UStG line as the default
-invoice footer (Settings → Billing → Invoices), because subscription invoices don't use the checkout footer.
+the billing period) so the "Cancel subscription here" button works,. The § 19 UStG invoice footer is set by the app on every
+Stripe customer (`INVOICE_FOOTER` in `api/_lib.js`), so course invoices and monthly coach invoices all carry it.

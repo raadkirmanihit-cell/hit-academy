@@ -4,6 +4,21 @@ import { BUNDLE_ID, COURSE_PRODUCT_IDS } from '../src/content/pricing.js'
 
 export const PRODUCT_ID = BUNDLE_ID // the complete course (all 7 modules); single modules are hit-negotiation-m1…m7
 
+// Small business (§ 19 UStG): every invoice must say why no VAT is shown.
+export const INVOICE_FOOTER = 'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. / No VAT is charged under § 19 UStG (small business exemption).'
+
+// The student's Stripe customer, with the § 19 footer saved on it, so every invoice Stripe creates
+// for them (including each monthly coach renewal) carries the footer.
+export async function stripeCustomerFor(stripe, user, existingId) {
+  const invoice_settings = { footer: INVOICE_FOOTER }
+  if (existingId) { await stripe.customers.update(existingId, { invoice_settings }); return existingId }
+  const found = (await stripe.customers.list({ email: user.email, limit: 10 })).data
+  const mine = found.find((c) => c.metadata?.user_id === user.id) || found[0]
+  if (mine) { await stripe.customers.update(mine.id, { invoice_settings, metadata: { user_id: user.id } }); return mine.id }
+  const c = await stripe.customers.create({ email: user.email, name: user.user_metadata?.name || undefined, metadata: { user_id: user.id }, invoice_settings })
+  return c.id
+}
+
 export function env(name, required = true) {
   const v = process.env[name]
   if (required && !v) throw Object.assign(new Error(`Server setting ${name} is missing.`), { status: 500 })

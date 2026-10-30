@@ -1,7 +1,7 @@
 // Starts a Stripe Checkout payment for the signed-in student and returns the payment page URL.
 // body.choice: 'bundle' (all 7 modules, €99, less €19 per module already owned) or a module id like 'm3' (€19).
 import Stripe from 'stripe'
-import { env, requireUser, coursePurchases, readJson, siteUrl, fail } from './_lib.js'
+import { env, requireUser, coursePurchases, readJson, siteUrl, fail, INVOICE_FOOTER } from './_lib.js'
 import { quote } from '../src/content/pricing.js'
 
 export default async function handler(req, res) {
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       metadata: { user_id: user.id, product_id: q.productId, withdrawal_waiver: 'yes', waiver_at: new Date().toISOString() },
       payment_intent_data: { metadata: { user_id: user.id, product_id: q.productId } },
       // Small business (§ 19 UStG): the invoice must say why no VAT is shown.
-      invoice_creation: { enabled: true, invoice_data: { footer: 'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. / No VAT is charged under § 19 UStG (small business).' } },
+      invoice_creation: { enabled: true, invoice_data: { footer: INVOICE_FOOTER } },
       automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === 'true' },
       ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { billing_address_collection: 'required' } : {}),
       allow_promotion_codes: true,
