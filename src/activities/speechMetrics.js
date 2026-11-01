@@ -242,7 +242,7 @@ export function analyse(frames, transcript) {
   // - down: it finishes below the typical pitch, falls by 1.5+ semitones, or drops into creak;
   // - level: anything in between (a small lift onto the last stressed word included).
   const endings = []
-  for (const [a, b] of ext) {
+  for (const [k, [a, b]] of ext.entries()) {
     const p = track.filter((x) => x.i >= a && x.i <= b)
     const clean = p.filter((x) => !x.creak)
     if (clean.length < 6) continue // too short to judge
@@ -253,8 +253,24 @@ export function analyse(frames, transcript) {
     let dir = 'level'
     if (end >= 4) dir = 'up'
     else if (tailCreak || end <= -1.5 || (before.length >= 3 && end - median(before) <= -1.5)) dir = 'down'
-    endings.push({ dir, t: p[p.length - 1].t - frames[first].t, d: Math.round(end * 10) / 10, creak: tailCreak })
+    endings.push({ k, dir, t: p[p.length - 1].t - frames[first].t, d: Math.round(end * 10) / 10, creak: tailCreak })
   }
+
+  // Pauses, judged by where they fall:
+  // - strategic: 0.7 s or more after a complete thought (a stretch of 1 s or more that ends level
+  //   or falling). It lets the point land and builds attention for what comes next;
+  // - hesitant: after a rising, unfinished-sounding note (it waits for approval), or a long pause
+  //   (0.7 s or more) that breaks a short fragment off mid-thought;
+  // - breath: a short pause between phrases, neither good nor bad.
+  const pauseList = pauses.map((len, k) => {
+    const [a, b] = segments[k]
+    const before = frames[b].t - frames[a].t
+    const dir = endings.find((e) => e.k === k)?.dir
+    let kind = 'breath'
+    if (dir === 'up') kind = 'hesitant'
+    else if (len >= 0.7) kind = before >= 1 ? 'strategic' : 'hesitant'
+    return { t: Math.round((frames[b].t - frames[first].t) * 100) / 100, len: Math.round(len * 10) / 10, kind, why: dir === 'up' ? 'rising' : before < 1 ? 'fragment' : 'complete' }
+  })
 
   const words = String(transcript).trim().split(/\s+/).filter(Boolean).length
   const wpm = words && speechSec > 1 ? Math.round(words / speechSec * 60) : null
@@ -265,6 +281,9 @@ export function analyse(frames, transcript) {
     seconds: Math.round(speechSec * 10) / 10,
     words, wpm,
     pauses: pauses.length,
+    pauseList,
+    strategic: pauseList.filter((x) => x.kind === 'strategic').length,
+    hesitant: pauseList.filter((x) => x.kind === 'hesitant').length,
     longestPause: pauses.length ? Math.round(Math.max(...pauses) * 10) / 10 : 0,
     endings: endings.map((e) => e.dir),
     endMarks: endings,
@@ -302,9 +321,13 @@ export function readings(m) {
   else if (m.wpm > 170) r.push({ k: 'Pace', v: `${m.wpm} words/min`, tone: 'warn', t: 'Fast. Rushing can sound nervous. Slow down to about 120–160.' })
   else r.push({ k: 'Pace', v: `${m.wpm} words/min`, tone: 'good', t: 'A steady, confident pace.' })
 
-  if (m.pauses === 0) r.push({ k: 'Pauses', v: 'None', tone: 'warn', t: 'Add one short pause after your key point, so it lands.' })
-  else if (m.pauses >= 3 && m.pauses / Math.max(m.seconds, 1) > 0.3) r.push({ k: 'Pauses', v: `${m.pauses}`, tone: 'warn', t: 'Many pauses. That can sound hesitant: try to speak in fuller phrases.' })
-  else r.push({ k: 'Pauses', v: `${m.pauses} (longest ${m.longestPause}s)`, tone: 'good', t: 'Purposeful pauses give your words weight.' })
+  const S = m.strategic ?? 0, H = m.hesitant ?? 0
+  const pv = [S && `${S} strategic`, H && `${H} hesitant`].filter(Boolean).join(', ') || `${m.pauses} short`
+  if (m.pauses === 0) r.push({ k: 'Pauses', v: 'None', tone: 'warn', t: 'Add one deliberate pause after your key point, so it lands.' })
+  else if (m.strategic == null) r.push({ k: 'Pauses', v: `${m.pauses}`, tone: 'neutral', t: 'Pause after a complete point, not in the middle of one.' })
+  else if (H >= 2 && H > S) r.push({ k: 'Pauses', v: pv, tone: 'warn', t: 'Several pauses came after a rising note or broke a thought in half, which sounds unsure. Finish the thought, let your voice settle, then pause.' })
+  else if (S) r.push({ k: 'Pauses', v: pv, tone: 'good', t: `${S === 1 ? 'Your pause came' : 'Your longer pauses came'} after a complete point: that lets it land and makes the other person lean in.${H ? ' Watch the hesitant one.' : ''}` })
+  else r.push({ k: 'Pauses', v: pv, tone: 'neutral', t: 'Only short breathing pauses. Try one deliberate pause (about a second) right after your key point.' })
 
   const E = m.endings.length, up = m.endings.filter((e) => e === 'up').length, down = m.endings.filter((e) => e === 'down').length
   const v = E ? [down && `${down} down`, E - up - down && `${E - up - down} level`, up && `${up} up`].filter(Boolean).join(', ') : '—'

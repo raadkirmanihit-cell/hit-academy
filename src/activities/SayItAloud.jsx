@@ -151,7 +151,7 @@ export default function SayItAloud({ b, module }) {
             <summary>How the app reads your delivery</summary>
             <ul className="small" style={{ margin: '.5rem 0 0', paddingLeft: '1.1rem', color: 'var(--ink-2)', display: 'grid', gap: '.3rem' }}>
               <li><strong>Pace:</strong> the words in the box below, divided by the time you were speaking.</li>
-              <li><strong>Pauses:</strong> silences of 0.4 seconds or more between words.</li>
+              <li><strong>Pauses:</strong> silences of 0.4 seconds or more, judged by where they fall. A pause of about a second after a complete thought that ends level or falling is <em>strategic</em>: it lets the point land and builds attention. A pause after a rising note, or a long one that breaks a thought in half, is <em>hesitant</em>. Short breathing pauses are neither.</li>
               <li><strong>Sentence endings:</strong> the app tracks the pitch of your voice with the same method as Praat, the tool speech scientists use, and looks at the note you finish on before each pause and at the very end. It compares that note with your own typical speaking pitch. Finishing 4 or more semitones above it counts as <em>up</em>, the high, questioning finish that sounds like asking permission. Finishing below it, falling at the end, or dropping into a low, creaky voice counts as <em>down</em>. Anything in between, including a small lift onto the last stressed word, counts as level.</li>
               <li><strong>Hedges:</strong> softening words such as "just", "maybe", "kind of" and "I guess" in the box below.</li>
               <li>These are estimates from your microphone, not a precise lab measurement. A quiet room and speaking at a normal volume give the best reading.</li>
