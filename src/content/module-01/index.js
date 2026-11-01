@@ -337,14 +337,8 @@ const m1 = {
           id: 'l6-roleplay', title: 'Role-play: your salary review',
           blocks: [
             { t: 'activity', ...act.salaryRolePlay },
+            { t: 'callout', tone: 'tip', title: 'Practise it live with the AI', text: 'Want to try this against a tough counterpart who answers back? The **Practice studio** on your dashboard has live AI role-plays, including Dana, a finance director who changes behaviour mid-conversation.' },
             { t: 'reflect', id: 'r-l6', prompt: 'For your next negotiation, write your plan as one line: "I will use a ____ strategy, delivered with ____ behaviour, because ____." Then write the first sentence you will say.' },
-          ],
-        },
-        {
-          id: 'l6-live', title: 'Live practice: the budget request',
-          blocks: [
-            { t: 'p', text: 'Now try it live. The AI plays Dana, a tough finance director who changes behaviour during the conversation. Your job: stay assertive, adapt your tone to each behaviour Dana shows, and pick a strategy that fits. Type or speak your replies. When you finish, you get a feedback report on your behaviour and your strategy.' },
-            { t: 'liveSpar', scenario: 'budget' },
           ],
         },
       ],
