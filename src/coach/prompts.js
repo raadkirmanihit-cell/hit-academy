@@ -61,6 +61,7 @@ YOUR CHARACTER: ${sc.counterpart.name}, ${sc.counterpart.role}.
 SITUATION: ${sc.situation}
 DIFFICULTY: ${LEVELS[sc.level] || LEVELS.Intermediate}
 WHAT ONLY YOU KNOW (never reveal it directly): ${sc.hidden}
+WHAT THE LEARNER WAS TOLD BEFORE THE MEETING (stay consistent with it; they may use any of it): ${sc.brief} ${(sc.background || []).map((b) => `${b.h}: ${b.items.join(' ')}`).join(' ')}
 TACTICS TO USE, roughly in this order, one at a time, when they fit naturally:
 ${sc.tactics.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 

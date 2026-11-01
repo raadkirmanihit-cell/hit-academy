@@ -294,6 +294,16 @@ export function Spar({ scenarioId, compact }) {
           <p className="small muted">You'll negotiate with {sc.counterpart.name} ({sc.counterpart.role}), played by the AI. Type or say what you would say. When you're done, ask for your feedback report.</p>
         </div>
       </div>
+      {sc.background?.length > 0 && (
+        <div className="spar-background">
+          {sc.background.map((b) => (
+            <div key={b.h}>
+              <h5>{b.h}</h5>
+              <ul>{b.items.map((t, i) => <li key={i}>{t}</li>)}</ul>
+            </div>
+          ))}
+        </div>
+      )}
       {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? <CoachPaywall compact={compact} practice /> : !turns ? (
         <div className="row" style={{ gap: '.6rem' }}>
           <button className="btn btn-primary" onClick={start}>Start the negotiation</button>
