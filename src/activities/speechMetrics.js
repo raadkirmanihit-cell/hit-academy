@@ -4,7 +4,7 @@ const FRAME_MS = 30
 
 // Records the microphone, samples loudness and pitch every 30 ms, and transcribes where the browser can.
 export async function startCapture({ onLevel, onWords } = {}) {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } })
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }) // raw voice: the browser's voice clean-up can flatten pitch
   const AC = window.AudioContext || window.webkitAudioContext
   const ctx = new AC()
   const src = ctx.createMediaStreamSource(stream)
@@ -175,7 +175,7 @@ export function analyse(frames, transcript) {
     track[k].sm = median(w)
   }
 
-  // Sentence endings: the last ~0.3 s of voice before a longer pause (0.7 s or more) or at the very end,
+  // Sentence endings: the last syllable before a longer pause (0.7 s or more) or at the very end,
   // against the rest of that stretch of speech. Short pauses mid-sentence are skipped, because the
   // voice naturally stays up there ("If the budget is tight, ..."). A change of 1.5 semitones or more
   // counts as a fall or a rise; smaller changes count as level.
@@ -183,11 +183,15 @@ export function analyse(frames, transcript) {
   for (const [k, [a, b]] of segments.entries()) {
     if (k < segments.length - 1 && pauses[k] < 0.7) continue
     const p = track.filter((x) => x.i >= a && x.i <= b)
-    if (p.length < 14) continue // too short to judge
-    const tailN = Math.min(10, Math.round(p.length * 0.35))
-    const body = p.slice(0, -tailN), tail = p.slice(-tailN)
-    const d = median(tail.map((x) => x.sm)) - median(body.map((x) => x.sm))
-    endings.push({ dir: d <= -1.5 ? 'down' : d >= 1.5 ? 'up' : 'level', t: tail[tail.length - 1].t - frames[first].t, d: Math.round(d * 10) / 10 })
+    if (p.length < 12) continue // too short to judge
+    // The ending is the last syllable (~0.15 s of voice). It is compared with the half second just
+    // before it (a quick rise or fall on the final word) and with the start of the sentence (an ending
+    // that climbed earlier and stayed high). The bigger change counts; if they disagree, the quick one wins.
+    const end = median(p.slice(-5).map((x) => x.sm))
+    const dLocal = end - median(p.slice(-20, -5).map((x) => x.sm))
+    const dStart = end - median(p.slice(0, Math.max(5, Math.round(p.length * 0.5))).map((x) => x.sm))
+    const d = Math.sign(dLocal) !== Math.sign(dStart) && Math.abs(dLocal) >= 1.5 ? dLocal : Math.abs(dLocal) >= Math.abs(dStart) ? dLocal : dStart
+    endings.push({ dir: d <= -1.5 ? 'down' : d >= 1.5 ? 'up' : 'level', t: p[p.length - 1].t - frames[first].t, d: Math.round(d * 10) / 10 })
   }
 
   const words = String(transcript).trim().split(/\s+/).filter(Boolean).length

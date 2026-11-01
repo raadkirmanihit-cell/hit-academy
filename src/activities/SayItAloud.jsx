@@ -152,7 +152,7 @@ export default function SayItAloud({ b, module }) {
             <ul className="small" style={{ margin: '.5rem 0 0', paddingLeft: '1.1rem', color: 'var(--ink-2)', display: 'grid', gap: '.3rem' }}>
               <li><strong>Pace:</strong> the words in the box below, divided by the time you were speaking.</li>
               <li><strong>Pauses:</strong> silences of 0.4 seconds or more between words.</li>
-              <li><strong>Sentence endings:</strong> the app tracks the pitch of your voice and compares the last third of a second before each longer pause (0.7 seconds or more), and at the very end, with the rest of that sentence. A drop of 1.5 semitones or more counts as down, a rise of 1.5 or more as up, anything smaller as level. Short pauses in the middle of a sentence are skipped, because the voice naturally stays up there.</li>
+              <li><strong>Sentence endings:</strong> the app tracks the pitch of your voice and looks at your last syllable before each longer pause (0.7 seconds or more), and at the very end. It compares that syllable with the half second just before it and with the start of the sentence. A drop of 1.5 semitones or more counts as down, a rise of 1.5 or more as up, anything smaller as level. Short pauses in the middle of a sentence are skipped, because the voice naturally stays up there.</li>
               <li><strong>Hedges:</strong> softening words such as "just", "maybe", "kind of" and "I guess" in the box below.</li>
               <li>These are estimates from your microphone, not a precise lab measurement. A quiet room and speaking at a normal volume give the best reading.</li>
             </ul>
