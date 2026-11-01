@@ -223,8 +223,11 @@ export function analyse(frames, transcript) {
     // Pitch, in semitones around the speaker's typical pitch. A very low reading (8+ semitones below
   // it) is a creaky voice ("vocal fry"): many speakers drop into it as a firm sentence fades.
   const voiced = frames.slice(first, last + 1).filter((f) => f.pitch > 0).map((f) => f.pitch)
-  const m0 = median(voiced)
-  const base = median(voiced.filter((p) => p > m0 * 0.63)) || m0 // typical pitch
+  // Typical pitch of the normal (modal) voice. Some speakers spend much of the time in creak, far
+  // below their normal voice; a plain median would then land in the creak and make every normal
+  // syllable look high. So the creak is set aside first, measured from the upper part of the range.
+  const top = pct(voiced, 0.85)
+  const base = median(voiced.filter((p) => p > top * 0.55)) || median(voiced)
   const creakHz = base * 0.63
   const semis = (p) => 12 * Math.log2(p / base)
   // A sentence often ends in a quiet syllable below the speech threshold that still has a pitch;
