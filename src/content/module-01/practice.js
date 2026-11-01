@@ -177,6 +177,7 @@ export const sayAnchor = {
     'Offer an option or invite the client in, without apologising or hedging.',
   ],
   modelLine: 'I\'m glad the dashboard would help your team. It\'s about four days of extra work, so it would be an additional €2,400. If the budget is tight this quarter, we could schedule it for phase two. Which would work better for you?',
+  modelAudio: 'audio/m1/model-anchor.mp4',
 }
 
 export const confidence = {
