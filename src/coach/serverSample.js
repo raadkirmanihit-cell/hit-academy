@@ -1,5 +1,5 @@
 // On the live website the coach talks to our own server (/api/coach) instead of the claude.ai
-// preview's `sample` capability. Same call shape: sample(input, { onText, signal, modelTier }),
+// preview's `sample` capability. Same call shape: sample(input, { onText, signal, modelTier, purpose }),
 // and sample.json(input) for the feedback report.
 import { backend } from '../platform/backend.js'
 
@@ -14,7 +14,7 @@ export function makeServerSample() {
       r = await fetch('/api/coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ messages: input, modelTier: opts.modelTier || 'default' }),
+        body: JSON.stringify({ messages: input, modelTier: opts.modelTier || 'default', ...(opts.purpose ? { purpose: opts.purpose } : {}) }),
         signal: opts.signal,
       })
     } catch (e) {

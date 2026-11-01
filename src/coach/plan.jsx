@@ -24,6 +24,14 @@ export function refreshCoachPlan() {
 export function usedOneMessage() {
   if (state.plan && Number.isFinite(state.plan.left)) set({ plan: { ...state.plan, left: Math.max(0, state.plan.left - 1), used: (state.plan.used || 0) + 1 } })
 }
+// The same for a Practice studio role-play message: the subscription's monthly messages go first,
+// then the practice pack that comes with the complete course, then the free taster (as on the server).
+export function usedOnePractice() {
+  const p = state.plan
+  if (!p || !Number.isFinite(p.left)) return
+  if (!(p.subscribed && p.left > 0) && p.practiceLeft > 0) set({ plan: { ...p, practiceLeft: p.practiceLeft - 1, practiceUsed: (p.practiceUsed || 0) + 1 } })
+  else usedOneMessage()
+}
 export function coachLocked() {
   if (state.plan) set({ plan: { ...state.plan, left: 0 } })
 }
@@ -41,6 +49,8 @@ export function useCoachPlan() {
     plan,
     // Live site without a subscription and no free messages left: show the subscribe card.
     locked: isLive && !!plan && !plan.subscribed && plan.left <= 0,
+    // The Practice studio also opens with the practice pack from the complete course.
+    practiceLocked: isLive && !!plan && !plan.subscribed && plan.left <= 0 && !(plan.practiceLeft > 0),
     refresh: refreshCoachPlan,
   }
 }
@@ -48,9 +58,12 @@ export function useCoachPlan() {
 const day = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
 // A one-line note under the coach: free messages left, or the monthly allowance.
-export function PlanNote() {
+export function PlanNote({ practice }) {
   const { plan } = useCoachPlan()
   if (!isLive || !plan || plan.preview) return null
+  if (practice && !(plan.subscribed && plan.left > 0) && plan.practiceLimit > 0) {
+    return <p className="coach-plan-note small">{plan.practiceLeft > 0 ? `${plan.practiceLeft} of your ${plan.practiceLimit} practice messages left (included with your course).` : 'Your included practice messages are used up.'}</p>
+  }
   if (!plan.subscribed) return <p className="coach-plan-note small">{plan.left > 0 ? `${plan.left} free coach message${plan.left === 1 ? '' : 's'} left.` : 'Your free coach messages are used up.'} <button type="button" className="linklike" onClick={() => window.dispatchEvent(new Event('coach-subscribe'))}>Subscribe for €{COACH_PRICE}/month</button></p>
   if (plan.included && plan.left > 30) return null
   if (plan.left <= 30) return <p className="coach-plan-note small">{plan.left} of this month's {plan.limit} coach messages left.</p>
@@ -58,7 +71,7 @@ export function PlanNote() {
 }
 
 // The subscribe card: price, what's included, the withdrawal notice and the Stripe button.
-export function CoachPaywall({ compact }) {
+export function CoachPaywall({ compact, practice }) {
   const [consent, setConsent] = useState(false)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -69,7 +82,7 @@ export function CoachPaywall({ compact }) {
     <div className={'coach-paywall' + (compact ? ' compact' : '')}>
       <span className="eyebrow">AI coach subscription</span>
       <h4>{included ? 'Keep the AI coach after your included months' : usedUp ? 'Keep coaching with the AI coach' : 'Unlock the AI coach'}</h4>
-      {usedUp && <p className="small muted">{plan.included ? 'Your included coach months have ended.' : 'You\'ve used your free coach messages.'}</p>}
+      {usedUp && <p className="small muted">{practice && plan.practiceLimit ? `You've used the ${plan.practiceLimit} practice messages that came with your course.` : plan.included ? 'Your included coach months have ended.' : 'You\'ve used your free coach messages.'}</p>}
       {included && <p className="small muted">Your coach is included until {day(plan.periodEnd)}. If you subscribe now, the first payment is taken on that day, not before.</p>}
       <p className="coach-price"><strong className="tnum">€{COACH_PRICE}</strong> <span className="muted">per month · cancel any time</span></p>
       <ul className="small">

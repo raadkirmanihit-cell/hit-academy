@@ -3,7 +3,7 @@ import { useApp } from '../App.jsx'
 import { Icon } from './icons.jsx'
 import { TermsLink } from './Terms.jsx'
 import { LEGAL } from '../content/terms.js'
-import { offers, MODULE_PRICE, CURRENCY, BUNDLE_COACH_MONTHS, euro } from '../content/pricing.js'
+import { offers, MODULE_PRICE, CURRENCY, BUNDLE_PRACTICE_MESSAGES, euro } from '../content/pricing.js'
 
 
 // Buy the complete course (€99, or €79 at launch, less €19 for each module already bought) or a single module (€19).
@@ -50,7 +50,7 @@ export default function Checkout({ choice }) {
                   <strong>Complete course: all 7 modules</strong>
                   <span className="small muted">
                     {o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the module${o.bought > 1 ? 's' : ''} you bought. ` : ''}
-                    Save {euro(o.bundle.saving)} compared with buying the remaining modules one by one ({euro(o.bundle.separately)}). Includes {BUNDLE_COACH_MONTHS} months of the AI coach and the certificate.
+                    Save {euro(o.bundle.saving)} compared with buying the remaining modules one by one ({euro(o.bundle.separately)}). Includes {BUNDLE_PRACTICE_MESSAGES} AI role-play practice messages in the Practice studio and the certificate.
                   </span>
                   {o.bundle.launch && <span className="small" style={{ color: 'var(--orange-ink)', fontWeight: 600 }}>Launch price: {euro(o.bundle.full)} instead of {euro(o.bundle.regular)}{launch.left ? ` for the first 100 students (${launch.left} places left)` : ''}{launch.until ? `, until ${new Date(launch.until).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}` : ''}.</span>}
                 </span>

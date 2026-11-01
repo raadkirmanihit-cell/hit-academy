@@ -3,7 +3,7 @@ import { courseStats, flatSteps, moduleStats } from '../platform/progress.js'
 import { Icon } from './icons.jsx'
 import { CoachTeaser } from '../coach/Coach.jsx'
 import { CoachPlanCard } from '../coach/plan.jsx'
-import { offers, MODULE_PRICE, BUNDLE_COACH_MONTHS, FREE_MODULES, euro } from '../content/pricing.js'
+import { offers, MODULE_PRICE, BUNDLE_PRACTICE_MESSAGES, FREE_MODULES, euro } from '../content/pricing.js'
 import { useState } from 'react'
 import { pitch, moduleInside, previewBlock } from '../content/module-pitch.js'
 import { Blocks } from './Blocks.jsx'
@@ -58,7 +58,7 @@ export default function Dashboard() {
             <div className="card upgrade-card">
               <div>
                 <strong>Unlock all 7 modules for {euro(o.bundle.price)}{o.bundle.launch && !o.bundle.credit ? ` (launch price, normally ${euro(o.bundle.regular)})` : ''}</strong>
-                <p className="small muted">{o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the modules you bought. ` : ''}Save {euro(o.bundle.saving)} compared with buying them one by one. Includes {BUNDLE_COACH_MONTHS} months of the AI coach and the certificate.</p>
+                <p className="small muted">{o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the modules you bought. ` : ''}Save {euro(o.bundle.saving)} compared with buying them one by one. Includes {BUNDLE_PRACTICE_MESSAGES} AI role-play practice messages in the Practice studio and the certificate.</p>
               </div>
               <button className="btn btn-primary btn-sm" onClick={() => go('checkout', { choice: 'bundle' })}>Unlock all</button>
             </div>
