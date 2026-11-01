@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { moduleState } from '../platform/progress.js'
 import { useSample, noteError, errorText } from '../coach/Coach.jsx'
 import { useCoachPlan, usedOneMessage, CoachPaywall, PlanNote } from '../coach/plan.jsx'
 import { VOICE_PROMPT } from '../coach/practicePrompts.js'
-import { startCapture, analyse, readings } from './speechMetrics.js'
+import { startCapture, analyse, readings, wordTimes } from './speechMetrics.js'
 import { speakable } from '../coach/voice.js'
 
 const MAX_SEC = 45
@@ -146,7 +146,7 @@ export default function SayItAloud({ b, module }) {
               </div>
             ))}
           </div>
-          {metrics.contour?.length > 8 && <Contour m={metrics} />}
+          {metrics.contour?.length > 8 && <Playback m={metrics} audioUrl={audioUrl} text={text} />}
           <details className="reveal">
             <summary>How the app reads your delivery</summary>
             <ul className="small" style={{ margin: '.5rem 0 0', paddingLeft: '1.1rem', color: 'var(--ink-2)', display: 'grid', gap: '.3rem' }}>
@@ -157,7 +157,7 @@ export default function SayItAloud({ b, module }) {
               <li>These are estimates from your microphone, not a precise lab measurement. A quiet room and speaking at a normal volume give the best reading.</li>
             </ul>
           </details>
-          {audioUrl && <div className="voice-audio"><span className="eyebrow">Listen back</span><audio controls src={audioUrl} /></div>}
+          {audioUrl && !(metrics.contour?.length > 8) && <div className="voice-audio"><span className="eyebrow">Listen back</span><audio controls src={audioUrl} /></div>}
         </div>
       )}
 
@@ -205,27 +205,77 @@ export default function SayItAloud({ b, module }) {
 // Saved copy without the pitch contour (keeps the saved progress small).
 const strip = ({ contour, ...m }) => m
 
+// Listen back with a trail: while the recording plays, the pitch line fills in up to the playhead,
+// a dot rides on the line, and the word being spoken is highlighted (word timings are estimated).
+function Playback({ m, audioUrl, text }) {
+  const audio = useRef(null)
+  const [t, setT] = useState(null) // seconds since the first word, while playing
+  const words = useMemo(() => wordTimes(text, m.speech), [text, m.speech])
+  useEffect(() => {
+    const a = audio.current; if (!a) return
+    let raf = 0
+    const tick = () => { setT(a.currentTime - (m.offset || 0)); raf = requestAnimationFrame(tick) }
+    const play = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(tick) }
+    const stop = () => { cancelAnimationFrame(raf); setT(a.ended ? null : a.currentTime - (m.offset || 0)) }
+    const seek = () => setT(a.currentTime - (m.offset || 0))
+    a.addEventListener('play', play); a.addEventListener('pause', stop); a.addEventListener('ended', stop); a.addEventListener('seeked', seek)
+    return () => { cancelAnimationFrame(raf); a.removeEventListener('play', play); a.removeEventListener('pause', stop); a.removeEventListener('ended', stop); a.removeEventListener('seeked', seek) }
+  }, [audioUrl, m.offset])
+  const cur = t == null ? -1 : words.findIndex((w) => t >= w.s && t < w.e)
+  return (
+    <div className="stack" style={{ gap: '.6rem' }}>
+      <Contour m={m} playT={t} word={cur >= 0 ? words[cur].w : null} />
+      {audioUrl && (
+        <div className="voice-audio">
+          <span className="eyebrow">Listen back and follow your voice</span>
+          <audio ref={audio} controls src={audioUrl} />
+        </div>
+      )}
+      {audioUrl && words.length > 0 && (
+        <p className="word-trail" aria-hidden="true">
+          {words.map((w, i) => <span key={i} className={i === cur ? 'on' : t != null && w.e <= t ? 'done' : ''}>{w.w} </span>)}
+        </p>
+      )}
+    </div>
+  )
+}
+
 // The pitch line of the recording, in semitones around the speaker's typical pitch, with the
 // sentence endings the app judged marked as down, level or up.
 const MARK = { down: ['↘', 'var(--good)'], level: ['→', 'var(--muted)'], up: ['↗', 'var(--orange-ink)'] }
-function Contour({ m }) {
+function Contour({ m, playT = null, word = null }) {
   const pts = m.contour
   const T = Math.max(pts[pts.length - 1][0], ...(m.endMarks || []).map((e) => e.t)) || 1
   const R = Math.max(6, ...pts.map((p) => Math.abs(p[1]))) + 1
   const W = 600, H = 110, y = (st) => H / 2 - (st / R) * (H / 2 - 8)
   const d = pts.map(([t, st], i) => `${i && t - pts[i - 1][0] < 0.15 ? 'L' : 'M'}${(t / T * W).toFixed(1)},${y(st).toFixed(1)}`).join(' ')
+  const playing = playT != null && playT >= 0 && playT <= T + 0.2
+  const px = playing ? Math.min(1, playT / T) : 0
+  // The dot sits on the line at the playhead (the nearest pitch reading, if the voice is sounding).
+  let dot = null
+  if (playing) {
+    let best = null
+    for (const p of pts) if (Math.abs(p[0] - playT) < (best ? Math.abs(best[0] - playT) : 0.12)) best = p
+    if (best) dot = { x: (best[0] / T) * 100, y: (y(best[1]) / H) * 100 }
+  }
+  const clip = useMemo(() => 'clip' + Math.random().toString(36).slice(2, 8), [])
   return (
     <figure className="figure" style={{ margin: 0 }}>
-      <div className="contour">
+      <div className="contour"><div className="contour-in">
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Pitch of your voice over time, with sentence endings marked">
+          <defs><clipPath id={clip}><rect x="0" y="0" width={playing ? px * W : W} height={H} /></clipPath></defs>
           <line x1="0" x2={W} y1={H / 2} y2={H / 2} stroke="var(--line)" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
-          <path d={d} fill="none" stroke="var(--orange)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+          {playing && <path d={d} fill="none" stroke="var(--line)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />}
+          <path d={d} fill="none" stroke="var(--orange)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" clipPath={`url(#${clip})`} />
+          {playing && <line x1={px * W} x2={px * W} y1="0" y2={H} stroke="var(--navy-2, #33406a)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />}
         </svg>
+        {dot && <span className="contour-dot" style={{ left: dot.x + '%', top: dot.y + '%' }} />}
+        {playing && word && <span className="contour-word" style={{ left: `${Math.min(88, Math.max(6, px * 100))}%` }}>{word}</span>}
         {(m.endMarks || []).map((e, i) => (
           <span key={i} className="contour-mark" style={{ left: `${Math.min(97, (e.t / T) * 100)}%`, color: MARK[e.dir][1] }} title={`Ending: ${e.dir} (${e.d > 0 ? '+' : ''}${e.d} semitones)`}>{MARK[e.dir][0]}</span>
         ))}
-      </div>
-      <figcaption>Your pitch over time (higher line = higher voice; the dashed line is your typical pitch). Arrows mark the sentence endings the app judged: ↘ down, → level, ↗ up.</figcaption>
+      </div></div>
+      <figcaption>Your pitch over time (higher line = higher voice; the dashed line is your typical pitch). Arrows mark the sentence endings the app judged: ↘ down, → level, ↗ up. Press play to follow your voice along the line; word positions are estimated.</figcaption>
     </figure>
   )
 }

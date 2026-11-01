@@ -1223,3 +1223,10 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .contour { position: relative; }
 .contour svg { height: 110px; }
 .contour-mark { position: absolute; top: .2rem; transform: translateX(-50%); font: 700 1.1rem/1 var(--f-body); }
+.contour-dot { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--orange); border: 2px solid var(--surface); box-shadow: 0 0 0 2px var(--orange); pointer-events: none; }
+.contour-word { position: absolute; bottom: .3rem; transform: translateX(-50%); padding: .1rem .45rem; border-radius: 6px; background: var(--navy); color: var(--on-navy); font: 600 .78rem/1.4 var(--f-body); white-space: nowrap; pointer-events: none; }
+.word-trail { margin: 0; line-height: 1.8; color: var(--muted); }
+.word-trail span { transition: color .1s; }
+.word-trail span.done { color: var(--ink-2); }
+.word-trail span.on { color: #1c0f00; background: var(--orange); border-radius: 4px; padding: 0 .15rem; }
+.contour-in { position: relative; }

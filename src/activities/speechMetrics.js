@@ -198,6 +198,8 @@ export function analyse(frames, transcript) {
   const wpm = words && speechSec > 1 ? Math.round(words / speechSec * 60) : null
   return {
     ok: true,
+    offset: frames[first].t, // seconds from the start of the recording to the first word
+    speech: segments.map(([a, b]) => [Math.round((frames[a].t - frames[first].t) * 100) / 100, Math.round((frames[b].t - frames[first].t) * 100) / 100]),
     seconds: Math.round(speechSec * 10) / 10,
     words, wpm,
     pauses: pauses.length,
@@ -211,6 +213,23 @@ export function analyse(frames, transcript) {
     contour: track.map((x) => [Math.round((x.t - frames[first].t) * 100) / 100, Math.round(x.sm * 10) / 10]),
     hedges: countHedges(transcript),
   }
+}
+
+// Estimated timing of each word: the browser's transcript has no timings, so the words are spread
+// over the stretches of speech in proportion to their length (a rough stand-in for syllables).
+export function wordTimes(text, speech) {
+  const words = String(text).trim().split(/\s+/).filter(Boolean)
+  if (!words.length || !speech?.length) return []
+  const total = speech.reduce((a, [s, e]) => a + (e - s), 0) || 1
+  const weight = words.map((w) => Math.max(2, w.replace(/[^a-z0-9€]/gi, '').length))
+  const W = weight.reduce((a, x) => a + x, 0)
+  const at = (u) => { // u = share of the speaking time, 0..1 -> seconds
+    let left = u * total
+    for (const [s, e] of speech) { if (left <= e - s) return s + left; left -= e - s }
+    return speech[speech.length - 1][1]
+  }
+  let acc = 0
+  return words.map((w, i) => { const s = at(acc / W); acc += weight[i]; return { w, s, e: at(acc / W) } })
 }
 
 // Plain-language reading of each measurement. Tone: 'good' | 'warn'.
