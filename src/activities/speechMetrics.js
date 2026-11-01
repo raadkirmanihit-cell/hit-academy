@@ -227,7 +227,9 @@ export function analyse(frames, transcript) {
   // each stretch is extended over those frames (up to 0.3 s).
   const ext = segments.map(([a, b]) => { let e = b; while (e + 1 < frames.length && e - b < 10 && frames[e + 1].pitch > 0) e++; return [a, e] })
   const track = []
-  for (const [a, b] of ext) for (let i = a; i <= b; i++) if (frames[i].pitch > 0) track.push({ i, t: frames[i].t, st: semis(frames[i].pitch), creak: frames[i].pitch < creakHz })
+  // A voiced blip of one or two frames (60 ms) is a click or a consonant, not a syllable: skipped.
+  const run = (i) => { let a = i, b = i; while (a > 0 && frames[a - 1].pitch > 0) a--; while (b + 1 < frames.length && frames[b + 1].pitch > 0) b++; return b - a + 1 }
+  for (const [a, b] of ext) for (let i = a; i <= b; i++) if (frames[i].pitch > 0 && run(i) >= 3) track.push({ i, t: frames[i].t, st: semis(frames[i].pitch), creak: frames[i].pitch < creakHz })
   for (let k = 0; k < track.length; k++) { // 3-point median filter against single-frame blips
     const w = track.slice(Math.max(0, k - 1), k + 2).filter((x) => Math.abs(x.i - track[k].i) <= 2 && x.creak === track[k].creak).map((x) => x.st)
     track[k].sm = median(w)
