@@ -278,6 +278,12 @@ function CompareDialogues({ b }) {
         <Meter label="Riley's likely outcome" v={d.gauge.outcome} />
         <Meter label="Relationship with Alex" v={d.gauge.relationship} rel />
       </div>
+      {d.audio && (
+        <div className="voice-audio" key={'a-' + k}>
+          <span className="eyebrow">Listen to the {d.label.toLowerCase()} version</span>
+          <audio controls preload="metadata" src={d.audio} aria-label={`${d.label} conversation, audio`} />
+        </div>
+      )}
       <div className="stack" style={{ gap: '.6rem' }} key={k}>
         {d.lines.map(([who, text, note], i) => <Line key={i} who={who} text={text} note={note} cast={b.cast} />)}
       </div>
