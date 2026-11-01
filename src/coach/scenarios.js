@@ -75,6 +75,22 @@ export const scenarios = [
     faced: 'Pressure you faced',
     feedbackFocus: 'This practice is a customer escalation handled by a program manager. In "tactics", list the pressure Morgan applied (anger and accusation, demands for guarantees, threats of penalties or switching supplier, escalation over the program manager\'s head, a last-minute concession request) and how the learner handled each one. Judge whether the learner acknowledged the customer\'s impact before defending, stayed calm and assertive, separated the people from the problem, found Morgan\'s real needs, gave facts and a realistic recovery plan with a new timeline instead of overpromising, and traded concessions instead of giving them away. Credit sound moves from the learner\'s own project experience as well.',
   },
+  {
+    id: 'rent',
+    title: 'The rent increase',
+    level: 'Beginner',
+    img: 'img/m4/positional.webp',
+    you: 'a tenant whose landlord wants to raise the rent',
+    brief: 'You have rented a two-bedroom flat for four years and pay €1,100 a month. You have always paid on time and looked after the flat. Your landlord, Chris, has written that the rent goes up to €1,320 (+20%) in three months. Similar flats nearby, according to the local rent index and listings, rent for €1,180 to €1,250. Moving would cost you about €3,000 (agent, removals, a deposit gap) and a lot of stress, but you have seen two flats at €1,200 (your BATNA). The kitchen tap still leaks and the bedroom window does not close properly, which you reported months ago. Your goal: keep the increase fair, ideally at or below €1,200, and get the repairs done.',
+    situation: 'You are a private landlord who owns one flat and rents it to a tenant who has lived there for four years. You have written to say the rent goes up from €1,100 to €1,320 a month in three months. Now the tenant wants to talk about it.',
+    hidden: 'Your mortgage rate went up and the building\'s service charges rose by about €90 a month, so you feel you need more income. You picked €1,320 from one expensive listing, not from the rent index. A good, reliable tenant matters a lot to you: an empty month costs you €1,320, plus agent fees and redecorating of about €2,500. You would accept €1,200 to €1,230, especially with a longer commitment (for example a two-year agreement) or if the increase is phased. You know the repairs are overdue and would get them done within a month if asked clearly. You are not a bad person, just stressed about money.',
+    tactics: ['Present the increase as fixed and normal: "Everything has gone up. €1,320 is just the market now."', 'Use guilt and a little pressure: "I\'ve kept the rent low for years. I thought you\'d understand."', 'Hint that others would pay more: "I\'m sure I could find a new tenant at that price quickly."', 'If the tenant brings data, a calm tone and questions about your situation, open up about your costs and move towards a fair number.', 'If the tenant asks for the repairs, agree once the rent is settled, or offer them as a trade.'],
+    counterpart: { name: 'Chris', role: 'Landlord of the flat', initials: 'CH' },
+    opening: 'Hi, thanks for calling. I guess this is about my letter. Look, I know it\'s a jump, but everything has gone up. €1,320 is really just the market now.',
+    query: 'objective criteria market data anchor counter-anchor interests behind positions BATNA fairness calibrated questions strategic empathy reciprocity trade assertive',
+    faced: 'Pressure you faced',
+    feedbackFocus: 'This practice is a tenant negotiating a rent increase with a landlord. In "tactics", list the pressure Chris applied (the increase framed as normal market, guilt, the hint of other tenants, linking repairs to the rent) and how the learner handled each one. Judge whether the learner stayed calm and assertive, used objective criteria (the rent index, comparable flats) rather than only their own position, asked about Chris\'s real interests (costs, the value of a reliable tenant), used their BATNA without threatening, and traded rather than conceded (for example a longer commitment for a lower rent, repairs included). Credit sound moves from the learner\'s own experience as well.',
+  },
 ]
 
 const ORDER = { Beginner: 0, Intermediate: 1, Advanced: 2 }
