@@ -71,8 +71,18 @@ export async function startCapture({ onLevel, onWords } = {}) {
         setTimeout(finish, 1200)
       })
       stream.getTracks().forEach((t) => t.stop())
+      // The full pitch track is computed from the finished recording; the live readings are only a
+      // fallback for browsers that cannot decode their own recording.
+      let out = frames
+      try {
+        if (blob) {
+          const audio = await ctx.decodeAudioData(await blob.arrayBuffer())
+          const tracked = trackPitch(audio.getChannelData(0), audio.sampleRate)
+          if (tracked.length > 20) out = tracked
+        }
+      } catch { /* keep the live frames */ }
       ctx.close().catch(() => {})
-      return { blob, frames, transcript: text }
+      return { blob, frames: out, transcript: text }
     },
   }
 }
@@ -108,6 +118,64 @@ export function pitchPair(buf, rate) {
   const shift = (a - 2 * b + c) ? (a - c) / (2 * (a - 2 * b + c)) : 0
   const gl = peaks.find((l) => nsdf[l] === top)
   return [rate / (lag + shift), rate / gl]
+}
+
+// Pitch track of a whole recording, the way the speech-science tool Praat does it (Boersma, 1993):
+// every 30 ms, several pitch candidates from the autocorrelation of the sound, plus "no voice";
+// then the smoothest, strongest path through them. Choosing the path over the whole recording,
+// instead of frame by frame, avoids the octave slips (reading a high note at half its pitch) and
+// the noise readings that a frame-by-frame detector makes.
+export function trackPitch(x, rate, step = 0.03) {
+  const D = Math.max(1, Math.floor(rate / 12000)), sr = rate / D
+  const y = new Float32Array(Math.floor(x.length / D))
+  for (let i = 0; i < y.length; i++) { let s = 0; for (let k = 0; k < D; k++) s += x[i * D + k]; y[i] = s / D }
+  const floor = 60, ceil = 600, VT = 0.45, ST = 0.03, OC = 0.01, OJ = 0.35, VU = 0.14, corr = 0.01 / step
+  const W = Math.round(sr * 3 / floor), half = W >> 1
+  const win = new Float32Array(W); for (let i = 0; i < W; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * (i + 0.5) / W)
+  const minLag = Math.floor(sr / ceil), maxLag = Math.ceil(sr / floor)
+  const rw = new Float32Array(maxLag + 2)
+  for (let l = 0; l <= maxLag + 1; l++) { let s = 0; for (let i = 0; i < W - l; i++) s += win[i] * win[i + l]; rw[l] = s }
+  let gpk = 0; for (const v of y) gpk = Math.max(gpk, Math.abs(v))
+  const nF = Math.floor((y.length - W) / (sr * step)) + 1
+  const frames = [], cands = []
+  const seg = new Float32Array(W), r = new Float32Array(maxLag + 2)
+  for (let f = 0; f < nF; f++) {
+    const s0 = Math.round(f * sr * step)
+    let mean = 0; for (let i = 0; i < W; i++) mean += y[s0 + i]; mean /= W
+    let lpk = 0, e = 0
+    for (let i = 0; i < W; i++) { const v = y[s0 + i] - mean; lpk = Math.max(lpk, Math.abs(v)); e += v * v; seg[i] = v * win[i] }
+    const t = (s0 + half) / sr
+    const rms = Math.sqrt(e / W)
+    let r0 = 0; for (let i = 0; i < W; i++) r0 += seg[i] * seg[i]
+    const c = [[0, VT + Math.max(0, 2 - (lpk / (gpk || 1)) / (ST / (1 + VT)))]]
+    if (r0 > 0) {
+      for (let l = minLag - 1; l <= maxLag + 1; l++) { let s = 0; for (let i = 0; i < W - l; i++) s += seg[i] * seg[i + l]; r[l] = s / r0 / rw[l] * rw[0] }
+      for (let l = minLag; l <= maxLag; l++) if (r[l] > 0.5 * VT && r[l] >= r[l - 1] && r[l] > r[l + 1]) {
+        const a = r[l - 1], b = r[l], cc = r[l + 1], den = a - 2 * b + cc
+        const sh = den ? (a - cc) / (2 * den) : 0, lag = l + Math.max(-0.5, Math.min(0.5, sh))
+        const rr = Math.min(1, b - 0.25 * (a - cc) * sh)
+        c.push([sr / lag, rr - OC * Math.log2(floor * lag / sr)])
+      }
+    }
+    c.sort((p, q) => q[1] - p[1]); cands.push(c.slice(0, 15)); frames.push({ t, rms })
+  }
+  // Viterbi
+  let prev = cands[0].map((c) => c[1]), back = []
+  for (let f = 1; f < nF; f++) {
+    const cur = [], bk = []
+    for (const [fc, sc] of cands[f]) {
+      let best = -1e9, bi = 0
+      cands[f - 1].forEach(([fp], j) => {
+        const cost = (fc === 0) !== (fp === 0) ? VU * corr : fc && fp ? OJ * corr * Math.abs(Math.log2(fc / fp)) : 0
+        const v = prev[j] - cost; if (v > best) { best = v; bi = j }
+      })
+      cur.push(best + sc); bk.push(bi)
+    }
+    back.push(bk); prev = cur
+  }
+  let j = prev.indexOf(Math.max(...prev))
+  for (let f = nF - 1; f >= 0; f--) { frames[f].pitch = cands[f][j][0]; if (f) j = back[f - 1][j] }
+  return frames
 }
 
 const median = (xs) => { if (!xs.length) return 0; const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)] }
@@ -148,85 +216,41 @@ export function analyse(frames, transcript) {
   }
   segments.push([segStart, last])
 
-  // Pitch track. Real intonation glides, even when it climbs high; a reading error jumps instantly
-  // to 2x, 3x or half the real pitch for a frame or two. So each reading is checked against the
-  // frames just before it: a sudden jump is corrected (or dropped), a gradual climb is kept.
-  const raw = frames.slice(first, last + 1).filter((f) => f.pitch > 0)
-  const m0 = median(raw.map((f) => f.pitch))
-  const base = median(raw.map((f) => f.pitch).filter((p) => p < m0 * 1.5)) || m0 // typical pitch
-  const semis = (p, ref) => 12 * Math.log2(p / ref)
-  const track = []
-  // A sentence often ends in a quiet, fading syllable that is below the speech threshold but still
-  // has a clear pitch; each stretch is extended over those frames (up to 0.3 s).
+    // Pitch, in semitones around the speaker's typical pitch. A very low reading (8+ semitones below
+  // it) is a creaky voice ("vocal fry"): many speakers drop into it as a firm sentence fades.
+  const voiced = frames.slice(first, last + 1).filter((f) => f.pitch > 0).map((f) => f.pitch)
+  const m0 = median(voiced)
+  const base = median(voiced.filter((p) => p > m0 * 0.63)) || m0 // typical pitch
+  const creakHz = base * 0.63
+  const semis = (p) => 12 * Math.log2(p / base)
+  // A sentence often ends in a quiet syllable below the speech threshold that still has a pitch;
+  // each stretch is extended over those frames (up to 0.3 s).
   const ext = segments.map(([a, b]) => { let e = b; while (e + 1 < frames.length && e - b < 10 && frames[e + 1].pitch > 0) e++; return [a, e] })
-  for (const [a, b] of ext) {
-    const seg = []
-    for (let i = a; i <= b; i++) if (frames[i].pitch > 0) seg.push({ i, t: frames[i].t, p: frames[i].pitch })
-    if (!seg.length) continue
-    // Starting reference: the beginning of a phrase sits near the speaker's typical pitch.
-    const fold = (p, ref) => [p, p / 2, p / 3, p * 2].reduce((x, y) => (Math.abs(semis(y, ref)) < Math.abs(semis(x, ref)) ? y : x))
-    let ref = median(seg.slice(0, 5).map((x) => fold(x.p, base)))
-    let lastI = seg[0].i
-    const kept = []
-    // Many speakers end a firm statement by dropping into a low, creaky voice ("vocal fry") as the
-    // sound fades. It reads as a pitch far below the voice just before it. Near the end of a stretch,
-    // when the voice has gone quiet, such low readings are kept as the real fall they are.
-    const loud = median(seg.map((x) => frames[x.i].rms))
-    const tailFrom = seg[seg.length - 1].i - 12
-    for (const x of seg) {
-      if (x.i >= tailFrom && x.p < ref * 0.75 && frames[x.i].rms < loud * 0.6 && x.p >= 40) {
-        kept.push({ i: x.i, t: x.t, st: semis(x.p, base), creak: true })
-        continue
-      }
-      const gap = x.i - lastI // frames since the last accepted reading
-      const limit = 4 + 2 * Math.min(gap, 6) // allowed glide, in semitones
-      let p = x.p
-      if (Math.abs(semis(p, ref)) > limit) p = fold(p, ref)
-      if (Math.abs(semis(p, ref)) > limit) continue // still a jump: drop it
-      kept.push({ i: x.i, t: x.t, st: semis(p, base) })
-      const recent = kept.filter((k) => !k.creak).slice(-3).map((k) => base * 2 ** (k.st / 12))
-      ref = median(recent); lastI = x.i
-    }
-    track.push(...kept)
-  }
-  for (let k = 0; k < track.length; k++) { // 5-point median filter
-    const w = track.slice(Math.max(0, k - 2), k + 3).filter((x) => Math.abs(x.i - track[k].i) <= 4).map((x) => x.st)
+  const track = []
+  for (const [a, b] of ext) for (let i = a; i <= b; i++) if (frames[i].pitch > 0) track.push({ i, t: frames[i].t, st: semis(frames[i].pitch), creak: frames[i].pitch < creakHz })
+  for (let k = 0; k < track.length; k++) { // 3-point median filter against single-frame blips
+    const w = track.slice(Math.max(0, k - 1), k + 2).filter((x) => Math.abs(x.i - track[k].i) <= 2 && x.creak === track[k].creak).map((x) => x.st)
     track[k].sm = median(w)
   }
 
-  // Sentence endings: the last syllable before a longer pause (0.7 s or more) or at the very end,
-  // against the rest of that stretch of speech. Short pauses mid-sentence are skipped, because the
-  // voice naturally stays up there ("If the budget is tight, ..."). A change of 1.5 semitones or more
-  // counts as a fall or a rise; smaller changes count as level.
+  // Sentence endings, judged at every pause and at the very end, on the note the voice finishes on,
+  // against the speaker's typical pitch (calibrated on real "upward" and "downward" recordings):
+  // - up: the last syllable sits 4+ semitones above the typical pitch (a high, questioning finish);
+  // - down: it finishes below the typical pitch, falls by 1.5+ semitones, or drops into creak;
+  // - level: anything in between (a small lift onto the last stressed word included).
   const endings = []
-  for (const [k, [a, b]] of ext.entries()) {
-    if (k < segments.length - 1 && pauses[k] < 0.7) continue
+  for (const [a, b] of ext) {
     const p = track.filter((x) => x.i >= a && x.i <= b)
-    if (p.length < 12) continue // too short to judge
-    // The ending is judged on the last half second of voice, the way listeners hear it:
-    // - up: the pitch climbs and is still at (or near) its highest point when the voice stops;
-    // - down: the pitch drops by the end, including a rise onto the last stressed word that then
-    //   falls away (the usual shape of a firm statement);
-    // - level: neither moves by 1.5 semitones or more.
-    const fin = p.slice(-17).filter((x) => !x.creak).map((x) => x.sm)
-    if (fin.length < 6) continue
-    const end = median(fin.slice(-3))
-    const startV = median(fin.slice(0, 4))
-    const peak = Math.max(...fin.slice(0, -1)), low = Math.min(...fin.slice(0, -1))
-    // Creaky fall: as the voice fades after the last loud moment, the strongest beat drops far below
-    // the last clean pitch (to roughly half or lower).
-    const lastHz = base * 2 ** (end / 12)
-    const loudE = median(frames.slice(a, b + 1).map((f) => f.rms))
-    let lastLoud = b; while (lastLoud > a && frames[lastLoud].rms < loudE * 0.35) lastLoud--
-    const fade = frames.slice(lastLoud, Math.min(frames.length, b + 14)).filter((f) => f.g >= 40 && f.g < lastHz * 0.72)
-    const creak = p.some((x) => x.creak) || fade.length >= 3
-    let d
-    if (creak) d = -Math.min(6, Math.max(1.5, 12 * Math.log2(lastHz / median(fade.map((f) => f.g).concat(fade.length ? [] : [lastHz / 1.5])))))
-    else if (end >= peak - 0.7 && end - Math.min(startV, low) >= 4) d = end - Math.min(startV, low) // climbs to the end
-    else if (peak - end >= 1.5) d = end - peak // fell from the top
-    else if (end - startV <= -1.5) d = end - startV
-    else d = Math.max(-1.4, Math.min(1.4, end - startV)) // small moves, including a lift onto the last word, count as level
-    endings.push({ dir: d <= -1.5 ? 'down' : d >= 1.5 ? 'up' : 'level', t: p[p.length - 1].t - frames[first].t, d: Math.round(d * 10) / 10 })
+    const clean = p.filter((x) => !x.creak)
+    if (clean.length < 6) continue // too short to judge
+    const end = median(clean.slice(-3).map((x) => x.sm))
+    const lastClean = clean[clean.length - 1]
+    const before = clean.filter((x) => x.t < lastClean.t - 0.25 && x.t > lastClean.t - 1.2).map((x) => x.sm)
+    const tailCreak = p.filter((x) => x.creak && x.i > lastClean.i).length >= 2
+    let dir = 'level'
+    if (end >= 4) dir = 'up'
+    else if (tailCreak || end <= -1.5 || (before.length >= 3 && end - median(before) <= -1.5)) dir = 'down'
+    endings.push({ dir, t: p[p.length - 1].t - frames[first].t, d: Math.round(end * 10) / 10, creak: tailCreak })
   }
 
   const words = String(transcript).trim().split(/\s+/).filter(Boolean).length
@@ -245,7 +269,7 @@ export function analyse(frames, transcript) {
     up: endings.filter((e) => e.dir === 'up').length,
     level: endings.filter((e) => e.dir === 'level').length,
     medianPitch: Math.round(base),
-    contour: track.map((x) => [Math.round((x.t - frames[first].t) * 100) / 100, Math.round(x.sm * 10) / 10]),
+    contour: track.map((x) => [Math.round((x.t - frames[first].t) * 100) / 100, Math.round(Math.max(-12, x.sm) * 10) / 10]),
     hedges: countHedges(transcript),
   }
 }

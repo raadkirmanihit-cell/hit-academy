@@ -152,7 +152,7 @@ export default function SayItAloud({ b, module }) {
             <ul className="small" style={{ margin: '.5rem 0 0', paddingLeft: '1.1rem', color: 'var(--ink-2)', display: 'grid', gap: '.3rem' }}>
               <li><strong>Pace:</strong> the words in the box below, divided by the time you were speaking.</li>
               <li><strong>Pauses:</strong> silences of 0.4 seconds or more between words.</li>
-              <li><strong>Sentence endings:</strong> the app tracks the pitch of your voice and looks at your last syllable before each longer pause (0.7 seconds or more), and at the very end. It counts as <em>up</em> only when your voice climbs at least 4 semitones and is still at the top when you stop, the way a question does. A small lift onto the last stressed word counts as level. If your voice falls from its high point, fades out, or drops into a low, creaky tone at the end, it counts as down. Short pauses in the middle of a sentence are skipped, because the voice naturally stays up there.</li>
+              <li><strong>Sentence endings:</strong> the app tracks the pitch of your voice with the same method as Praat, the tool speech scientists use, and looks at the note you finish on before each pause and at the very end. It compares that note with your own typical speaking pitch. Finishing 4 or more semitones above it counts as <em>up</em>, the high, questioning finish that sounds like asking permission. Finishing below it, falling at the end, or dropping into a low, creaky voice counts as <em>down</em>. Anything in between, including a small lift onto the last stressed word, counts as level.</li>
               <li><strong>Hedges:</strong> softening words such as "just", "maybe", "kind of" and "I guess" in the box below.</li>
               <li>These are estimates from your microphone, not a precise lab measurement. A quiet room and speaking at a normal volume give the best reading.</li>
             </ul>
@@ -273,7 +273,7 @@ function Contour({ m, playT = null, word = null }) {
         {dot && <span className="contour-dot" style={{ left: dot.x + '%', top: dot.y + '%' }} />}
         {playing && word && <span className="contour-word" style={{ left: `${Math.min(88, Math.max(6, px * 100))}%` }}>{word}</span>}
         {(m.endMarks || []).map((e, i) => (
-          <span key={i} className="contour-mark" style={{ left: `${Math.min(97, (e.t / T) * 100)}%`, color: MARK[e.dir][1] }} title={`Ending: ${e.dir} (${e.d > 0 ? '+' : ''}${e.d} semitones)`}>{MARK[e.dir][0]}</span>
+          <span key={i} className="contour-mark" style={{ left: `${Math.min(97, (e.t / T) * 100)}%`, color: MARK[e.dir][1] }} title={`Ending: ${e.dir} (finished ${e.d > 0 ? '+' : ''}${e.d} semitones from your typical pitch${e.creak ? ', then a creaky drop' : ''})`}>{MARK[e.dir][0]}</span>
         ))}
       </div></div>
       <figcaption>Your pitch over time (higher line = higher voice; the dashed line is your typical pitch). Arrows mark the sentence endings the app judged: ↘ down, → level, ↗ up. Press play to follow your voice along the line; word positions are estimated.</figcaption>
