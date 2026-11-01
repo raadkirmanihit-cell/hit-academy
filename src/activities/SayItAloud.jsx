@@ -229,6 +229,7 @@ function Playback({ m, audioUrl, text }) {
         <div className="voice-audio">
           <span className="eyebrow">Listen back and follow your voice</span>
           <audio ref={audio} controls src={audioUrl} />
+          <a className="btn btn-sm" style={{ justifySelf: 'start' }} href={audioUrl} download="my-voice-practice.webm">Download my recording</a>
         </div>
       )}
       {audioUrl && words.length > 0 && (
