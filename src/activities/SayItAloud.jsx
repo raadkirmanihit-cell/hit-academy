@@ -147,6 +147,16 @@ export default function SayItAloud({ b, module }) {
             ))}
           </div>
           {metrics.contour?.length > 8 && <Contour m={metrics} />}
+          <details className="reveal">
+            <summary>How the app reads your delivery</summary>
+            <ul className="small" style={{ margin: '.5rem 0 0', paddingLeft: '1.1rem', color: 'var(--ink-2)', display: 'grid', gap: '.3rem' }}>
+              <li><strong>Pace:</strong> the words in the box below, divided by the time you were speaking.</li>
+              <li><strong>Pauses:</strong> silences of 0.4 seconds or more between words.</li>
+              <li><strong>Sentence endings:</strong> the app tracks the pitch of your voice and compares the last third of a second before each longer pause (0.7 seconds or more), and at the very end, with the rest of that sentence. A drop of 1.5 semitones or more counts as down, a rise of 1.5 or more as up, anything smaller as level. Short pauses in the middle of a sentence are skipped, because the voice naturally stays up there.</li>
+              <li><strong>Hedges:</strong> softening words such as "just", "maybe", "kind of" and "I guess" in the box below.</li>
+              <li>These are estimates from your microphone, not a precise lab measurement. A quiet room and speaking at a normal volume give the best reading.</li>
+            </ul>
+          </details>
           {audioUrl && <div className="voice-audio"><span className="eyebrow">Listen back</span><audio controls src={audioUrl} /></div>}
         </div>
       )}
@@ -195,22 +205,27 @@ export default function SayItAloud({ b, module }) {
 // Saved copy without the pitch contour (keeps the saved progress small).
 const strip = ({ contour, ...m }) => m
 
-// The pitch line of the recording; phrase endings that drop show confidence.
+// The pitch line of the recording, in semitones around the speaker's typical pitch, with the
+// sentence endings the app judged marked as down, level or up.
+const MARK = { down: ['↘', 'var(--good)'], level: ['→', 'var(--muted)'], up: ['↗', 'var(--orange-ink)'] }
 function Contour({ m }) {
   const pts = m.contour
-  const T = pts[pts.length - 1][0] || 1
-  const ps = pts.map((p) => p[1])
-  const lo = Math.min(...ps) * 0.9, hi = Math.max(...ps) * 1.1
-  const W = 600, H = 90
-  const d = pts.map(([t, p], i) => `${i && t - pts[i - 1][0] < 0.15 ? 'L' : 'M'}${(t / T * W).toFixed(1)},${(H - (p - lo) / (hi - lo) * H).toFixed(1)}`).join(' ')
+  const T = Math.max(pts[pts.length - 1][0], ...(m.endMarks || []).map((e) => e.t)) || 1
+  const R = Math.max(6, ...pts.map((p) => Math.abs(p[1]))) + 1
+  const W = 600, H = 110, y = (st) => H / 2 - (st / R) * (H / 2 - 8)
+  const d = pts.map(([t, st], i) => `${i && t - pts[i - 1][0] < 0.15 ? 'L' : 'M'}${(t / T * W).toFixed(1)},${y(st).toFixed(1)}`).join(' ')
   return (
     <figure className="figure" style={{ margin: 0 }}>
       <div className="contour">
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Pitch of your voice over time">
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Pitch of your voice over time, with sentence endings marked">
+          <line x1="0" x2={W} y1={H / 2} y2={H / 2} stroke="var(--line)" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
           <path d={d} fill="none" stroke="var(--orange)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
         </svg>
+        {(m.endMarks || []).map((e, i) => (
+          <span key={i} className="contour-mark" style={{ left: `${Math.min(97, (e.t / T) * 100)}%`, color: MARK[e.dir][1] }} title={`Ending: ${e.dir} (${e.d > 0 ? '+' : ''}${e.d} semitones)`}>{MARK[e.dir][0]}</span>
+        ))}
       </div>
-      <figcaption>The pitch of your voice over time (higher line = higher voice). Gaps are pauses.</figcaption>
+      <figcaption>Your pitch over time (higher line = higher voice; the dashed line is your typical pitch). Arrows mark the sentence endings the app judged: ↘ down, → level, ↗ up.</figcaption>
     </figure>
   )
 }

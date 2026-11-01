@@ -75,20 +75,32 @@ export async function startCapture({ onLevel, onWords } = {}) {
   }
 }
 
-// Autocorrelation pitch estimate in the human speaking range (70–400 Hz). 0 when unclear.
-function detectPitch(buf, rate) {
+// Pitch estimate in the human speaking range (65–400 Hz), or 0 when the frame isn't clearly voiced.
+// Normalised autocorrelation with "first strong peak" picking (McLeod & Wyvill's method), which
+// avoids most octave errors. Hissy sounds (s, f, sh, breath) are skipped: they have no pitch.
+export function detectPitch(buf, rate) {
   const n = buf.length
-  const minLag = Math.floor(rate / 400), maxLag = Math.floor(rate / 70)
-  let best = 0, bestLag = 0, energy = 0
-  for (let i = 0; i < n; i++) energy += buf[i] * buf[i]
-  if (!energy) return 0
-  for (let lag = minLag; lag <= maxLag; lag++) {
-    let c = 0
-    for (let i = 0; i < n - lag; i++) c += buf[i] * buf[i + lag]
-    c /= energy
-    if (c > best) { best = c; bestLag = lag }
+  let zc = 0
+  for (let i = 1; i < n; i++) if ((buf[i - 1] < 0) !== (buf[i] < 0)) zc++
+  if (zc / (n / rate) > 5000) return 0 // too many zero crossings: a fricative or noise, not a voice
+  const minLag = Math.floor(rate / 400), maxLag = Math.min(Math.floor(rate / 65), n - 64)
+  const nsdf = new Float32Array(maxLag + 2)
+  for (let lag = minLag - 1; lag <= maxLag + 1; lag++) {
+    let ac = 0, m = 0
+    for (let i = 0; i < n - lag; i++) { ac += buf[i] * buf[i + lag]; m += buf[i] * buf[i] + buf[i + lag] * buf[i + lag] }
+    nsdf[lag] = m ? (2 * ac) / m : 0
   }
-  return best > 0.45 && bestLag ? rate / bestLag : 0
+  // Local peaks, then the first one that is nearly as strong as the strongest.
+  const peaks = []
+  for (let lag = minLag; lag <= maxLag; lag++) if (nsdf[lag] > 0 && nsdf[lag] >= nsdf[lag - 1] && nsdf[lag] > nsdf[lag + 1]) peaks.push(lag)
+  if (!peaks.length) return 0
+  const top = Math.max(...peaks.map((l) => nsdf[l]))
+  if (top < 0.5) return 0
+  const lag = peaks.find((l) => nsdf[l] >= 0.88 * top)
+  // Parabolic interpolation for a finer estimate.
+  const a = nsdf[lag - 1], b = nsdf[lag], c = nsdf[lag + 1]
+  const shift = (a - 2 * b + c) ? (a - c) / (2 * (a - 2 * b + c)) : 0
+  return rate / (lag + shift)
 }
 
 const median = (xs) => { if (!xs.length) return 0; const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)] }
@@ -129,31 +141,56 @@ export function analyse(frames, transcript) {
   }
   segments.push([segStart, last])
 
-  // Phrase endings: the pitch over the last part of each phrase against the rest of it.
-  const endings = segments.map(([a, b]) => {
-    const p = frames.slice(a, b + 1).filter((f) => f.pitch > 0)
-    if (p.length < 8) return null
-    const cut = Math.max(4, Math.round(p.length * 0.3))
-    const head = median(p.slice(0, -cut).map((f) => f.pitch)), tail = median(p.slice(-cut).map((f) => f.pitch))
-    if (!head || !tail) return null
-    const r = tail / head
-    return r < 0.94 ? 'down' : r > 1.06 ? 'up' : 'level'
-  }).filter(Boolean)
+  // Pitch track: fold octave jumps back towards the speaker's typical pitch, drop stray values,
+  // smooth, and express everything in semitones (a musical half step) from that typical pitch.
+  const raw = frames.slice(first, last + 1).filter((f) => f.pitch > 0)
+  // Typical pitch: the median of readings in the main voice range (harmonic slips sit above it).
+  const m0 = median(raw.map((f) => f.pitch))
+  const base = median(raw.map((f) => f.pitch).filter((p) => p < m0 * 1.5)) || m0
+  const track = []
+  for (let i = first; i <= last; i++) {
+    let p = frames[i].pitch
+    if (!p || !base) continue
+    // Octave and harmonic slips (2x, 3x or half the real pitch): keep the reading nearest the typical pitch.
+    p = [p, p / 2, p / 3, p * 2].reduce((x, y) => (Math.abs(Math.log2(y / base)) < Math.abs(Math.log2(x / base)) ? y : x))
+    const st = 12 * Math.log2(p / base)
+    if (Math.abs(st) <= 9) track.push({ i, t: frames[i].t, st })
+  }
+  for (let k = 0; k < track.length; k++) { // 5-point median filter
+    const w = track.slice(Math.max(0, k - 2), k + 3).filter((x) => Math.abs(x.i - track[k].i) <= 4).map((x) => x.st)
+    track[k].sm = median(w)
+  }
+
+  // Sentence endings: the last ~0.3 s of voice before a longer pause (0.7 s or more) or at the very end,
+  // against the rest of that stretch of speech. Short pauses mid-sentence are skipped, because the
+  // voice naturally stays up there ("If the budget is tight, ..."). A change of 1.5 semitones or more
+  // counts as a fall or a rise; smaller changes count as level.
+  const endings = []
+  for (const [k, [a, b]] of segments.entries()) {
+    if (k < segments.length - 1 && pauses[k] < 0.7) continue
+    const p = track.filter((x) => x.i >= a && x.i <= b)
+    if (p.length < 14) continue // too short to judge
+    const tailN = Math.min(10, Math.round(p.length * 0.35))
+    const body = p.slice(0, -tailN), tail = p.slice(-tailN)
+    const d = median(tail.map((x) => x.sm)) - median(body.map((x) => x.sm))
+    endings.push({ dir: d <= -1.5 ? 'down' : d >= 1.5 ? 'up' : 'level', t: tail[tail.length - 1].t - frames[first].t, d: Math.round(d * 10) / 10 })
+  }
 
   const words = String(transcript).trim().split(/\s+/).filter(Boolean).length
   const wpm = words && speechSec > 1 ? Math.round(words / speechSec * 60) : null
-  const pitched = frames.slice(first, last + 1).filter((f) => f.pitch > 0)
   return {
     ok: true,
     seconds: Math.round(speechSec * 10) / 10,
     words, wpm,
     pauses: pauses.length,
     longestPause: pauses.length ? Math.round(Math.max(...pauses) * 10) / 10 : 0,
-    endings,
-    down: endings.filter((e) => e === 'down').length,
-    up: endings.filter((e) => e === 'up').length,
-    medianPitch: Math.round(median(pitched.map((f) => f.pitch))),
-    contour: pitched.map((f) => [Math.round((f.t - frames[first].t) * 100) / 100, Math.round(f.pitch)]),
+    endings: endings.map((e) => e.dir),
+    endMarks: endings,
+    down: endings.filter((e) => e.dir === 'down').length,
+    up: endings.filter((e) => e.dir === 'up').length,
+    level: endings.filter((e) => e.dir === 'level').length,
+    medianPitch: Math.round(base),
+    contour: track.map((x) => [Math.round((x.t - frames[first].t) * 100) / 100, Math.round(x.sm * 10) / 10]),
     hedges: countHedges(transcript),
   }
 }
@@ -170,9 +207,12 @@ export function readings(m) {
   else if (m.pauses >= 3 && m.pauses / Math.max(m.seconds, 1) > 0.3) r.push({ k: 'Pauses', v: `${m.pauses}`, tone: 'warn', t: 'Many pauses. That can sound hesitant: try to speak in fuller phrases.' })
   else r.push({ k: 'Pauses', v: `${m.pauses} (longest ${m.longestPause}s)`, tone: 'good', t: 'Purposeful pauses give your words weight.' })
 
-  if (!m.endings.length) r.push({ k: 'Phrase endings', v: '—', tone: 'neutral', t: 'Not enough clear voice to read the pitch. Try again a little closer to the microphone.' })
-  else if (m.up > m.down) r.push({ k: 'Phrase endings', v: `${m.down} of ${m.endings.length} go down`, tone: 'warn', t: 'Your voice mostly rises at the end, which can sound like asking permission. On your position, let the pitch drop.' })
-  else r.push({ k: 'Phrase endings', v: `${m.down} of ${m.endings.length} go down`, tone: 'good', t: 'Downward endings sound sure. A rise is fine on a real question.' })
+  const E = m.endings.length, up = m.endings.filter((e) => e === 'up').length, down = m.endings.filter((e) => e === 'down').length
+  const v = E ? [down && `${down} down`, E - up - down && `${E - up - down} level`, up && `${up} up`].filter(Boolean).join(', ') : '—'
+  if (!E) r.push({ k: 'Sentence endings', v, tone: 'neutral', t: 'Not enough clear voice to read the pitch. Try again a little closer to the microphone.' })
+  else if (up > down && up > E / 2) r.push({ k: 'Sentence endings', v, tone: 'warn', t: 'Your voice went up at the end, which can sound like asking permission. On your position, let the pitch drop. A rise is fine on a yes/no question.' })
+  else if (down) r.push({ k: 'Sentence endings', v, tone: 'good', t: 'Downward endings sound sure of your position.' })
+  else r.push({ k: 'Sentence endings', v, tone: 'neutral', t: 'Your endings stayed level: calm, but not yet firm. Let the pitch drop slightly on your key point.' })
 
   const n = m.hedges.reduce((a, h) => a + h.n, 0)
   if (!m.words) r.push({ k: 'Hedges and fillers', v: '—', tone: 'neutral', t: 'Add the words you said to check for hedges.' })
