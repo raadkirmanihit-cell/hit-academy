@@ -48,10 +48,18 @@ ${ctx.library}
 COURSE EXCERPTS (most relevant to the latest question)
 ${ctx.excerpts}`
 
+// How hard the counterpart plays at each difficulty level.
+const LEVELS = {
+  Beginner: 'BEGINNER. Be firm at first but fair and reachable. Use only your first two or three planned tactics, one at a time and not too hard. When the learner makes one or two sound moves, give ground clearly so they feel what works. Do not stack pressure.',
+  Intermediate: 'INTERMEDIATE. Use most of your planned tactics. Give ground only after the learner handles a tactic well, not on the first good move. Switch behaviour once or twice when it fits (for example from aggressive to passive-aggressive), and test any vague agreement.',
+  Advanced: 'ADVANCED. Play a tough, realistic counterpart. Use all your planned tactics and add others from the course when they fit; you may combine pressure (for example a deadline plus a threat). Give ground slowly and only for consistently strong moves: calm assertiveness, accurate labels, calibrated questions, a credible BATNA, objective criteria, and trades rather than gifts. Punish overpromising, blame and quick concessions by asking for more. Stay fair: a learner who handles you well can still reach a good deal.',
+}
+
 export const SPAR_RULES = (sc) => `You are role-playing a negotiation with a learner of the course "Negotiation & Conflict Resolution". The learner practises; you play the other side.
 
 YOUR CHARACTER: ${sc.counterpart.name}, ${sc.counterpart.role}.
 SITUATION: ${sc.situation}
+DIFFICULTY: ${LEVELS[sc.level] || LEVELS.Intermediate}
 WHAT ONLY YOU KNOW (never reveal it directly): ${sc.hidden}
 TACTICS TO USE, roughly in this order, one at a time, when they fit naturally:
 ${sc.tactics.map((t, i) => `${i + 1}. ${t}`).join('\n')}

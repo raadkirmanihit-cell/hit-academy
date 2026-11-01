@@ -1,10 +1,9 @@
-// Practice scenarios for the live sparring partner. Every scenario draws on all 7 modules;
-// `modules` names the ones it leans on most (shown on the card).
+// Practice scenarios for the live sparring partner. Every scenario draws on all 7 modules.
+// level sets how hard the counterpart is (see LEVELS in prompts.js); the studio lists them easiest first.
 export const scenarios = [
   {
     id: 'fleet',
     title: 'The fleet-management deal',
-    modules: 'All 7 modules · focus 5–7',
     level: 'Advanced',
     img: 'img/m7/goodcop.webp',
     you: 'the buyer of a fleet-management system for your company',
@@ -19,7 +18,6 @@ export const scenarios = [
   {
     id: 'salary',
     title: 'The salary offer',
-    modules: 'All 7 modules · focus 5–6',
     level: 'Intermediate',
     img: 'img/m6/anchor.webp',
     you: 'a candidate negotiating a job offer for a senior marketing role',
@@ -34,8 +32,7 @@ export const scenarios = [
   {
     id: 'colleague',
     title: 'The frustrated colleague',
-    modules: 'All 7 modules · focus 2–4',
-    level: 'Foundation',
+    level: 'Beginner',
     img: 'img/m7/outburst.webp',
     you: 'a project lead who needs a colleague to deliver their part of a report on time',
     brief: 'Your colleague Alex has missed two deadlines for their section of a client report. The client presentation is on Friday. You want to resolve this without damaging the relationship, and agree a realistic plan.',
@@ -49,8 +46,7 @@ export const scenarios = [
   {
     id: 'budget',
     title: 'The extra-headcount request',
-    modules: 'All 7 modules · focus 1',
-    level: 'Foundation',
+    level: 'Intermediate',
     img: 'img/m1/sit-aggressive.webp',
     you: 'a team lead asking the finance director for budget to add one person to your team',
     brief: 'Your team won two new clients this quarter (about €240,000 in new annual revenue) and everyone is working overtime. You want budget for one more full-time hire (about €60,000 a year). At the very least you need a six-month contractor. Dana, the finance director, is known for being tough. Stay assertive whatever Dana does, adapt your tone, and choose your strategy.',
@@ -66,7 +62,6 @@ export const scenarios = [
   {
     id: 'escalation',
     title: 'The customer quality escalation',
-    modules: 'All 7 modules · focus 1–4',
     level: 'Advanced',
     img: 'img/m1/aggressive-2.webp',
     you: 'the program manager responsible for a customer program that has hit a quality problem',
@@ -81,5 +76,8 @@ export const scenarios = [
     feedbackFocus: 'This practice is a customer escalation handled by a program manager. In "tactics", list the pressure Morgan applied (anger and accusation, demands for guarantees, threats of penalties or switching supplier, escalation over the program manager\'s head, a last-minute concession request) and how the learner handled each one. Judge whether the learner acknowledged the customer\'s impact before defending, stayed calm and assertive, separated the people from the problem, found Morgan\'s real needs, gave facts and a realistic recovery plan with a new timeline instead of overpromising, and traded concessions instead of giving them away. Credit sound moves from the learner\'s own project experience as well.',
   },
 ]
+
+const ORDER = { Beginner: 0, Intermediate: 1, Advanced: 2 }
+scenarios.sort((a, b) => ORDER[a.level] - ORDER[b.level])
 
 export const scenarioById = (id) => scenarios.find((s) => s.id === id)

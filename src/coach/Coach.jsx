@@ -393,7 +393,7 @@ export function PracticeStudio() {
             {scenarios.map((s) => (
               <button key={s.id} className="card studio-card" onClick={() => go('practice', { scenarioId: s.id })}>
                 <img src={s.img} alt="" />
-                <span className="eyebrow">{s.level} · {s.modules}</span>
+                <span className="eyebrow">{s.level}</span>
                 <h4>{s.title}</h4>
                 <p className="small muted">Play {s.you}. Opposite you: {s.counterpart.name} ({s.counterpart.role}).</p>
               </button>
