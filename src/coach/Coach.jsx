@@ -269,9 +269,9 @@ export function Spar({ scenarioId, compact }) {
     if (!sample || reporting) return
     setEnded(true); setReporting(true); setErr('')
     const transcript = turns.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
-    const excerpts = formatExcerpts(retrieve(kb, sc.query + ' ' + transcript, {}, 9))
+    const excerpts = formatExcerpts(retrieve(kb, sc.query + ' ' + transcript, {}, 12))
     try {
-      const r = await sample.json(FEEDBACK_PROMPT(sc, transcript, excerpts), { cache: false, purpose: 'practice' })
+      const r = await sample.json(FEEDBACK_PROMPT(sc, transcript, excerpts, kb.library), { cache: false, purpose: 'practice' })
       setReport(r && typeof r === 'object' ? r : null)
       usedOnePractice()
       if (!r || typeof r !== 'object') setErr('The feedback report could not be created. Please try again.')
@@ -371,6 +371,7 @@ function Report({ r, sc }) {
       {list(r.strengths).length > 0 && <><h5>What you did well</h5><ul>{list(r.strengths).map((s, i) => <li key={i}>{String(s)}</li>)}</ul></>}
       {list(r.improve).length > 0 && <><h5>Try next time</h5><ul>{list(r.improve).map((s, i) => <li key={i}>{s.tip}{s.say && <><br /><strong>"{String(s.say).replace(/^"|"$/g, '')}"</strong></>}</li>)}</ul></>}
       {list(r.review).length > 0 && <><h5>Lessons to review</h5><ul>{list(r.review).map((s, i) => <li key={i}>{s.where}{s.page ? `: ${s.page}` : ''}</li>)}</ul></>}
+      {list(r.research).filter((x) => x?.insight && x?.source).length > 0 && <><h5>Beyond the course</h5><ul>{list(r.research).filter((x) => x?.insight && x?.source).map((x, i) => <li key={i}>{x.insight}<br /><span className="small muted">{x.source}</span></li>)}</ul></>}
     </div>
   )
 }
@@ -387,7 +388,7 @@ export function PracticeStudio() {
         <div className="stack" style={{ gap: '1.2rem' }}>
           <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
           <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Practice studio</h1>
-          <p className="muted">Negotiate live with an AI counterpart who uses the tactics from the course. Afterwards you get a feedback report that links back to the lessons.</p>
+          <p className="muted">Negotiate live with an AI counterpart who knows all seven modules and adapts to whatever you say, including ideas from your own experience. Afterwards you get a feedback report that links back to the lessons, and to well-documented research where it adds something.</p>
           <div className="studio-grid">
             {scenarios.map((s) => (
               <button key={s.id} className="card studio-card" onClick={() => go('practice', { scenarioId: s.id })}>

@@ -3,6 +3,17 @@
 
 const TERMS = `Use the course's own terms exactly: "Strategic empathy" (never "tactical empathy"), "Allegation Assessment", "Verbal mirroring", "Midnight voice (FM RJ)", BATNA, ZOPA, "calibrated questions".`
 
+// A one-screen map of all 7 modules, so every role-play and feedback report can draw on the whole course.
+export const COURSE_MAP = `M1 The Negotiator's Blueprint: the four behaviours (aggressive, passive, manipulative / passive-aggressive, assertive); assertiveness as the anchor, adjusting tone not values (calm assertiveness for aggression, transparent assertiveness for guilt or manipulation); the five strategies (competing, collaborating, compromising, avoiding, accommodating) chosen by desired outcome, relationship and context.
+M2 The Voice of Influence: emotions drive decisions; the four emotional-intelligence skills (self-awareness, self-regulation, social awareness, empathy); labeling, verbal mirroring, Allegation Assessment, strategic empathy and de-escalation; the three voices (Midnight voice (FM RJ), assertive, playful).
+M3 The Silent Advantage: counterfeit, confirmation and commitment "yes" and how to test a yes (what, when, who); the power of "no" and no-oriented questions; the power of silence and pauses.
+M4 Break the Stalemate: positional vs principled bargaining; separate the people from the problem; interests behind positions and the six basic needs (security, economic well-being, belonging, recognition, control, fairness); generating options; objective criteria.
+M5 Win Before You Begin: goals, ideal and minimum outcomes, walk-away point and priorities; BATNA (identify, strengthen, leverage, estimate theirs) and ZOPA; tangible and intangible factors; leverage and timing.
+M6 Shape Their Reality: loss aversion, strategic anchoring and counter-anchoring, the fairness play, the illusion of choice, calibrated questions, reciprocity.
+M7 From Resistance to Resolution: decoding any tactic (recognise it, raise it, question it) and countering it with integrity: ultimatums and threats, false deadlines, emotional outbursts, silence, the flinch, highball / lowball, bracketing, the bogey, nibbling, cherry-picking, last-minute changes, limited or higher authority, good cop / bad cop, red herrings, strawman, delays, overwhelm, playing dumb, divide and conquer.`
+
+const RESEARCH_RULE = `You may also draw on well-documented outside research: peer-reviewed studies or widely respected books by recognised authors (prefer the APPROVED LIBRARY). Never invent a source, a finding or a statistic; if you are not sure a source says exactly that, leave it out. Never let outside research contradict the course: where they differ, follow the course.`
+
 export const COACH_RULES = (ctx) => `You are the H.I.T. Negotiation Coach, the AI coach inside the online course "Negotiation & Conflict Resolution" by Raad Kirmani (Human Interactions Translated). Learners ask you about negotiation and conflict resolution.
 
 RULES
@@ -45,6 +56,10 @@ WHAT ONLY YOU KNOW (never reveal it directly): ${sc.hidden}
 TACTICS TO USE, roughly in this order, one at a time, when they fit naturally:
 ${sc.tactics.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 
+THE WHOLE COURSE (the learner has studied all of it; you know it too)
+${COURSE_MAP}
+Beyond your planned tactics, you may behave in any way the course describes when it fits your character and the moment, as a real counterpart would: shift behaviour (for example from aggressive to passive-aggressive), give a counterfeit yes, go silent, flinch, anchor, raise a red herring, or appeal to fairness. React realistically to what the learner does with the course's tools: labeling or strategic empathy that is accurate takes the heat out of you; good calibrated questions get you talking about your real interests and constraints; a no-oriented question feels safe to answer; a vague yes from you should not survive a learner who tests it; a credible BATNA or objective criteria make you move; threats, blame or pressure make you dig in. Your reactions may also follow well-established negotiation research (for example on anchoring, loss aversion, reciprocity, fairness and emotions), but never contradict the course.
+
 HOW TO PLAY
 - Stay in character at all times. Speak like a real person in a meeting: 1–4 short sentences per turn, no stage directions except a brief one in *asterisks* when a gesture matters (a flinch, a long pause).
 - React to what the learner actually says, wherever they take the conversation. They may use ideas from the course or from their own experience: treat any sound move on its merits (calm, calibrated questions, data, a real BATNA, asking for something in return, a creative option you did not expect, a fair appeal to the relationship) and give ground gradually and realistically. If they react emotionally or concede quickly, take advantage within reason.
@@ -53,21 +68,25 @@ HOW TO PLAY
 - Keep it honest and professional: no insults, no discrimination.
 - When a deal is clearly agreed, or the learner clearly walks away, close the conversation in character and end your message with the token [END].`
 
-export const FEEDBACK_PROMPT = (sc, transcript, excerpts) => `You are the H.I.T. Negotiation Coach. A learner just finished a practice negotiation. Base your feedback on what the course teaches (excerpts below). If the learner used an approach that is not in the course but worked or was sound (for example from their own experience), credit it and say why it worked, and where it fits, link it to the closest course idea. ${TERMS}
+export const FEEDBACK_PROMPT = (sc, transcript, excerpts, lib = '') => `You are the H.I.T. Negotiation Coach. A learner just finished a practice negotiation. Judge it against the whole course, all seven modules (map and excerpts below), not only the scenario's focus: any tool from any module that would have helped, or that the learner used, counts. ${RESEARCH_RULE} If the learner used an approach that is not in the course but worked or was sound (for example from their own experience), credit it and say why it worked, and where it fits, link it to the closest course idea. ${TERMS}
 
 SCENARIO: ${sc.title}. The learner played: ${sc.you}. The other side (${sc.counterpart.name}) was told to use these tactics: ${sc.tactics.join('; ')}. Hidden facts: ${sc.hidden}${sc.feedbackFocus ? `\nFOCUS OF THIS PRACTICE: ${sc.feedbackFocus}` : ''}
+
+THE WHOLE COURSE
+${COURSE_MAP}
 
 TRANSCRIPT
 ${transcript}
 
 COURSE EXCERPTS
 ${excerpts}
-
+${lib ? `\nAPPROVED LIBRARY (sources the course already cites)\n${lib}\n` : ''}
 Reply with ONLY a JSON object in this shape:
 {"outcome": "one sentence on the result, with numbers if any",
  "rating": "Strong" | "Good" | "Developing",
  "tactics": [{"tactic": "name as in the course", "moment": "short quote or moment", "handled": "well" | "partly" | "missed", "note": "one sentence, practical"}],
  "strengths": ["one sentence each, max 3"],
  "improve": [{"tip": "one sentence", "say": "an exact sentence the learner could use next time"}],
- "review": [{"where": "Module N, Lesson N", "page": "page title"}]}
-Only list tactics the other side actually used in the transcript. Max 3 items in improve and 3 in review. Be encouraging and specific.`
+ "review": [{"where": "Module N, Lesson N", "page": "page title"}],
+ "research": [{"insight": "one sentence on what the research shows and how it applies to this conversation", "source": "Author(s) (year), title of the book or journal article"}]}
+Only list tactics the other side actually used in the transcript. Max 3 items in improve, 3 in review (from any module) and 2 in research. "research" is optional: add an item only when a well-documented, peer-reviewed study or a reputable book adds something useful beyond the course, and you are certain of the author, year and finding; otherwise return an empty list. Be encouraging and specific.`

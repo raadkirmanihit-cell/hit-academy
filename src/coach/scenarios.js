@@ -1,9 +1,10 @@
-// Practice scenarios for the live sparring partner. Each one draws on specific modules.
+// Practice scenarios for the live sparring partner. Every scenario draws on all 7 modules;
+// `modules` names the ones it leans on most (shown on the card).
 export const scenarios = [
   {
     id: 'fleet',
     title: 'The fleet-management deal',
-    modules: 'Modules 5, 6 and 7',
+    modules: 'All 7 modules · focus 5–7',
     level: 'Advanced',
     img: 'img/m7/goodcop.webp',
     you: 'the buyer of a fleet-management system for your company',
@@ -18,7 +19,7 @@ export const scenarios = [
   {
     id: 'salary',
     title: 'The salary offer',
-    modules: 'Modules 5 and 6',
+    modules: 'All 7 modules · focus 5–6',
     level: 'Intermediate',
     img: 'img/m6/anchor.webp',
     you: 'a candidate negotiating a job offer for a senior marketing role',
@@ -33,7 +34,7 @@ export const scenarios = [
   {
     id: 'colleague',
     title: 'The frustrated colleague',
-    modules: 'Modules 2, 3 and 4',
+    modules: 'All 7 modules · focus 2–4',
     level: 'Foundation',
     img: 'img/m7/outburst.webp',
     you: 'a project lead who needs a colleague to deliver their part of a report on time',
@@ -48,7 +49,7 @@ export const scenarios = [
   {
     id: 'budget',
     title: 'The extra-headcount request',
-    modules: 'Module 1',
+    modules: 'All 7 modules · focus 1',
     level: 'Foundation',
     img: 'img/m1/sit-aggressive.webp',
     you: 'a team lead asking the finance director for budget to add one person to your team',
@@ -60,12 +61,12 @@ export const scenarios = [
     opening: 'Let me guess: you want more headcount. I\'ll save us both some time. Budgets are frozen, and I\'ve already said no to two teams this week.',
     query: 'aggressive passive manipulative passive-aggressive assertive behaviour calm assertiveness transparent assertiveness adapt counterpart collaborating compromising strategy desired outcome relationship context',
     faced: 'Behaviours you faced',
-    feedbackFocus: 'This practice is about Module 1: negotiation behaviour and strategy. In "tactics", list the behaviours Dana showed (for example aggressive, passive-aggressive guilt, cooperative) and whether the learner adapted their assertiveness to each one (calm assertiveness for aggression, transparent assertiveness for guilt or manipulation). In strengths and improve, judge the learner\'s own behaviour (assertive, aggressive, passive or manipulative) and whether their strategy (competing, collaborating, compromising, avoiding or accommodating) fitted the outcome, the relationship and the context. Review links should point to Module 1 lessons.',
+    feedbackFocus: 'This practice focuses on Module 1 (negotiation behaviour and strategy), but judge it against the whole course. In "tactics", list the behaviours Dana showed (for example aggressive, passive-aggressive guilt, cooperative) and whether the learner adapted their assertiveness to each one (calm assertiveness for aggression, transparent assertiveness for guilt or manipulation). In strengths and improve, judge the learner\'s own behaviour (assertive, aggressive, passive or manipulative) and whether their strategy (competing, collaborating, compromising, avoiding or accommodating) fitted the outcome, the relationship and the context. Review links can point to any module, starting with the most relevant.',
   },
   {
     id: 'escalation',
     title: 'The customer quality escalation',
-    modules: 'Modules 1, 2, 3 and 4',
+    modules: 'All 7 modules · focus 1–4',
     level: 'Advanced',
     img: 'img/m1/aggressive-2.webp',
     you: 'the program manager responsible for a customer program that has hit a quality problem',
