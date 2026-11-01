@@ -198,23 +198,27 @@ export function analyse(frames, transcript) {
   const out = { ok: false }
   if (frames.length < 20) return out
   const rmsAll = frames.map((f) => f.rms)
-  const thr = Math.max(pct(rmsAll, 0.15) * 3, 0.012)
+  // Speech vs silence, relative to this recording: 20 dB below the loudest speech, and well above the
+  // background noise. A fixed level would cut quiet syllables out on a quiet microphone.
+  const thr = Math.max(pct(rmsAll, 0.1) * 2.5, pct(rmsAll, 0.95) * 0.12, 0.0015)
   const speech = frames.map((f) => f.rms > thr)
   const first = speech.indexOf(true), last = speech.lastIndexOf(true)
   if (first < 0 || last - first < 10) return out
   const speechSec = frames[last].t - frames[first].t
 
-  // Silences of 0.4 s or more between words count as pauses; they split the speech into phrases.
-  const minGap = Math.round(400 / FRAME_MS)
-  const segments = [], pauses = []
+  // Breaks of 0.25 s or more split the speech into phrases, and every phrase ending is judged.
+  // Breaks of 0.4 s or more also count as pauses.
+  const minBreak = Math.round(250 / FRAME_MS), minGap = Math.round(400 / FRAME_MS)
+  const segments = [], gapsF = []
   let segStart = first, gap = 0
   for (let i = first; i <= last; i++) {
     if (speech[i]) {
-      if (gap >= minGap) { segments.push([segStart, i - gap - 1]); pauses.push(gap * FRAME_MS / 1000); segStart = i }
+      if (gap >= minBreak) { segments.push([segStart, i - gap - 1]); gapsF.push(gap); segStart = i }
       gap = 0
     } else gap++
   }
   segments.push([segStart, last])
+  const pauses = gapsF.filter((g) => g >= minGap).map((g) => g * FRAME_MS / 1000)
 
     // Pitch, in semitones around the speaker's typical pitch. A very low reading (8+ semitones below
   // it) is a creaky voice ("vocal fry"): many speakers drop into it as a firm sentence fades.
@@ -260,16 +264,23 @@ export function analyse(frames, transcript) {
   // - strategic: 0.7 s or more after a complete thought (a stretch of 1 s or more that ends level
   //   or falling). It lets the point land and builds attention for what comes next;
   // - hesitant: after a rising, unfinished-sounding note (it waits for approval), or a long pause
-  //   (0.7 s or more) that breaks a short fragment off mid-thought;
+  //   (0.7 s or more) that breaks a short, unfinished fragment off mid-thought;
   // - breath: a short pause between phrases, neither good nor bad.
-  const pauseList = pauses.map((len, k) => {
-    const [a, b] = segments[k]
-    const before = frames[b].t - frames[a].t
+  const pauseList = []
+  let thoughtStart = segments[0][0]
+  gapsF.forEach((g, k) => {
+    if (g < minGap) return
+    const [, b] = segments[k], len = g * FRAME_MS / 1000
+    const before = frames[b].t - frames[thoughtStart].t // speech since the last pause
     const dir = endings.find((e) => e.k === k)?.dir
-    let kind = 'breath'
-    if (dir === 'up') kind = 'hesitant'
-    else if (len >= 0.7) kind = before >= 1 ? 'strategic' : 'hesitant'
-    return { t: Math.round((frames[b].t - frames[first].t) * 100) / 100, len: Math.round(len * 10) / 10, kind, why: dir === 'up' ? 'rising' : before < 1 ? 'fragment' : 'complete' }
+    let kind = 'breath', why = 'complete'
+    if (dir === 'up') { kind = 'hesitant'; why = 'rising' }
+    else if (len >= 0.7) {
+      if (before >= 1 || dir === 'down') kind = 'strategic' // a firm short phrase then a pause is emphasis
+      else { kind = 'hesitant'; why = 'fragment' }
+    }
+    pauseList.push({ t: Math.round((frames[b].t - frames[first].t) * 100) / 100, len: Math.round(len * 10) / 10, kind, why })
+    thoughtStart = segments[k + 1][0]
   })
 
   const words = String(transcript).trim().split(/\s+/).filter(Boolean).length
