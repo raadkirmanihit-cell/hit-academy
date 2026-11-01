@@ -45,6 +45,23 @@ export const scenarios = [
     opening: '*crosses arms* Look, if this is about the report again, I\'m doing my best here. I don\'t really need another reminder.',
     query: 'strategic empathy emotional outburst label allegation assessment verbal mirroring separate people from problem interests strawman red herring calm',
   },
+  {
+    id: 'budget',
+    title: 'The extra-headcount request',
+    modules: 'Module 1',
+    level: 'Foundation',
+    img: 'img/m1/sit-aggressive.webp',
+    you: 'a team lead asking the finance director for budget to add one person to your team',
+    brief: 'Your team won two new clients this quarter (about €240,000 in new annual revenue) and everyone is working overtime. You want budget for one more full-time hire (about €60,000 a year). At the very least you need a six-month contractor. Dana, the finance director, is known for being tough. Stay assertive whatever Dana does, adapt your tone, and choose your strategy.',
+    situation: 'You are the finance director of a mid-sized company. A team lead has come to ask for budget for one extra person on their team.',
+    hidden: 'Budget is tight, but you have €35,000 unallocated for the rest of this half-year. You would approve a six-month contractor straight away if asked clearly. You would approve a full hire if the team lead links it to the new client revenue (about €240,000) and offers a review point, for example a hire from next quarter or a check after six months. You respect people who are clear and calm and back requests with facts; you push harder on people who are vague, apologetic or who back down.',
+    tactics: ['Open aggressively and dismiss the request: budgets are frozen, you have already said no to two teams.', 'If the learner stays calm and gives facts, switch to passive-aggressive guilt: "Sure, I\'ll just tell the other teams their budgets are cut so you can grow yours."', 'If the learner is vague, apologetic or passive, push them to drop the request ("So it can wait, then?").', 'If the learner gets aggressive, become colder and more formal and refuse to move.', 'If the learner stays assertive and proposes options (a contractor, a phased hire, a link to the new revenue, a review date), become cooperative and work out a deal together.'],
+    counterpart: { name: 'Dana', role: 'Finance director', initials: 'DA' },
+    opening: 'Let me guess: you want more headcount. I\'ll save us both some time. Budgets are frozen, and I\'ve already said no to two teams this week.',
+    query: 'aggressive passive manipulative passive-aggressive assertive behaviour calm assertiveness transparent assertiveness adapt counterpart collaborating compromising strategy desired outcome relationship context',
+    faced: 'Behaviours you faced',
+    feedbackFocus: 'This practice is about Module 1: negotiation behaviour and strategy. In "tactics", list the behaviours Dana showed (for example aggressive, passive-aggressive guilt, cooperative) and whether the learner adapted their assertiveness to each one (calm assertiveness for aggression, transparent assertiveness for guilt or manipulation). In strengths and improve, judge the learner\'s own behaviour (assertive, aggressive, passive or manipulative) and whether their strategy (competing, collaborating, compromising, avoiding or accommodating) fitted the outcome, the relationship and the context. Review links should point to Module 1 lessons.',
+  },
 ]
 
 export const scenarioById = (id) => scenarios.find((s) => s.id === id)

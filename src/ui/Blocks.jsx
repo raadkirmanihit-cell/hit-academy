@@ -17,6 +17,11 @@ import OptionBoard from '../activities/OptionBoard.jsx'
 import BatnaMeter from '../activities/BatnaMeter.jsx'
 import { ZopaLab } from '../activities/Zopa.jsx'
 import AnchorLab from '../activities/AnchorLab.jsx'
+import QuickCheck from '../activities/QuickCheck.jsx'
+import YourTurn from '../activities/YourTurn.jsx'
+import SayItAloud from '../activities/SayItAloud.jsx'
+import Planner from '../activities/Planner.jsx'
+import Confidence from '../activities/Confidence.jsx'
 import { moduleState } from '../platform/progress.js'
 import { saveUrl } from '../platform/files.js'
 
@@ -124,6 +129,11 @@ function Block({ b, module }) {
     case 'zopa': return <ZopaLab module={module} />
     case 'anchorLab': return <AnchorLab module={module} />
     case 'liveSpar': return <Spar scenarioId={b.scenario} />
+    case 'quickCheck': return <QuickCheck b={b} module={module} />
+    case 'yourTurn': return <YourTurn b={b} module={module} />
+    case 'sayItAloud': return <SayItAloud b={b} module={module} />
+    case 'planner': return <Planner module={module} />
+    case 'confidence': return <Confidence phase={b.phase} module={module} />
     case 'voices': return <Voices items={b.items} />
     case 'steps': return <Steps items={b.items} start={b.start} />
     case 'person': return (
@@ -234,7 +244,7 @@ function Traits({ b }) {
   )
 }
 
-function Line({ who, text, note, cast, right }) {
+export function Line({ who, text, note, cast, right }) {
   const c = cast[who] || {}
   const initials = c.initials || (who === 'You' ? 'YOU' : who.slice(0, 2).toUpperCase())
   const isRight = right ?? (c.side === 'right' || who === 'You')
@@ -395,7 +405,7 @@ function Zones() {
   )
 }
 
-const INTERACTIVE = new Set(['activity', 'selector', 'flipCards', 'breathing', 'silence', 'options', 'batnaMeter', 'zopa', 'anchorLab'])
+const INTERACTIVE = new Set(['activity', 'selector', 'flipCards', 'breathing', 'silence', 'options', 'batnaMeter', 'zopa', 'anchorLab', 'yourTurn', 'sayItAloud', 'liveSpar', 'planner'])
 function overviewStats(module) {
   const lessons = module.sections.filter((x) => x.kind === 'lesson').length
   const blocks = module.sections.flatMap((x) => x.steps.flatMap((st) => st.blocks))

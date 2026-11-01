@@ -4,10 +4,11 @@ import { references } from './references.js'
 import { quiz } from './quiz.js'
 import { salary, strategyScenes, cast } from './dialogues.js'
 import * as act from './activities.js'
+import * as P from './practice.js'
 
 const img = (name) => `img/m1/${name}.webp`
 
-const strategyDetail = (key, title, tagline, what, chars, when, risks, examples, image) => ({
+const strategyDetail = (key, title, tagline, what, chars, when, risks, examples, image, check) => ({
   id: `l4-${key}`, title,
   blocks: [
     { t: 'strategyHeader', key, title, tagline, image: img(image) },
@@ -19,6 +20,7 @@ const strategyDetail = (key, title, tagline, what, chars, when, risks, examples,
     { t: 'callout', tone: 'warn', title: 'Potential risks', list: risks },
     { t: 'examples', items: examples },
     { t: 'scene', ...strategyScenes[key], cast: {} },
+    ...(check ? [check] : []),
   ],
 })
 
@@ -44,10 +46,12 @@ const m1 = {
   ],
   references,
   quiz,
+  planner: P.planner,
+  confidence: P.confidence,
   sections: [
     {
       id: 'intro', kind: 'overview', title: 'Start here',
-      steps: [{ id: 'overview', title: 'Module overview', kind: 'overview', blocks: [{ t: 'overview' }] }],
+      steps: [{ id: 'overview', title: 'Module overview', kind: 'overview', blocks: [{ t: 'overview' }, { t: 'confidence', phase: 'before' }] }],
     },
     {
       id: 'l1', kind: 'lesson', title: '1 · What negotiation really is',
@@ -59,6 +63,7 @@ const m1 = {
             { t: 'img', src: img('handshake'), alt: 'Two professionals shaking hands across a table', ratio: '16/7' },
             { t: 'quote', text: 'A wise negotiated agreement meets the key interests of all parties, resolves conflicts fairly, is long-lasting, and considers the broader community.', by: 'Fisher, Ury & Patton (2011)' },
             { t: 'p', text: 'Notice what this definition does *not* say. It does not say "getting the most" or "beating the other side". A good negotiator is judged by the quality of the agreement and what it leaves behind.' },
+            P.checks.define,
           ],
         },
         {
@@ -104,6 +109,7 @@ const m1 = {
               { key: 'manipulative', name: 'Manipulative (passive-aggressive)', text: 'Seem cooperative but subtly disrupt the negotiation, causing frustration and confusion.' },
               { key: 'assertive', name: 'Assertive', text: 'Clearly express their needs and interests while respecting the needs and interests of others.' },
             ] },
+            P.checks.overview,
             { t: 'research', added: true, title: 'A map of the four behaviours', text: 'Assertiveness research often places these behaviours on two questions: *Do I state my own needs directly?* and *Do I respect the other person\'s needs?* Assertive behaviour is the only one that answers yes to both.', diagram: 'BehaviourMap', cite: ['alberti2017'] },
           ],
         },
@@ -114,6 +120,7 @@ const m1 = {
               characteristics: ['Hostility and intimidation', 'Overpowering communication', 'Demanding stance'],
               benefits: ['Can lead to quick resolutions where the aggressor has significant leverage or power.', 'Useful in high-stakes, one-time negotiations where maintaining relationships is not a priority.'],
               risks: ['Harms relationships, fostering resentment and hostility.', 'Gains concessions but sacrifices long-term goodwill and partnerships.', 'Risks complete negotiation breakdown if the other party feels coerced.'] },
+            P.checks.aggressive,
           ],
         },
         {
@@ -123,6 +130,7 @@ const m1 = {
               characteristics: ['Submissiveness', 'Indecisiveness', 'Avoidance'],
               benefits: ['Preserves peace when the relationship is more important than the issue.', 'Useful when one party prioritises the relationship or lacks bargaining power.'],
               risks: ['Poor outcomes or exploitation by more aggressive negotiators.', 'Misses opportunities for better deals or balanced agreements.', 'May lose respect, as passiveness can be seen as weakness.'] },
+            P.checks.passive,
           ],
         },
         {
@@ -132,6 +140,7 @@ const m1 = {
               characteristics: ['Indirect communication', 'Emotional manipulation', 'Avoiding direct conflict'],
               benefits: ['Creates a temporary advantage by keeping the other party off balance.', 'Allows for delays in decisions or commitments when stalling is strategic.'],
               risks: ['Erodes trust and frustrates the other party.', 'Prolongs negotiations by disrupting communication.', 'Damages relationships through perceived dishonesty.'] },
+            P.checks.manipulative,
           ],
         },
         {
@@ -141,6 +150,7 @@ const m1 = {
               characteristics: ['Clarity and directness', 'Respect for both sides', 'Problem-solving orientation'],
               benefits: ['Builds trust and long-term relationships.', 'Helps achieve balanced agreements.', 'Reduces misunderstandings.'],
               risks: ['If the other party is highly aggressive or non-cooperative, assertiveness may be mistaken for weakness.'] },
+            P.checks.assertive,
           ],
         },
         {
@@ -149,6 +159,7 @@ const m1 = {
             { t: 'p', text: 'Alex, a manager, offers Riley a 5% raise. Riley has had a strong year. Switch between the four versions of the same conversation and notice how Riley\'s behaviour changes Alex\'s response.' },
             { t: 'compareDialogues', dialogues: salary, cast, order: ['aggressive', 'passive', 'manipulative', 'assertive'] },
             { t: 'callout', tone: 'tip', title: 'What changed?', text: 'Riley\'s achievements were the same in every version. Only the behaviour changed, and with it Alex\'s willingness to help. In the assertive version, Alex ends up advocating for Riley.' },
+            { t: 'yourTurn', ...P.yourTurnWorkload },
           ],
         },
         {
@@ -173,6 +184,7 @@ const m1 = {
               { key: 'manipulative', title: 'Manipulative (passive-aggressive) behaviour', img: img('sit-manip'), list: ['To delay decisions for strategic advantage.', 'To avoid escalation with difficult parties.', 'To gain an edge by unsettling the other side.'] },
               { key: 'assertive', title: 'Assertive behaviour', img: img('sit-assertive'), list: ['For win-win outcomes respecting both parties\' interests.', 'To build trust and foster long-term relationships.', 'To set clear expectations without causing conflict.'] },
             ] },
+            P.checks.situation,
           ],
         },
         {
@@ -181,6 +193,7 @@ const m1 = {
             { t: 'p', text: 'Assertiveness is the most balanced behaviour and serves as the default position in most negotiations, because it:' },
             { t: 'checks', items: ['Sets clear boundaries', 'Communicates with respect and confidence', 'Enables both collaboration and control', 'Avoids emotional overreaction'] },
             { t: 'callout', tone: 'key', title: 'Adjust tone, not values', text: 'Assertiveness is your most adaptable and effective default. Even assertiveness needs to be adjusted in tone and intensity depending on the other party.' },
+            P.checks.anchor,
             { t: 'research', added: true, title: 'Evidence: there is such a thing as too much, and too little', text: 'In studies of workplace leaders, Ames and Flynn found an inverted-U pattern: colleagues saw both low and very high assertiveness as weaknesses. Low assertiveness cost leaders results; very high assertiveness cost them relationships. The most effective leaders sat in the moderate, balanced middle, which is exactly the "anchor" position this module recommends.', cite: ['ames2007'] },
           ],
         },
@@ -199,6 +212,13 @@ const m1 = {
             { t: 'reflect', id: 'r-l3', prompt: 'Think of a difficult person you negotiate with regularly. Which behaviour do they usually show? Write the exact opening line you will use next time, in the matching flavour of assertiveness.' },
           ],
         },
+        {
+          id: 'l3-voice', title: 'Say it out loud: hold your anchor',
+          blocks: [
+            { t: 'p', text: 'Assertiveness is not only *what* you say but *how* it sounds. Practise out loud: record your answer, and the app measures your pace, your pauses, whether your voice drops at the end of your phrases, and any hedges ("just", "maybe", "I guess") that soften your position. Then ask the AI coach for feedback on your wording, and compare with a model answer.' },
+            P.sayAnchor,
+          ],
+        },
       ],
     },
     {
@@ -211,6 +231,7 @@ const m1 = {
             { t: 'p', text: 'It sets your **intent**, influences your **tactics**, and determines whether the outcome will be **competitive or cooperative**, **short-term or sustainable**.' },
             { t: 'p', text: 'There are five classic negotiating strategies, each with its own mindset, advantages and risks. Skilled negotiators know *when to use each*, and how to *shift strategies* fluidly depending on context and counterpart behaviour.' },
             { t: 'diagram', name: 'StrategyGrid', interactive: true, caption: 'Select a strategy to see where it sits. Assertiveness is concern for the outcome; cooperation is concern for the relationship.' },
+            P.checks.grid,
             { t: 'research', added: true, title: 'Where this grid comes from', text: 'The two-axis grid is best known from the **Thomas-Kilmann Conflict Mode Instrument**, which builds on Blake and Mouton\'s earlier Managerial Grid. Researchers call the same idea the *dual concern model*: your strategy follows from how much you care about your own outcome and how much you care about the other side\'s.', cite: ['thomas1974', 'blake1964', 'pruitt1986'] },
           ],
         },
@@ -219,31 +240,31 @@ const m1 = {
           ['**High assertiveness:** firm demands and aggressive tactics', '**Low cooperativeness:** prioritising personal goals over the relationship'],
           ['Quick decisions are needed', 'One side holds significant power or leverage', 'The outcome is more important than the long-term relationship'],
           ['Can damage relationships and lead to resentment', 'May result in lack of cooperation from the other party'],
-          ['In this contract, our final offer stands. If it doesn\'t meet your budget, we\'ll explore other partners.', 'Our terms are non-negotiable; it\'s the same standard we apply to all clients.'], 'st-competing'),
+          ['In this contract, our final offer stands. If it doesn\'t meet your budget, we\'ll explore other partners.', 'Our terms are non-negotiable; it\'s the same standard we apply to all clients.'], 'st-competing', P.checks.competing),
         strategyDetail('collaborating', 'Collaborating (integrative)', 'Seeks to find a mutually beneficial solution where both parties gain.',
           'A "win-win" mindset where both parties work together to find a mutually beneficial solution.',
           ['**High assertiveness:** actively pursuing your interests', '**High cooperativeness:** prioritising shared goals over individual gains'],
           ['Both parties have important stakes in the negotiation', 'Maintaining the relationship is a priority', 'There is time for in-depth discussions and problem-solving'],
           ['Can be time-consuming and requires a high level of trust and communication', 'If one party isn\'t fully engaged, it may not work as intended'],
-          ['Let\'s look at what matters most to each of us. Maybe we can adjust timelines instead of costs.', 'What if we combine your approach with part of mine? That could give us the best of both.'], 'st-collaborating'),
+          ['Let\'s look at what matters most to each of us. Maybe we can adjust timelines instead of costs.', 'What if we combine your approach with part of mine? That could give us the best of both.'], 'st-collaborating', P.checks.collaborating),
         strategyDetail('compromising', 'Compromising', 'Involves both parties making concessions to reach a middle ground.',
           'A "meet in the middle" strategy where both parties concede some of their demands to reach a mutually acceptable agreement.',
           ['**Moderate assertiveness:** neither party fully pursues their interests', '**Moderate cooperativeness:** both sides are willing to make concessions'],
           ['Time is limited and a quick resolution is needed', 'The parties have equal power and are willing to compromise', 'The issues are not highly critical for either side'],
           ['Can lead to suboptimal outcomes where neither side is fully satisfied', 'Overuse can create a "culture of compromise" where important issues are not properly addressed'],
-          ['If we meet halfway on cost and delivery, can we finalise today?'], 'st-compromising'),
+          ['If we meet halfway on cost and delivery, can we finalise today?'], 'st-compromising', P.checks.compromising),
         strategyDetail('avoiding', 'Avoiding', 'Attempts to sidestep or postpone negotiations to avoid conflict.',
           'A "no-deal" strategy where one or both parties sidestep the conflict altogether, delaying or avoiding resolution.',
           ['**Low assertiveness:** avoiding directly pursuing your interests', '**Low cooperativeness:** prioritising evasion over finding a solution'],
           ['The issue is trivial or not worth the time and effort', 'Further negotiation would be futile and a waste of energy', 'Emotions are running high, and a cooling-off period is needed'],
           ['Can allow unresolved issues to fester and create larger problems down the line', 'May give the impression of disinterest or weakness, damaging relationships'],
-          ['Let\'s pause for now. We can revisit this when we have more data.', 'Can we talk about this later? I\'ve got a lot on my plate.'], 'st-avoiding'),
+          ['Let\'s pause for now. We can revisit this when we have more data.', 'Can we talk about this later? I\'ve got a lot on my plate.'], 'st-avoiding', P.checks.avoiding),
         strategyDetail('accommodating', 'Accommodating', 'Prioritises the other party\'s needs and interests over one\'s own.',
           'A "lose-win" strategy where one party prioritises the relationship over their own goals, yielding to the other side\'s needs.',
           ['**Low assertiveness:** prioritising the other party\'s interests over your own', '**High cooperativeness:** focusing on maintaining harmony and goodwill'],
           ['The relationship is more important than the specific outcome', 'The issue at hand is relatively minor or unimportant to you', 'A gesture of goodwill is needed to build trust or de-escalate tension'],
           ['Consistently accommodating may lead to resentment or the other party taking advantage', 'Important personal or organisational goals may not be met, leading to dissatisfaction'],
-          ['I understand this delivery date is critical for you. We\'ll adjust our schedule to make it happen.'], 'st-accommodating'),
+          ['I understand this delivery date is critical for you. We\'ll adjust our schedule to make it happen.'], 'st-accommodating', P.checks.accommodating),
         {
           id: 'l4-practice', title: 'Practice: sort the strategy',
           blocks: [
@@ -275,6 +296,7 @@ const m1 = {
               { key: 'avoiding', strategy: 'Avoiding', outcome: 1, relationship: 1, context: 'Bad timing; a hectic deadline day', example: 'Parking the coffee-reimbursement debate' },
             ] },
             { t: 'callout', tone: 'tip', title: 'Re-check the factors as you go', text: 'The factors can change during a negotiation: a deadline appears, the other side reveals leverage, or the relationship turns out to matter more than you thought. When they change, a skilled negotiator shifts strategy.' },
+            P.checks.factors,
           ],
         },
         {
@@ -306,7 +328,9 @@ const m1 = {
             ] },
             { t: 'p', text: 'Although behaviour is about style and strategy is about method, they are closely linked. **The effectiveness of your strategy often depends on your behaviour.**' },
             { t: 'diagram', name: 'Combos' },
+            P.checks.bridge,
             { t: 'research', added: true, title: 'Evidence: firm on interests, warm on people', text: 'A meta-analysis of 28 studies found that negotiators reached the best joint outcomes when they combined a cooperative motive with high *resistance to yielding*: they cared about the other side **and** held firm on their own interests. Cooperative but yielding negotiators, and firm but selfish ones, did worse. That is the assertive + collaborative combination.', cite: ['dedreu2000'] },
+            { t: 'yourTurn', ...P.yourTurnSupplier },
           ],
         },
         {
@@ -314,6 +338,13 @@ const m1 = {
           blocks: [
             { t: 'activity', ...act.salaryRolePlay },
             { t: 'reflect', id: 'r-l6', prompt: 'For your next negotiation, write your plan as one line: "I will use a ____ strategy, delivered with ____ behaviour, because ____." Then write the first sentence you will say.' },
+          ],
+        },
+        {
+          id: 'l6-live', title: 'Live practice: the budget request',
+          blocks: [
+            { t: 'p', text: 'Now try it live. The AI plays Dana, a tough finance director who changes behaviour during the conversation. Your job: stay assertive, adapt your tone to each behaviour Dana shows, and pick a strategy that fits. Type or speak your replies. When you finish, you get a feedback report on your behaviour and your strategy.' },
+            { t: 'liveSpar', scenario: 'budget' },
           ],
         },
       ],
@@ -327,6 +358,7 @@ const m1 = {
             { t: 'p', text: 'Not every issue in a negotiation deserves the same effort. The chart below, from the module, shows how benefit grows with effort, split into four priority zones.' },
             { t: 'diagram', name: 'Pareto', caption: 'Pareto principle analysis. Benefit rises steeply over the first 20% of effort, then flattens.' },
             { t: 'zones' },
+            P.checks.pareto,
             { t: 'research', added: true, title: 'The 80/20 rule and MoSCoW', text: 'The Pareto principle is the observation that a small share of causes usually produces most of the effect, often summarised as 80/20. Quality pioneer Joseph Juran called these the "vital few" and the "useful many". The four zones in the chart follow the **MoSCoW** method (Must, Should, Could, Won\'t), which was created for prioritising requirements in software projects and works well for negotiation issues too.', cite: ['juran1951', 'koch1998', 'clegg1994'] },
           ],
         },
@@ -343,7 +375,8 @@ const m1 = {
     {
       id: 'wrap', kind: 'takeaways', title: 'Wrap-up',
       steps: [
-        { id: 'takeaways', title: 'Key takeaways', kind: 'takeaways', blocks: [{ t: 'takeaways' }] },
+        { id: 'takeaways', title: 'Key takeaways', kind: 'takeaways', blocks: [{ t: 'takeaways' }, { t: 'confidence', phase: 'after' }] },
+        { id: 'planner', title: 'Your negotiation planner', blocks: [{ t: 'planner' }] },
         { id: 'worksheet', title: 'Worksheet & sources', kind: 'resources', blocks: [{ t: 'worksheet' }, { t: 'references' }] },
       ],
     },

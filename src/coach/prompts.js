@@ -54,7 +54,7 @@ HOW TO PLAY
 
 export const FEEDBACK_PROMPT = (sc, transcript, excerpts) => `You are the H.I.T. Negotiation Coach. A learner just finished a practice negotiation. Give them feedback based ONLY on what the course teaches (excerpts below). ${TERMS}
 
-SCENARIO: ${sc.title}. The learner played: ${sc.you}. The other side (${sc.counterpart.name}) was told to use these tactics: ${sc.tactics.join('; ')}. Hidden facts: ${sc.hidden}
+SCENARIO: ${sc.title}. The learner played: ${sc.you}. The other side (${sc.counterpart.name}) was told to use these tactics: ${sc.tactics.join('; ')}. Hidden facts: ${sc.hidden}${sc.feedbackFocus ? `\nFOCUS OF THIS PRACTICE: ${sc.feedbackFocus}` : ''}
 
 TRANSCRIPT
 ${transcript}

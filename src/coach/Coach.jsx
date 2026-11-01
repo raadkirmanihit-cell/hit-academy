@@ -70,8 +70,8 @@ const ERRORS = {
   network: 'Connection problem. Please check your internet and try again.',
 }
 // Server says the free messages are used up: switch the coach to the subscribe card.
-const noteError = (e) => { if (e?.code === 'needs_subscription') coachLocked() }
-const errorText = (e) => (isLive && e?.message && e.code !== 'cancelled' ? e.message : ERRORS[e?.code]) || 'Something went wrong. Please try again.'
+export const noteError = (e) => { if (e?.code === 'needs_subscription') coachLocked() }
+export const errorText = (e) => (isLive && e?.message && e.code !== 'cancelled' ? e.message : ERRORS[e?.code]) || 'Something went wrong. Please try again.'
 
 // Coach replies use **bold** and "- " bullets only.
 function Rich({ text }) {
@@ -324,7 +324,7 @@ export function Spar({ scenarioId, compact }) {
             <VoiceToggle voice={voice} />
             {learnerTurns < 2 && !report && <span className="small muted">Feedback unlocks after two of your replies.</span>}
           </div>
-          {report && <Report r={report} />}
+          {report && <Report r={report} sc={sc} />}
         </>
       )}
     </div>
@@ -347,7 +347,7 @@ function SparLine({ t, sc, typing, voice }) {
 
 const HANDLED = { well: ['Handled well', 'var(--b-assertive)'], partly: ['Partly handled', 'var(--orange)'], missed: ['Missed', 'var(--b-aggressive)'] }
 
-function Report({ r }) {
+function Report({ r, sc }) {
   const list = (x) => (Array.isArray(x) ? x : [])
   return (
     <div className="spar-report fade-in">
@@ -355,7 +355,7 @@ function Report({ r }) {
       <h4>{r.rating ? `${r.rating}: ` : ''}{r.outcome}</h4>
       {list(r.tactics).length > 0 && (
         <div className="stack" style={{ gap: '.5rem' }}>
-          <h5>Tactics you faced</h5>
+          <h5>{sc?.faced || 'Tactics you faced'}</h5>
           {list(r.tactics).map((x, i) => {
             const [label, c] = HANDLED[x.handled] || HANDLED.partly
             return (
