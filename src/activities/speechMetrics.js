@@ -2,6 +2,8 @@
 // Nothing is uploaded: the recording and the measurements stay on the learner's device.
 const FRAME_MS = 30
 
+const pairOf = ([pitch, g]) => ({ pitch, g })
+
 // Records the microphone, samples loudness and pitch every 30 ms, and transcribes where the browser can.
 export async function startCapture({ onLevel, onWords } = {}) {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }) // raw voice: the browser's voice clean-up can flatten pitch
@@ -19,7 +21,7 @@ export async function startCapture({ onLevel, onWords } = {}) {
     let sum = 0
     for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i]
     const rms = Math.sqrt(sum / buf.length)
-    frames.push({ t: (performance.now() - t0) / 1000, rms, pitch: rms > 0.005 ? detectPitch(buf, ctx.sampleRate) : 0 })
+    frames.push({ t: (performance.now() - t0) / 1000, rms, ...pairOf(rms > 0.0015 ? pitchPair(buf, ctx.sampleRate) : [0, 0]) }) // quiet voice counts too: sentence endings often fade out
     onLevel?.(Math.min(1, rms * 8))
   }, FRAME_MS)
 
@@ -75,15 +77,19 @@ export async function startCapture({ onLevel, onWords } = {}) {
   }
 }
 
-// Pitch estimate in the human speaking range (65–600 Hz, so high notes count too), or 0 when the frame isn't clearly voiced.
+// Pitch estimate in the human speaking range (45–600 Hz, low creaky endings, so high notes count too), or 0 when the frame isn't clearly voiced.
 // Normalised autocorrelation with "first strong peak" picking (McLeod & Wyvill's method), which
 // avoids most octave errors. Hissy sounds (s, f, sh, breath) are skipped: they have no pitch.
-export function detectPitch(buf, rate) {
+export function detectPitch(buf, rate) { return pitchPair(buf, rate)[0] }
+
+// [pitch, strongest-peak pitch]. In a low creaky voice the strongest peak sits at the creak's slow,
+// irregular beat, well below the clean reading, which is how a creaky fall is recognised.
+export function pitchPair(buf, rate) {
   const n = buf.length
   let zc = 0
   for (let i = 1; i < n; i++) if ((buf[i - 1] < 0) !== (buf[i] < 0)) zc++
-  if (zc / (n / rate) > 5000) return 0 // too many zero crossings: a fricative or noise, not a voice
-  const minLag = Math.floor(rate / 600), maxLag = Math.min(Math.floor(rate / 65), n - 64)
+  if (zc / (n / rate) > 5000) return [0, 0] // too many zero crossings: a fricative or noise, not a voice
+  const minLag = Math.floor(rate / 600), maxLag = Math.min(Math.floor(rate / 45), n - 64)
   const nsdf = new Float32Array(maxLag + 2)
   for (let lag = minLag - 1; lag <= maxLag + 1; lag++) {
     let ac = 0, m = 0
@@ -93,14 +99,15 @@ export function detectPitch(buf, rate) {
   // Local peaks, then the first one that is nearly as strong as the strongest.
   const peaks = []
   for (let lag = minLag; lag <= maxLag; lag++) if (nsdf[lag] > 0 && nsdf[lag] >= nsdf[lag - 1] && nsdf[lag] > nsdf[lag + 1]) peaks.push(lag)
-  if (!peaks.length) return 0
+  if (!peaks.length) return [0, 0]
   const top = Math.max(...peaks.map((l) => nsdf[l]))
-  if (top < 0.5) return 0
+  if (top < 0.5) return [0, 0]
   const lag = peaks.find((l) => nsdf[l] >= 0.88 * top)
   // Parabolic interpolation for a finer estimate.
   const a = nsdf[lag - 1], b = nsdf[lag], c = nsdf[lag + 1]
   const shift = (a - 2 * b + c) ? (a - c) / (2 * (a - 2 * b + c)) : 0
-  return rate / (lag + shift)
+  const gl = peaks.find((l) => nsdf[l] === top)
+  return [rate / (lag + shift), rate / gl]
 }
 
 const median = (xs) => { if (!xs.length) return 0; const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)] }
@@ -149,7 +156,10 @@ export function analyse(frames, transcript) {
   const base = median(raw.map((f) => f.pitch).filter((p) => p < m0 * 1.5)) || m0 // typical pitch
   const semis = (p, ref) => 12 * Math.log2(p / ref)
   const track = []
-  for (const [a, b] of segments) {
+  // A sentence often ends in a quiet, fading syllable that is below the speech threshold but still
+  // has a clear pitch; each stretch is extended over those frames (up to 0.3 s).
+  const ext = segments.map(([a, b]) => { let e = b; while (e + 1 < frames.length && e - b < 10 && frames[e + 1].pitch > 0) e++; return [a, e] })
+  for (const [a, b] of ext) {
     const seg = []
     for (let i = a; i <= b; i++) if (frames[i].pitch > 0) seg.push({ i, t: frames[i].t, p: frames[i].pitch })
     if (!seg.length) continue
@@ -158,14 +168,23 @@ export function analyse(frames, transcript) {
     let ref = median(seg.slice(0, 5).map((x) => fold(x.p, base)))
     let lastI = seg[0].i
     const kept = []
+    // Many speakers end a firm statement by dropping into a low, creaky voice ("vocal fry") as the
+    // sound fades. It reads as a pitch far below the voice just before it. Near the end of a stretch,
+    // when the voice has gone quiet, such low readings are kept as the real fall they are.
+    const loud = median(seg.map((x) => frames[x.i].rms))
+    const tailFrom = seg[seg.length - 1].i - 12
     for (const x of seg) {
+      if (x.i >= tailFrom && x.p < ref * 0.75 && frames[x.i].rms < loud * 0.6 && x.p >= 40) {
+        kept.push({ i: x.i, t: x.t, st: semis(x.p, base), creak: true })
+        continue
+      }
       const gap = x.i - lastI // frames since the last accepted reading
       const limit = 4 + 2 * Math.min(gap, 6) // allowed glide, in semitones
       let p = x.p
       if (Math.abs(semis(p, ref)) > limit) p = fold(p, ref)
       if (Math.abs(semis(p, ref)) > limit) continue // still a jump: drop it
       kept.push({ i: x.i, t: x.t, st: semis(p, base) })
-      const recent = kept.slice(-3).map((k) => base * 2 ** (k.st / 12))
+      const recent = kept.filter((k) => !k.creak).slice(-3).map((k) => base * 2 ** (k.st / 12))
       ref = median(recent); lastI = x.i
     }
     track.push(...kept)
@@ -180,17 +199,33 @@ export function analyse(frames, transcript) {
   // voice naturally stays up there ("If the budget is tight, ..."). A change of 1.5 semitones or more
   // counts as a fall or a rise; smaller changes count as level.
   const endings = []
-  for (const [k, [a, b]] of segments.entries()) {
+  for (const [k, [a, b]] of ext.entries()) {
     if (k < segments.length - 1 && pauses[k] < 0.7) continue
     const p = track.filter((x) => x.i >= a && x.i <= b)
     if (p.length < 12) continue // too short to judge
-    // The ending is the last syllable (~0.15 s of voice). It is compared with the half second just
-    // before it (a quick rise or fall on the final word) and with the start of the sentence (an ending
-    // that climbed earlier and stayed high). The bigger change counts; if they disagree, the quick one wins.
-    const end = median(p.slice(-5).map((x) => x.sm))
-    const dLocal = end - median(p.slice(-20, -5).map((x) => x.sm))
-    const dStart = end - median(p.slice(0, Math.max(5, Math.round(p.length * 0.5))).map((x) => x.sm))
-    const d = Math.sign(dLocal) !== Math.sign(dStart) && Math.abs(dLocal) >= 1.5 ? dLocal : Math.abs(dLocal) >= Math.abs(dStart) ? dLocal : dStart
+    // The ending is judged on the last half second of voice, the way listeners hear it:
+    // - up: the pitch climbs and is still at (or near) its highest point when the voice stops;
+    // - down: the pitch drops by the end, including a rise onto the last stressed word that then
+    //   falls away (the usual shape of a firm statement);
+    // - level: neither moves by 1.5 semitones or more.
+    const fin = p.slice(-17).filter((x) => !x.creak).map((x) => x.sm)
+    if (fin.length < 6) continue
+    const end = median(fin.slice(-3))
+    const startV = median(fin.slice(0, 4))
+    const peak = Math.max(...fin.slice(0, -1)), low = Math.min(...fin.slice(0, -1))
+    // Creaky fall: as the voice fades after the last loud moment, the strongest beat drops far below
+    // the last clean pitch (to roughly half or lower).
+    const lastHz = base * 2 ** (end / 12)
+    const loudE = median(frames.slice(a, b + 1).map((f) => f.rms))
+    let lastLoud = b; while (lastLoud > a && frames[lastLoud].rms < loudE * 0.35) lastLoud--
+    const fade = frames.slice(lastLoud, Math.min(frames.length, b + 14)).filter((f) => f.g >= 40 && f.g < lastHz * 0.72)
+    const creak = p.some((x) => x.creak) || fade.length >= 3
+    let d
+    if (creak) d = -Math.min(6, Math.max(1.5, 12 * Math.log2(lastHz / median(fade.map((f) => f.g).concat(fade.length ? [] : [lastHz / 1.5])))))
+    else if (end >= peak - 0.7 && end - Math.min(startV, low) >= 4) d = end - Math.min(startV, low) // climbs to the end
+    else if (peak - end >= 1.5) d = end - peak // fell from the top
+    else if (end - startV <= -1.5) d = end - startV
+    else d = Math.max(-1.4, Math.min(1.4, end - startV)) // small moves, including a lift onto the last word, count as level
     endings.push({ dir: d <= -1.5 ? 'down' : d >= 1.5 ? 'up' : 'level', t: p[p.length - 1].t - frames[first].t, d: Math.round(d * 10) / 10 })
   }
 
