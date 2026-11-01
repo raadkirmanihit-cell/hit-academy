@@ -14,10 +14,10 @@ const VERDICT = { 'Assertive': 'var(--b-assertive)', 'Mostly assertive': 'var(--
 // hedges); the AI coach judges the wording from the transcript (one coach message per check).
 // The most natural-sounding English voice the device offers. Neural/"natural" voices (Edge, Chrome,
 // Safari's enhanced voices) sound far less mechanical than the basic system ones.
-const NATURAL = /natural|neural|online|enhanced|premium|siri|google uk english|google us english|sonia|libby|ryan|thomas|serena|daniel|samantha|aria|jenny|guy/i
+const NATURAL = /natural|neural|online|enhanced|premium|siri|google us english|aria|jenny|guy|andrew|ava|emma|brian|christopher|samantha|alex|allison|evan|nathan|zoe/i
 function bestVoice(voices) {
   const en = voices.filter((x) => /^en/i.test(x.lang))
-  const score = (x) => (NATURAL.test(x.name) ? 4 : 0) + (/^en[-_]GB/i.test(x.lang) ? 2 : 0) + (/natural|neural|online/i.test(x.name) ? 2 : 0) + (x.localService ? 0 : 1)
+  const score = (x) => (NATURAL.test(x.name) ? 4 : 0) + (/^en[-_]US/i.test(x.lang) ? 2 : 0) + (/natural|neural|online/i.test(x.name) ? 2 : 0) + (x.localService ? 0 : 1)
   return en.sort((a, b) => score(b) - score(a))[0] || null
 }
 if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.getVoices() // starts loading the voice list early
@@ -199,7 +199,7 @@ export default function SayItAloud({ b, module }) {
           <span className="eyebrow">Compare with the model answer</span>
           <p>"{b.modelLine}"</p>
           {b.modelAudio
-            ? <div className="voice-audio"><span className="eyebrow">Listen to Raad</span><audio controls preload="metadata" src={b.modelAudio} /></div>
+            ? <div className="voice-audio"><span className="eyebrow">Listen to the example</span><audio controls preload="metadata" src={b.modelAudio} /></div>
             : typeof window !== 'undefined' && window.speechSynthesis && <button className="btn btn-sm" style={{ justifySelf: 'start' }} onClick={playModel}>Hear it read aloud</button>}
           {b.modelNote && <p className="small muted">{b.modelNote}</p>}
         </div>
