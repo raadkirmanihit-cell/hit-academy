@@ -380,7 +380,13 @@ function Report({ r, sc }) {
       )}
       {list(r.strengths).length > 0 && <><h5>What you did well</h5><ul>{list(r.strengths).map((s, i) => <li key={i}>{String(s)}</li>)}</ul></>}
       {list(r.improve).length > 0 && <><h5>Try next time</h5><ul>{list(r.improve).map((s, i) => <li key={i}>{s.tip}{s.say && <><br /><strong>"{String(s.say).replace(/^"|"$/g, '')}"</strong></>}</li>)}</ul></>}
-      {list(r.review).length > 0 && <><h5>Lessons to review</h5><ul>{list(r.review).map((s, i) => <li key={i}>{s.where}{s.page ? `: ${s.page}` : ''}</li>)}</ul></>}
+      {list(r.review).length > 0 && <><h5>Lessons to review</h5><ul>{list(r.review).map((s, i) => (
+        <li key={i}>
+          <strong>{s.where}{s.page ? `: ${s.page}` : ''}</strong>
+          {s.observed && <><br /><span className="small"><span className="muted">What we noticed:</span> {s.observed}</span></>}
+          {s.takeaway && <><br /><span className="small"><span className="muted">Take from it:</span> {s.takeaway}</span></>}
+        </li>
+      ))}</ul></>}
       {list(r.research).filter((x) => x?.insight && x?.source).length > 0 && <><h5>Beyond the course</h5><ul>{list(r.research).filter((x) => x?.insight && x?.source).map((x, i) => <li key={i}>{x.insight}<br /><span className="small muted">{x.source}</span></li>)}</ul></>}
     </div>
   )

@@ -96,6 +96,6 @@ Reply with ONLY a JSON object in this shape:
  "tactics": [{"tactic": "name as in the course", "moment": "short quote or moment", "handled": "well" | "partly" | "missed", "note": "one sentence, practical"}],
  "strengths": ["one sentence each, max 3"],
  "improve": [{"tip": "one sentence", "say": "an exact sentence the learner could use next time"}],
- "review": [{"where": "Module N, Lesson N", "page": "page title"}],
+ "review": [{"where": "Module N, Lesson N", "page": "page title", "observed": "one short sentence on what you saw in this conversation that makes this lesson worth reviewing, quoting or pointing to the moment", "takeaway": "one short sentence on what the learner should take from this lesson for next time"}],
  "research": [{"insight": "one sentence on what the research shows and how it applies to this conversation", "source": "Author(s) (year), title of the book or journal article"}]}
 Only list tactics the other side actually used in the transcript. Max 3 items in improve, 3 in review (from any module) and 2 in research. "research" is optional: add an item only when a well-documented, peer-reviewed study or a reputable book adds something useful beyond the course, and you are certain of the author, year and finding; otherwise return an empty list. Be encouraging and specific.`
