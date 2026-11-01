@@ -306,7 +306,7 @@ export function readings(m) {
   const E = m.endings.length, up = m.endings.filter((e) => e === 'up').length, down = m.endings.filter((e) => e === 'down').length
   const v = E ? [down && `${down} down`, E - up - down && `${E - up - down} level`, up && `${up} up`].filter(Boolean).join(', ') : '—'
   if (!E) r.push({ k: 'Sentence endings', v, tone: 'neutral', t: 'Not enough clear voice to read the pitch. Try again a little closer to the microphone.' })
-  else if (up > down && up > E / 2) r.push({ k: 'Sentence endings', v, tone: 'warn', t: 'Your voice went up at the end, which can sound like asking permission. On your position, let the pitch drop. A rise is fine on a yes/no question.' })
+  else if (up > down && up >= E / 3) r.push({ k: 'Sentence endings', v, tone: 'warn', t: 'Your voice went up at the end, which can sound like asking permission. On your position, let the pitch drop. A rise is fine on a yes/no question.' })
   else if (down) r.push({ k: 'Sentence endings', v, tone: 'good', t: 'Downward endings sound sure of your position.' })
   else r.push({ k: 'Sentence endings', v, tone: 'neutral', t: 'Your endings stayed level: calm, but not yet firm. Let the pitch drop slightly on your key point.' })
 
