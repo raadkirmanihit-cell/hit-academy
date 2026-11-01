@@ -269,7 +269,7 @@ export function analyse(frames, transcript) {
     up: endings.filter((e) => e.dir === 'up').length,
     level: endings.filter((e) => e.dir === 'level').length,
     medianPitch: Math.round(base),
-    contour: track.map((x) => [Math.round((x.t - frames[first].t) * 100) / 100, Math.round(Math.max(-12, x.sm) * 10) / 10]),
+    contour: track.filter((x) => !x.creak).map((x) => [Math.round((x.t - frames[first].t) * 100) / 100, Math.round(x.sm * 10) / 10]), // creaky readings are left out: they are not a note
     hedges: countHedges(transcript),
   }
 }

@@ -249,7 +249,7 @@ function Contour({ m, playT = null, word = null }) {
   const T = Math.max(pts[pts.length - 1][0], ...(m.endMarks || []).map((e) => e.t)) || 1
   const R = Math.max(6, ...pts.map((p) => Math.abs(p[1]))) + 1
   const W = 600, H = 110, y = (st) => H / 2 - (st / R) * (H / 2 - 8)
-  const d = pts.map(([t, st], i) => `${i && t - pts[i - 1][0] < 0.15 ? 'L' : 'M'}${(t / T * W).toFixed(1)},${y(st).toFixed(1)}`).join(' ')
+  const d = pts.map(([t, st], i) => `${i && t - pts[i - 1][0] < 0.15 && Math.abs(st - pts[i - 1][1]) < 4 ? 'L' : 'M'}${(t / T * W).toFixed(1)},${y(st).toFixed(1)}`).join(' ')
   const playing = playT != null && playT >= 0 && playT <= T + 0.2
   const px = playing ? Math.min(1, playT / T) : 0
   // The dot sits on the line at the playhead (the nearest pitch reading, if the voice is sounding).
