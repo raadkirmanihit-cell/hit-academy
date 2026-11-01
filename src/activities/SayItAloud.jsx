@@ -12,6 +12,16 @@ const VERDICT = { 'Assertive': 'var(--b-assertive)', 'Mostly assertive': 'var(--
 
 // Say-it-out-loud practice: the browser measures delivery (pace, pauses, pitch at phrase ends,
 // hedges); the AI coach judges the wording from the transcript (one coach message per check).
+// The most natural-sounding English voice the device offers. Neural/"natural" voices (Edge, Chrome,
+// Safari's enhanced voices) sound far less mechanical than the basic system ones.
+const NATURAL = /natural|neural|online|enhanced|premium|siri|google uk english|google us english|sonia|libby|ryan|thomas|serena|daniel|samantha|aria|jenny|guy/i
+function bestVoice(voices) {
+  const en = voices.filter((x) => /^en/i.test(x.lang))
+  const score = (x) => (NATURAL.test(x.name) ? 4 : 0) + (/^en[-_]GB/i.test(x.lang) ? 2 : 0) + (/natural|neural|online/i.test(x.name) ? 2 : 0) + (x.localService ? 0 : 1)
+  return en.sort((a, b) => score(b) - score(a))[0] || null
+}
+if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.getVoices() // starts loading the voice list early
+
 export default function SayItAloud({ b, module }) {
   const { progress, saveActivity } = useApp()
   const saved = moduleState(progress, module.id).activities[b.id]
@@ -91,11 +101,17 @@ export default function SayItAloud({ b, module }) {
   function playModel() {
     const s = window.speechSynthesis; if (!s) return
     s.cancel()
-    const u = new SpeechSynthesisUtterance(speakable(b.modelLine))
-    const v = s.getVoices().find((x) => /^en[-_]GB/i.test(x.lang)) || s.getVoices().find((x) => /^en/i.test(x.lang))
-    if (v) u.voice = v
-    u.rate = 0.95
-    s.speak(u)
+    const v = bestVoice(s.getVoices())
+    // One sentence at a time, slightly slower: the engine then pauses and lets the pitch settle at
+    // each full stop, which sounds calmer and more human than one long run.
+    const parts = speakable(b.modelLine).match(/[^.?!]+[.?!]*/g) || [speakable(b.modelLine)]
+    for (const part of parts) {
+      const u = new SpeechSynthesisUtterance(part.trim())
+      if (v) { u.voice = v; u.lang = v.lang }
+      u.rate = 0.9
+      u.pitch = 0.95
+      s.speak(u)
+    }
   }
 
   const reads = metrics ? readings(metrics) : []
