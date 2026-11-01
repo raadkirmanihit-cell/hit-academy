@@ -19,7 +19,7 @@ export async function startCapture({ onLevel, onWords } = {}) {
     let sum = 0
     for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i]
     const rms = Math.sqrt(sum / buf.length)
-    frames.push({ t: (performance.now() - t0) / 1000, rms, pitch: rms > 0.008 ? detectPitch(buf, ctx.sampleRate) : 0 })
+    frames.push({ t: (performance.now() - t0) / 1000, rms, pitch: rms > 0.005 ? detectPitch(buf, ctx.sampleRate) : 0 })
     onLevel?.(Math.min(1, rms * 8))
   }, FRAME_MS)
 
@@ -75,7 +75,7 @@ export async function startCapture({ onLevel, onWords } = {}) {
   }
 }
 
-// Pitch estimate in the human speaking range (65–400 Hz), or 0 when the frame isn't clearly voiced.
+// Pitch estimate in the human speaking range (65–600 Hz, so high notes count too), or 0 when the frame isn't clearly voiced.
 // Normalised autocorrelation with "first strong peak" picking (McLeod & Wyvill's method), which
 // avoids most octave errors. Hissy sounds (s, f, sh, breath) are skipped: they have no pitch.
 export function detectPitch(buf, rate) {
@@ -83,7 +83,7 @@ export function detectPitch(buf, rate) {
   let zc = 0
   for (let i = 1; i < n; i++) if ((buf[i - 1] < 0) !== (buf[i] < 0)) zc++
   if (zc / (n / rate) > 5000) return 0 // too many zero crossings: a fricative or noise, not a voice
-  const minLag = Math.floor(rate / 400), maxLag = Math.min(Math.floor(rate / 65), n - 64)
+  const minLag = Math.floor(rate / 600), maxLag = Math.min(Math.floor(rate / 65), n - 64)
   const nsdf = new Float32Array(maxLag + 2)
   for (let lag = minLag - 1; lag <= maxLag + 1; lag++) {
     let ac = 0, m = 0
@@ -141,20 +141,34 @@ export function analyse(frames, transcript) {
   }
   segments.push([segStart, last])
 
-  // Pitch track: fold octave jumps back towards the speaker's typical pitch, drop stray values,
-  // smooth, and express everything in semitones (a musical half step) from that typical pitch.
+  // Pitch track. Real intonation glides, even when it climbs high; a reading error jumps instantly
+  // to 2x, 3x or half the real pitch for a frame or two. So each reading is checked against the
+  // frames just before it: a sudden jump is corrected (or dropped), a gradual climb is kept.
   const raw = frames.slice(first, last + 1).filter((f) => f.pitch > 0)
-  // Typical pitch: the median of readings in the main voice range (harmonic slips sit above it).
   const m0 = median(raw.map((f) => f.pitch))
-  const base = median(raw.map((f) => f.pitch).filter((p) => p < m0 * 1.5)) || m0
+  const base = median(raw.map((f) => f.pitch).filter((p) => p < m0 * 1.5)) || m0 // typical pitch
+  const semis = (p, ref) => 12 * Math.log2(p / ref)
   const track = []
-  for (let i = first; i <= last; i++) {
-    let p = frames[i].pitch
-    if (!p || !base) continue
-    // Octave and harmonic slips (2x, 3x or half the real pitch): keep the reading nearest the typical pitch.
-    p = [p, p / 2, p / 3, p * 2].reduce((x, y) => (Math.abs(Math.log2(y / base)) < Math.abs(Math.log2(x / base)) ? y : x))
-    const st = 12 * Math.log2(p / base)
-    if (Math.abs(st) <= 9) track.push({ i, t: frames[i].t, st })
+  for (const [a, b] of segments) {
+    const seg = []
+    for (let i = a; i <= b; i++) if (frames[i].pitch > 0) seg.push({ i, t: frames[i].t, p: frames[i].pitch })
+    if (!seg.length) continue
+    // Starting reference: the beginning of a phrase sits near the speaker's typical pitch.
+    const fold = (p, ref) => [p, p / 2, p / 3, p * 2].reduce((x, y) => (Math.abs(semis(y, ref)) < Math.abs(semis(x, ref)) ? y : x))
+    let ref = median(seg.slice(0, 5).map((x) => fold(x.p, base)))
+    let lastI = seg[0].i
+    const kept = []
+    for (const x of seg) {
+      const gap = x.i - lastI // frames since the last accepted reading
+      const limit = 4 + 2 * Math.min(gap, 6) // allowed glide, in semitones
+      let p = x.p
+      if (Math.abs(semis(p, ref)) > limit) p = fold(p, ref)
+      if (Math.abs(semis(p, ref)) > limit) continue // still a jump: drop it
+      kept.push({ i: x.i, t: x.t, st: semis(p, base) })
+      const recent = kept.slice(-3).map((k) => base * 2 ** (k.st / 12))
+      ref = median(recent); lastI = x.i
+    }
+    track.push(...kept)
   }
   for (let k = 0; k < track.length; k++) { // 5-point median filter
     const w = track.slice(Math.max(0, k - 2), k + 3).filter((x) => Math.abs(x.i - track[k].i) <= 4).map((x) => x.st)
