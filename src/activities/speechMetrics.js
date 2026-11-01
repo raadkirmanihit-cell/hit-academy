@@ -258,7 +258,9 @@ export function analyse(frames, transcript) {
     const before = clean.filter((x) => x.t < lastClean.t - 0.25 && x.t > lastClean.t - 1.2).map((x) => x.sm)
     const tailCreak = p.filter((x) => x.creak && x.i > lastClean.i).length >= 2
     let dir = 'level'
-    if (end >= 4) dir = 'up'
+    // A rise that breaks into creak at the top (the breath runs out on a high, questioning note) is
+    // still heard as a rise; firm endings break into creak from much lower (2-3 semitones at most).
+    if (end >= 4 || (tailCreak && end >= 3.2)) dir = 'up'
     else if (tailCreak || end <= -1.5 || (before.length >= 3 && end - median(before) <= -1.5)) dir = 'down'
     endings.push({ k, dir, t: p[p.length - 1].t - frames[first].t, d: Math.round(end * 10) / 10, creak: tailCreak })
   }
@@ -347,6 +349,7 @@ export function readings(m) {
   const v = E ? [down && `${down} down`, E - up - down && `${E - up - down} level`, up && `${up} up`].filter(Boolean).join(', ') : '—'
   if (!E) r.push({ k: 'Sentence endings', v, tone: 'neutral', t: 'Not enough clear voice to read the pitch. Try again a little closer to the microphone.' })
   else if (up > down && up >= E / 3) r.push({ k: 'Sentence endings', v, tone: 'warn', t: 'Your voice went up at the end, which can sound like asking permission. On your position, let the pitch drop. A rise is fine on a yes/no question.' })
+  else if (up >= 2 && up >= E / 3) r.push({ k: 'Sentence endings', v, tone: 'warn', t: 'Mixed: several endings rose, which can sound like asking permission. Let the pitch settle or drop at the end of each point.' })
   else if (down) r.push({ k: 'Sentence endings', v, tone: 'good', t: 'Downward endings sound sure of your position.' })
   else r.push({ k: 'Sentence endings', v, tone: 'neutral', t: 'Your endings stayed level: calm, but not yet firm. Let the pitch drop slightly on your key point.' })
 
