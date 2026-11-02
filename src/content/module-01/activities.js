@@ -152,7 +152,7 @@ export const pickTheStrategy = {
       ],
     },
     {
-      who: 'Used car', scene: 'You\'re buying a used car from a private seller you will never meet again. The price matters a lot to you.',
+      who: 'One-off purchase', scene: 'You\'re buying used equipment from a company that is closing down. You will never deal with them again, and the price matters a lot to your budget.',
       options: [
         { t: 'Competing', correct: true, fb: 'High stakes for you, no ongoing relationship: competing fits, delivered assertively rather than aggressively.' },
         { t: 'Accommodating', fb: 'Giving way on a high-stakes issue with no relationship to protect costs you money for nothing.' },

@@ -3,7 +3,7 @@
 // Blocks of type 'research' (and items marked { added: true }) are material added beyond the module.
 import { references } from './references.js'
 import { quiz } from './quiz.js'
-import { libraryScene, doorbellScene } from './dialogues.js'
+import { officeScene, printerScene } from './dialogues.js'
 import * as act from './activities.js'
 
 const img = (name) => `img/m4/${name}.webp`
@@ -78,8 +78,8 @@ const m4 = {
             { t: 'p', text: `**Position or interest?** The same demand can rest on a very different reason:` },
             { t: 'table', head: ['Situation', 'Position (what they ask for)', 'Interest (why they ask for it)'], rows: [
               ['A company asks for a discount', 'To save money', 'Their budget is limited this quarter'],
-              ['A person wants a specific restaurant', 'They like the food', 'It\'s their favourite place to celebrate special occasions'],
-              ['A friend insists on meeting earlier', 'It\'s more convenient for them', 'They have other commitments later and want to give you their full attention'],
+              ['A manager wants the project review moved to Monday', 'It suits their calendar', 'They present to the board on Tuesday and want the team\'s latest figures first'],
+              ['A client insists on an earlier delivery date', 'They want it sooner', 'Their own product launch depends on it, and they need time to test before go-live'],
             ] },
             { t: 'callout', tone: 'tip', title: 'Notice what the interest unlocks', text: `"Save money" leaves only one lever: price. "Budget is limited this quarter" opens several: deferred payment, a smaller first order, a phased start. Interests give you more ways to say yes.` },
           ],
@@ -87,22 +87,16 @@ const m4 = {
         {
           id: 'l1-compare', title: 'Soft, hard and principled',
           blocks: [
-            { t: 'p', text: `Positional bargaining comes in two flavours. **Soft** bargainers want agreement and avoid conflict. **Hard** bargainers want victory and see the other side as an adversary. **Principled** negotiation changes the game: it is soft on the people and hard on the problem.` },
-            { t: 'table', plain: true, head: ['Soft', 'Hard', 'Principled'], rows: [
-              ['Participants are friends.', 'Participants are adversaries.', 'Participants are problem-solvers.'],
-              ['The goal is agreement.', 'The goal is victory.', 'The goal is a wise outcome reached efficiently and amicably.'],
-              ['Make concessions to cultivate the relationship.', 'Demand concessions as a condition of the relationship.', '**Separate the people from the problem.**'],
-              ['Be soft on the people and the problem.', 'Be hard on the problem and the people.', 'Be soft on the people, hard on the problem.'],
-              ['Trust others.', 'Distrust others.', 'Proceed independent of trust.'],
-              ['Change your position easily.', 'Dig in to your position.', '**Focus on interests, not positions.**'],
-              ['Make offers.', 'Make threats.', 'Explore interests.'],
-              ['Disclose your bottom line.', 'Mislead as to your bottom line.', 'Avoid having a bottom line.'],
-              ['Accept one-sided losses to reach agreement.', 'Demand one-sided gains as the price of agreement.', '**Invent options for mutual gain.**'],
-              ['Search for the single answer: the one *they* will accept.', 'Search for the single answer: the one *you* will accept.', 'Develop multiple options to choose from; decide later.'],
-              ['Insist on agreement.', 'Insist on your position.', '**Insist on using objective criteria.**'],
-              ['Try to avoid a contest of will.', 'Try to win a contest of will.', 'Try to reach a result based on standards independent of will.'],
-              ['Yield to pressure.', 'Apply pressure.', 'Reason and be open to reasons; yield to principle, not pressure.'],
-            ], caption: 'Adapted from Fisher, Ury & Patton (2011), Getting to Yes.' },
+            { t: 'p', text: `Positional bargaining comes in two flavours. **Soft** bargainers want agreement and avoid conflict. **Hard** bargainers want victory and see the other side as an adversary. **Principled** negotiation changes the game: respectful with the person, firm on the issue.` },
+            { t: 'table', head: ['', 'Soft', 'Hard', 'Principled'], rows: [
+              ['The other side is…', 'Someone to keep happy', 'An opponent to beat', 'A partner in solving a shared problem\n*Separate the people from the problem*'],
+              ['Success means…', 'Any deal, as long as things stay calm', 'A deal that shows you won', 'A sound deal both sides can stand behind, reached without wasted time or bad feeling'],
+              ['The talk centres on…', 'Your position, given up quickly', 'Your position, defended at all costs', "The needs behind each side's position\n*Focus on interests, not positions*"],
+              ['Your limit is…', 'Shared too early', 'Hidden or bluffed', 'Less important than the options you can build'],
+              ['Solutions…', 'Take the first one they will accept', 'Push the one you want', 'Put several on the table, then choose\n*Invent options for mutual gain*'],
+              ['The outcome is decided by…', 'Who gives in first', 'Who holds out longest', 'Fair standards such as market rates or precedent\n*Insist on objective criteria*'],
+              ['Under pressure, you…', 'Give way', 'Push back harder', 'Ask for reasons, and move only for a good one'],
+            ], caption: 'Based on the comparison of soft, hard and principled negotiation in Fisher, Ury & Patton (2011), Getting to Yes.' },
             { t: 'activity', ...act.softHardPrincipled },
             { t: 'research', added: true, title: 'The fixed pie: why we miss easy wins', text: `Positional bargaining feeds a bias that researchers call the **fixed-pie assumption**: the belief that whatever one side gains, the other must lose. A review of 32 studies, with more than 5,000 negotiators, found that when both sides actually wanted the same thing on an issue, negotiators failed to realise it **about half the time**. In around **one in five** cases they even settled on an outcome that was worse for both of them than another available option. Asking about interests is the cure: you cannot see a shared goal you never ask about.`, cite: ['thompson1996'] },
             { t: 'reflect', id: 'r-l1', prompt: `Think of a negotiation that stalled. Which approach were you using, soft, hard or principled? And the other side? Write one thing you could have done differently from the principled column.` },
@@ -191,7 +185,7 @@ const m4 = {
               { eyebrow: 'Why 3', title: 'Enhances collaboration', color: 'var(--orange)', text: 'Addressing underlying needs builds trust and cooperation, improving the chance of satisfying both parties.' },
               { eyebrow: 'Why 4', title: 'Avoids deadlock', color: 'var(--orange)', text: 'Shifting from positions to interests stops negotiations from stalling over uncompromising demands.' },
             ] },
-            { t: 'scene', ...libraryScene },
+            { t: 'scene', ...officeScene },
           ],
         },
         {
@@ -258,7 +252,7 @@ const m4 = {
               { title: 'Collaborative divergence', color: 'var(--orange)', text: 'Let individuals or teams brainstorm separately, then combine their ideas to broaden the pool.' },
             ] },
             { t: 'p', text: `**Step 3: Search for mutual gains.** Instead of focusing solely on individual interests, look for options that benefit all parties. **Focus on shared goals:** identify common objectives that align with everyone's interests, and make them explicit to move the negotiation forward amicably.` },
-            { t: 'diagram', name: 'CircleChart', caption: 'The Circle Chart: a way to broaden options by moving from a specific problem, to its causes, to general approaches, and back to concrete action ideas. Adapted from Fisher, Ury & Patton (2011), Getting to Yes.' },
+            { t: 'diagram', name: 'OptionsLoop', caption: 'The options loop: widen the view by moving from the symptoms, to their causes, to broad directions, and on to concrete moves. Based on the Circle Chart in Fisher, Ury & Patton (2011), Getting to Yes.' },
             { t: 'research', added: true, title: 'Brainstorm alone first, then together', text: `Classic brainstorming has a weakness: in a group, only one person can speak at a time. While you wait your turn, ideas fade or feel less worth saying. In a well-known set of experiments, people who brainstormed **alone and then pooled their ideas** produced substantially more ideas than the same number of people brainstorming together, and the main cause was this "production blocking". It is the reason behind **collaborative divergence**: generate separately, then combine.`, cite: ['diehl1987'] },
           ],
         },
@@ -293,8 +287,8 @@ const m4 = {
               { title: 'Fair standards', list: ['**Market rates:** what similar goods or services cost.', '**Industry standards:** accepted norms and benchmarks.', '**Legal precedents:** what courts or regulations have established.', '**Expert opinions:** independent, qualified judgement.', '**Historical data:** what was agreed or achieved before.'] },
               { title: 'Fair procedures', list: ['**Clarity:** clearly defined rules and processes.', '**Consistency:** the same process for all similar situations.', '**Transparency:** decisions and criteria are open and accessible.', '**Impartiality:** no bias or favouritism.', '**Participation:** all parties can contribute or appeal.'] },
             ] },
-            { t: 'quote', text: 'Two kids need a cake to be split equally. Solution: one kid splits, the other picks.', by: 'Example of a fair procedure' },
-            { t: 'callout', tone: 'key', title: 'Why the cake procedure works', text: `Nobody has to trust anybody. The child who cuts has every reason to cut equal pieces, because the other child chooses first. The procedure is **clear, impartial and transparent**, so both accept the result. The same logic works for adults: one side drafts the package, the other chooses which half to take; or both agree on an independent valuer before either knows the number.` },
+            { t: 'quote', text: 'Two partners closing a joint venture must split its assets fairly. Solution: one side divides them into two packages, the other picks first.', by: 'Example of a fair procedure' },
+            { t: 'callout', tone: 'key', title: 'Why "one divides, the other chooses" works', text: `Nobody has to trust anybody. The side that divides has every reason to make both packages equal in value, because the other side chooses first. The procedure is **clear, impartial and transparent**, so both accept the result. The same logic works in many business settings: one side drafts the package, the other chooses which half to take; or both agree on an independent valuer before either knows the number.` },
           ],
         },
         {
@@ -353,10 +347,10 @@ const m4 = {
           ],
         },
         {
-          id: 'l5-example', title: 'Example: the malfunctioning doorbell',
+          id: 'l5-example', title: 'Example: the failed production printer',
           blocks: [
-            { t: 'p', text: `Here are all four steps in a single, everyday conversation. Watch for the standards, the questions, and the moment of pressure.` },
-            { t: 'scene', ...doorbellScene },
+            { t: 'p', text: `Here are all four steps in a single supplier conversation. Watch for the standards, the questions, and the moment of pressure.` },
+            { t: 'scene', ...printerScene },
           ],
         },
         {

@@ -51,7 +51,7 @@ export default function AnchorLab({ module }) {
               ))}
             </div>
             <p><strong>The Mississippi is about 2,340 miles long.</strong> You were asked about {anchor.toLocaleString('en-US')} miles. Other learners see {other.toLocaleString('en-US')} miles instead, and their estimates tend to be much {anchor === 500 ? 'higher' : 'lower'}.</p>
-            <p className="small muted">The anchor was arbitrary, and you knew it was only a question. It still pulls estimates toward it. That is why the first number in a negotiation matters so much. Try the question on a friend with the other number, and compare.</p>
+            <p className="small muted">The anchor was arbitrary, and you knew it was only a question. It still pulls estimates toward it. That is why the first number in a negotiation matters so much. Try the question on a colleague with the other number, and compare.</p>
             <button className="btn" onClick={reset}>Try again</button>
           </div>
         )}

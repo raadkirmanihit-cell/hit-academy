@@ -481,33 +481,32 @@ export function DealZone() {
 }
 
 // Module 4: the Circle Chart from Getting to Yes, for broadening options.
-export function CircleChart() {
+// Module 4, step 3: the options loop (based on the Circle Chart in Getting to Yes).
+// Desktop: a 2x2 read clockwise 1 -> 2 -> 3 -> 4. Phone: stacked 1-4.
+export function OptionsLoop() {
   const q = [
-    { k: 'ii', n: 'Step II', title: 'Analysis', sub: 'What\'s wrong · in theory', text: 'Diagnose the problem: sort symptoms into categories, suggest causes, note what is lacking and what stands in the way.', ex: '"Their budget is fixed by quarter, and our pricing ignores timing."' },
-    { k: 'i', n: 'Step I', title: 'Problem', sub: 'What\'s wrong · in the real world', text: 'What are the current symptoms? The facts you dislike, compared with a preferred situation.', ex: '"The client wants 20% off; we can\'t go below our margin."' },
-    { k: 'iii', n: 'Step III', title: 'Approaches', sub: 'What might be done · in theory', text: 'Possible strategies or cures. Generate broad ideas about what might be done.', ex: '"Shift the timing of payments. Change the scope. Link price to volume."' },
-    { k: 'iv', n: 'Step IV', title: 'Action ideas', sub: 'What might be done · in the real world', text: 'Specific, concrete steps that could be taken to deal with the problem.', ex: '"Defer 40% of the invoice to next quarter. A smaller first order. A year-end rebate."' },
+    { k: 's1', n: '1 · Symptoms', title: 'What is going wrong right now?', text: 'The facts you want to change, compared with where you would like to be.', ex: '"The client wants 20% off; we can\'t go below our margin."' },
+    { k: 's2', n: '2 · Causes', title: 'Why is it happening?', text: 'Look past the demand: what pressures, gaps or obstacles sit behind it?', ex: '"Their budget is fixed by quarter, and our pricing ignores timing."' },
+    { k: 's3', n: '3 · Directions', title: 'Which broad fixes could work?', text: 'General strategies that address the cause, before you commit to details.', ex: '"Shift the timing of payments. Change the scope. Link price to volume."' },
+    { k: 's4', n: '4 · Concrete moves', title: 'What could we actually do?', text: 'Specific, practical steps, ready to put on the table.', ex: '"Defer 40% of the invoice to next quarter. A smaller first order. A year-end rebate."' },
   ]
   return (
-    <div className="circlechart">
-      <div className="cc-head" aria-hidden="true"><span>In theory</span><span>In the real world</span></div>
-      <div className="cc-body">
-        <div className="cc-rowlabel top" aria-hidden="true">What's wrong</div>
-        <div className="cc-rowlabel bottom" aria-hidden="true">What might be done</div>
-        <div className="cc-grid">
-          {q.map((x) => (
-            <div key={x.k} className={'cc-q ' + x.k}>
-              <span className="eyebrow">{x.n}</span>
-              <h4>{x.title}</h4>
-              <span className="cc-sub">{x.sub}</span>
-              <p className="small muted">{x.text}</p>
-              <p className="cc-ex">{x.ex}</p>
-            </div>
-          ))}
-          <div className="cc-hub" aria-hidden="true">↺</div>
-        </div>
+    <div className="optloop">
+      <div className="ol-grid">
+        <div className="ol-arr a12" aria-hidden="true">→</div>
+        <div className="ol-arr a23" aria-hidden="true">↓</div>
+        <div className="ol-arr a34" aria-hidden="true">←</div>
+        <div className="ol-hub" aria-hidden="true"><span>↻ from 4, loop back to 3 for more ideas</span></div>
+        {q.map((x) => (
+          <div key={x.k} className={'ol-q ' + x.k}>
+            <span className="eyebrow">{x.n}</span>
+            <h4>{x.title}</h4>
+            <p className="small muted">{x.text}</p>
+            <p className="ol-ex">{x.ex}</p>
+          </div>
+        ))}
       </div>
-      <p className="small muted cc-flow">Work around the circle: I → II → III → IV. Each good action idea can send you back to Step III for more approaches.</p>
+      <p className="small muted ol-flow"><b>1 Symptoms</b> → <b>2 Causes</b> → <b>3 Directions</b> → <b>4 Concrete moves</b>. ↻ A good move often points to a new direction, so loop back to step 3.</p>
     </div>
   )
 }
