@@ -7,7 +7,7 @@ export const course = {
   author: 'Raad Kirmani',
   org: 'Human Interactions Translated',
   orgShort: 'H.I.T.',
-  // Prices live in pricing.js (€99 for all 7 modules, €19 per module).
+  // Prices live in pricing.js (€119 for all 7 modules, €24.99 per module).
   product: { id: 'hit-negotiation-selfpaced', name: 'Self-paced course, lifetime access', price: 99, currency: 'EUR' },
   certificate: {
     // 'all' = every module below must be complete (use this in production).

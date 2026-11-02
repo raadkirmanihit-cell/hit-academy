@@ -3,7 +3,7 @@
 //
 // - Module 1 is free for every account (no payment needed).
 // - Single modules 2 to 7: €24.99 each (€149.94 for all six).
-// - Complete course (all 7 modules): €99, or €79 at the launch price (first 100 buyers, or until
+// - Complete course (all 7 modules): €119, or €99 at the launch price (first 100 buyers, or until
 //   LAUNCH_PRICE_UNTIL if that is set on the server). It includes a pack of AI role-play
 //   practice messages for the Practice studio (no expiry).
 // - Students who already bought single modules can upgrade to the complete course and pay only
@@ -12,8 +12,8 @@
 
 export const CURRENCY = 'EUR'
 export const BUNDLE_ID = 'hit-negotiation-selfpaced'
-export const BUNDLE_PRICE = 99
-export const LAUNCH_PRICE = 79
+export const BUNDLE_PRICE = 119
+export const LAUNCH_PRICE = 99
 export const LAUNCH_BUYERS = 100 // the launch price ends after this many (real) package sales
 export const MODULE_PRICE = 24.99
 export const MODULE_IDS = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']
@@ -75,7 +75,7 @@ export function quote(choice, purchases, opts) {
   return { productId: moduleProductId(choice), cents: Math.round(MODULE_PRICE * 100), name: `Negotiation & Conflict Resolution: Module ${MODULE_IDS.indexOf(choice) + 1}` }
 }
 
-// "€24.99", "€99": cents only when there are any.
+// "€24.99", "€119": cents only when there are any.
 export function euro(n) {
   return new Intl.NumberFormat('en-IE', { style: 'currency', currency: CURRENCY, minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }).format(n)
 }
