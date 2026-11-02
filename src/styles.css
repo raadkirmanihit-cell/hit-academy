@@ -171,6 +171,17 @@ button { font: inherit; color: inherit; }
 }
 .field textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
 .field input:focus, .field textarea:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color: transparent; }
+.pass-wrap { position: relative; }
+.field .pass-wrap input { padding-right: 3rem; }
+.pass-wrap input::-ms-reveal { display: none; }
+.pass-eye {
+  position: absolute; top: 50%; right: .35rem; transform: translateY(-50%);
+  display: grid; place-items: center; width: 2.4rem; height: 2.4rem;
+  border: 0; border-radius: var(--r-s); background: transparent; color: var(--muted); cursor: pointer;
+}
+.pass-eye:hover { color: var(--navy); background: var(--surface-2); }
+.pass-eye:focus-visible { outline: 2px solid var(--orange); outline-offset: 0; color: var(--navy); }
+.pass-eye[aria-pressed="true"] { color: var(--orange-ink); }
 .error { color: var(--bad); font-size: .88rem; }
 .checkout-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1.5rem; width: 100%; max-width: 900px; }
 .order-line { display: flex; justify-content: space-between; gap: 1rem; padding-block: .6rem; border-bottom: 1px solid var(--line); }
