@@ -1,4 +1,4 @@
-// Extra practice for Module 3: quick checks, "your turn" scripts, say-it-out-loud practice,
+// Extra practice for Module 3: quick checks, "your turn" scripts, a write-it exercise,
 // the interactive planner and the confidence check. Illustrative scenarios written for the course.
 import { qc, scale, ta, tx, sel } from '../withPractice.js'
 
@@ -96,20 +96,34 @@ const yourTurnNo = {
   note: 'Her no was the start of the conversation, not the end. It told you exactly what the deal needed.',
 }
 
-const sayAskForNo = {
-  t: 'sayItAloud',
-  id: 'say-ask-no',
-  title: 'Say it out loud: invite a "no"',
-  situation: 'You want your manager to approve a two-day external course for you. She is busy and protective of the training budget. You catch her after a team meeting.',
-  task: 'Say your request out loud as a no-oriented question. Keep it relaxed and leave her a genuine choice. One or two sentences.',
-  criteria: [
-    'Frame the question so that "no" is the safe, easy answer.',
-    'Use disarming language ("Would it be ridiculous…?", "Is it out of the question…?").',
-    'Leave a genuine choice: no trap, no guilt.',
-    'Pause after the question and let her answer.',
+const writeNoQuestions = {
+  t: 'writeIt',
+  id: 'wi-no-questions',
+  title: 'Write your own no-oriented questions',
+  intro: 'Three new situations. For each one, write the question you would ask so that "no" is the safe answer. Then check your line and compare it with one strong version.',
+  items: [
+    {
+      situation: 'You need a busy colleague in another team to review your report by Thursday. They have already said their week is full.',
+      task: 'Write the question you would ask.',
+      criteria: ['"No" is the easy, safe answer.', 'It leaves a genuine choice: no guilt, no trap.', 'It uses disarming language ("Would it be…?", "Is it out of the question…?").', 'It is specific about what you are asking for.'],
+      model: 'Would it be unreasonable to ask for twenty minutes on the report before Thursday, or is this week just impossible?',
+      why: 'Saying "no, it\'s not unreasonable" feels like a small, safe step, and naming "impossible" shows you respect their week.',
+    },
+    {
+      situation: 'A client went quiet after your proposal two weeks ago. You want to know where they stand without sounding pushy.',
+      task: 'Write the short message or question you would send.',
+      criteria: ['"No" is the easy, safe answer.', 'It gives them a sense of control.', 'It invites an honest answer, not a polite yes.', 'It contains no pressure or blame.'],
+      model: 'Have you given up on this project for now?',
+      why: 'It is easy to answer and often gets a reply, because "no, not at all" lets them restart the conversation without losing face.',
+    },
+    {
+      situation: 'In a team meeting, you want to check whether anyone disagrees with the plan before you finalise it.',
+      task: 'Write the question you would ask the room.',
+      criteria: ['It makes disagreement feel safe.', 'It avoids "Does everyone agree?"', 'It invites real concerns, not a counterfeit yes.', 'It sounds collaborative, not defensive.'],
+      model: 'Is there anything in this plan that would be a problem for your part of the work?',
+      why: '"Does everyone agree?" invites automatic yeses. Asking about problems makes it safe to raise the real objections now, not later.',
+    },
   ],
-  modelLine: 'Have I caught you at a bad time? … Would it be out of the question for me to take two days in May for the negotiation course I mentioned? I\'ve drafted how the team would be covered.',
-  modelNote: 'Notice the pause after the first question, and how covering her likely worry (the team) makes the no-question easy to answer honestly.',
 }
 
 export const inserts = {
@@ -134,7 +148,7 @@ export const inserts = {
     { t: '"Don\'t you want your team to succeed?"', correct: true, fb: 'Right. It is phrased for a no, but nobody can say no without looking bad. People feel the pressure.' },
     { t: '"Is it out of the question to start in May?"', fb: 'A genuine choice, with disarming language that makes no feel safe.' },
   ])],
-  'l3-practice': [sayAskForNo],
+  'l3-practice': [writeNoQuestions],
   'l3-handling': [
     qc('qc3-handling', 'You hear "no" to your proposal. What should you do first?', [
       { t: 'Explain your proposal again, more clearly.', fb: 'That is defending. You still don\'t know why they said no.' },

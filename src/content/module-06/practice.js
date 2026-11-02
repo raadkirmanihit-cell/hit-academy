@@ -1,4 +1,4 @@
-// Extra practice for Module 6: quick checks, "your turn" scripts, say-it-out-loud practice,
+// Extra practice for Module 6: quick checks, "your turn" scripts, a write-it exercise,
 // the interactive planner and the confidence check. Illustrative scenarios written for the course.
 import { qc, scale, ta, tx, sel } from '../withPractice.js'
 
@@ -50,20 +50,34 @@ const yourTurnAnchor = {
   note: 'Her €20,000 anchor never became the frame. Market data, a calibrated question and two fair options did.',
 }
 
-const sayFairness = {
-  t: 'sayItAloud',
-  id: 'say-fairness',
-  title: 'Say it out loud: challenge an unfair offer, gently',
-  situation: 'A long-standing supplier has proposed a 15% price increase. The published industry index for your category rose 6% this year. You value the relationship.',
-  task: 'Say out loud how you would point out that the increase looks unfair, without confrontation. Two or three sentences.',
-  criteria: [
-    'Acknowledge their proposal and the relationship.',
-    'Compare it calmly with an objective standard.',
-    'Frame fairness as a shared priority ("fair for both of us").',
-    'End with a calibrated "what" or "how" question.',
+const writeFairness = {
+  t: 'writeIt',
+  id: 'wi-fairness',
+  title: 'Write your fairness line',
+  intro: 'Three situations where the offer on the table looks unfair. For each one, write what you would say. Then check your line and compare it with one strong version.',
+  items: [
+    {
+      situation: 'A long-standing supplier proposes a 15% price increase. The published industry index for your category rose 6% this year. You value the relationship.',
+      task: 'Write what you would say to challenge the increase without confrontation.',
+      criteria: ['It acknowledges their proposal or the relationship.', 'It compares the offer with an objective standard.', 'It frames fairness as a shared priority.', 'It ends with a calibrated "what" or "how" question.'],
+      model: 'I appreciate you being upfront about costs, and you\'ve always been fair with us. I want this to be fair for both of us: the industry index rose 6% this year, and 15% is well above that. How did you arrive at the figure?',
+      why: 'The fairness identity at the start and the standard in the middle do the arguing for you, and the question invites them to explain rather than defend.',
+    },
+    {
+      situation: 'A new client asks you to take on 30% more scope for the same fee, because "it\'s only a few extra pages".',
+      task: 'Write your reply.',
+      criteria: ['It stays friendly and calm.', 'It names the gap between the work and the fee clearly.', 'It points to a fair baseline (your rate, the original scope).', 'It offers a way forward or a choice.'],
+      model: 'I want this to work well for both of us. The extra pages add about a third to the scope we agreed, so keeping the same fee wouldn\'t be fair on either side. Would you prefer to adjust the fee, or keep the fee and phase the extra pages into a second stage?',
+      why: 'You address the unfairness without accusing them, and a choice of two fair options keeps them in control.',
+    },
+    {
+      situation: 'You and a peer are splitting a shared budget for next year. They propose 70/30 in their favour, though both teams have similar headcount and targets.',
+      task: 'Write how you would respond.',
+      criteria: ['It acknowledges their needs.', 'It points to an objective basis for the split.', 'It frames the goal as a split you can both defend.', 'It invites them to look at the criteria together.'],
+      model: 'I can see why your team needs a solid budget next year, and I\'d like a split we can both defend to our directors. Our headcount and targets are close, so 70/30 is hard for me to explain. What criteria do you think we should base it on?',
+      why: 'A split you can "both defend" makes fairness the shared goal, and asking for criteria moves the talk from positions to standards.',
+    },
   ],
-  modelLine: 'I appreciate you being upfront about costs, and you\'ve always been fair with us. I want this to be fair for both of us: the industry index rose 6% this year, and 15% is well above that. How did you arrive at the figure?',
-  modelNote: 'Notice the fairness identity at the start ("you\'ve always been fair with us") and the standard doing the arguing for you.',
 }
 
 export const inserts = {
@@ -82,7 +96,7 @@ export const inserts = {
     { t: 'When you don\'t know the market or their limits, because you may anchor far too low (or too high).', correct: true, fb: 'Right. Anchoring works best when you understand the market and what the other side can accept.' },
     { t: 'Never: going first is always best.', fb: 'Going first is powerful, but only when you have the information to set a good anchor.' },
   ])],
-  'l4-how': [sayFairness],
+  'l4-how': [writeFairness],
   'l5-how': [qc('qc6-choice', 'How many options should you usually put in front of the other side?', [
     { t: 'One: a clear proposal is best.', fb: 'A single proposal becomes a yes-or-no decision.' },
     { t: 'Two or three well-designed options.', correct: true, fb: 'Right. Enough to give a sense of control, few enough to make choosing easy.' },

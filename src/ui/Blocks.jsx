@@ -20,6 +20,7 @@ import AnchorLab from '../activities/AnchorLab.jsx'
 import QuickCheck from '../activities/QuickCheck.jsx'
 import YourTurn from '../activities/YourTurn.jsx'
 import SayItAloud from '../activities/SayItAloud.jsx'
+import WriteIt from '../activities/WriteIt.jsx'
 import Planner from '../activities/Planner.jsx'
 import Confidence from '../activities/Confidence.jsx'
 import { moduleState } from '../platform/progress.js'
@@ -132,6 +133,7 @@ function Block({ b, module }) {
     case 'quickCheck': return <QuickCheck b={b} module={module} />
     case 'yourTurn': return <YourTurn b={b} module={module} />
     case 'sayItAloud': return <SayItAloud b={b} module={module} />
+    case 'writeIt': return <WriteIt b={b} module={module} />
     case 'planner': return <Planner module={module} />
     case 'confidence': return <Confidence phase={b.phase} module={module} />
     case 'voices': return <Voices items={b.items} />
@@ -411,7 +413,7 @@ function Zones() {
   )
 }
 
-const INTERACTIVE = new Set(['activity', 'selector', 'flipCards', 'breathing', 'silence', 'options', 'batnaMeter', 'zopa', 'anchorLab', 'yourTurn', 'sayItAloud', 'liveSpar', 'planner'])
+const INTERACTIVE = new Set(['activity', 'selector', 'flipCards', 'breathing', 'silence', 'options', 'batnaMeter', 'zopa', 'anchorLab', 'yourTurn', 'sayItAloud', 'writeIt', 'liveSpar', 'planner'])
 function overviewStats(module) {
   const lessons = module.sections.filter((x) => x.kind === 'lesson').length
   const blocks = module.sections.flatMap((x) => x.steps.flatMap((st) => st.blocks))
