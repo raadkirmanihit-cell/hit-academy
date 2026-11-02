@@ -102,7 +102,7 @@ const m1 = {
           id: 'l2-overview', title: 'Nature of negotiation behaviours',
           blocks: [
             { t: 'p', text: 'Negotiation behaviours vary with the situation and the individuals involved. Understanding them is crucial, both to manage your own and to read the person in front of you.' },
-            { t: 'img', src: img('meeting'), alt: 'A team meeting around a white table', ratio: '16/7', pos: 'center 30%' },
+            { t: 'img', src: img('meeting-wide'), alt: 'A team meeting around a white table', ratio: '3/2' },
             { t: 'behaviourList', items: [
               { key: 'aggressive', name: 'Aggressive', text: 'Focus on maximising their own gains, often at the expense of the other party.' },
               { key: 'passive', name: 'Passive', text: 'Reluctant to express their needs or interests, and may be easily persuaded by others.' },
