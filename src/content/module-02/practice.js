@@ -144,21 +144,21 @@ export const inserts = {
     { t: 'Agrees, apologises and offers a discount.', fb: 'That gives away value before you know what the feeling is about.' },
   ])],
   'l3-reactions': [yourTurnStakeholder],
-  'l4-voices': [qc('qc2-voice', 'A meeting is heating up and you want to bring the temperature down. Which voice fits best?', [
-    { t: 'Assertive voice', fb: 'Good for setting boundaries and leading, but it can feel cold in a heated moment.' },
-    { t: 'Midnight voice', correct: true, fb: 'Right: slow, calm and low. It builds safety and de-escalates.' },
-    { t: 'Playful voice', fb: 'Great for rapport and energy, but in a tense moment it can feel dismissive.' },
+  'l4-voices': [qc('qc2-voice', 'When does the playful (positive) voice help most?', [
+    { t: 'When you set a firm boundary on price.', fb: 'That moment calls for the assertive voice.' },
+    { t: 'When you build rapport at the start, or open up a brainstorm.', correct: true, fb: 'Right. It relaxes people and makes them more open and creative.' },
+    { t: 'When you deliver serious bad news.', fb: 'Playfulness here can feel dismissive. The midnight voice fits better.' },
   ])],
   'l4-practice': [sayDeescalate],
-  'l5-allegation': [qc('qc2-allegation', 'What is an Allegation Assessment?', [
-    { t: 'Admitting you were wrong before the meeting starts.', fb: 'It is not admitting guilt. It shows you understand their concerns.' },
-    { t: 'Naming the negative thoughts or objections they may have about you, before they say them.', correct: true, fb: 'Right. If they say it, it\'s a problem; if you say it first, it\'s connection.' },
-    { t: 'Listing the allegations you have against the other side.', fb: 'It works the other way: you name what they might think about you.' },
+  'l5-allegation': [qc('qc2-allegation', 'When does an Allegation Assessment work best?', [
+    { t: 'At the start, before you raise the difficult point, so you name their concern before they do.', correct: true, fb: 'Right. If they say it first, it\'s a problem; if you say it first, it\'s connection.' },
+    { t: 'After they have complained, to defend yourself.', fb: 'By then it sounds like an excuse. The power is in naming it first.' },
+    { t: 'Only in a follow-up email after the meeting.', fb: 'It works best in the conversation itself, before the emotion builds.' },
   ])],
-  'l5-empathy': [qc('qc2-label', 'Which line is a label?', [
-    { t: '"You\'re overreacting."', fb: 'That is a judgement, and it will raise defensiveness.' },
-    { t: '"It sounds like you\'re worried about the timeline."', correct: true, fb: 'Right: it names the emotion you sense and leaves room for them to confirm or correct.' },
-    { t: '"I feel the same way."', fb: 'That shifts the focus to you. A label is about their emotion.' },
+  'l5-empathy': [qc('qc2-label', 'You say, "It sounds like the timeline worries you." What should you do next?', [
+    { t: 'Explain straight away why the timeline is fine.', fb: 'You jump back to logic before they have had a chance to respond to the label.' },
+    { t: 'Pause, and let them confirm, correct or expand on it.', correct: true, fb: 'Right. The silence after a label is where they tell you what is really going on.' },
+    { t: 'Add two or three more labels to show you understand.', fb: 'Stacking labels feels like a technique. One label, then listen.' },
   ])],
   'l6-flow': [yourTurnInterrupt],
 }

@@ -87,15 +87,15 @@ export const checks = {
     { t: 'Manipulative (passive-aggressive)', correct: true, fb: 'Right: cooperative on the surface, disruptive underneath. That causes frustration and confusion.' },
     { t: 'Aggressive', fb: 'Aggressive behaviour is openly hostile. This is indirect.' },
   ]),
-  aggressive: qc('qc-aggressive', 'When can aggressive behaviour produce a result?', [
-    { t: 'In a long-term partnership where trust matters.', fb: 'That is exactly where aggression does the most damage: it sacrifices long-term goodwill.' },
-    { t: 'In a high-stakes, one-time deal where you hold significant leverage.', correct: true, fb: 'Right. Even then, it costs goodwill and risks a breakdown if the other side feels coerced.' },
-    { t: 'Whenever the other side is passive.', fb: 'Pushing a passive counterpart may win a concession, but it builds resentment and hides their real concerns.' },
+  aggressive: qc('qc-aggressive', 'Even when aggressive behaviour wins a point, what does it usually cost you?', [
+    { t: 'Nothing, if you win.', fb: 'The cost often shows up later: less trust, less information, and a counterpart looking for payback.' },
+    { t: 'Goodwill and future cooperation, and the risk that the talks break down.', correct: true, fb: 'Right. Aggression trades the relationship for the short-term result.' },
+    { t: 'Only a bit of extra time.', fb: 'Time is the smallest cost. The relationship is the bigger one.' },
   ]),
-  passive: qc('qc-passive', 'What is the main risk of passive behaviour?', [
-    { t: 'Poor outcomes, or being exploited by more aggressive negotiators.', correct: true, fb: 'Right. Passiveness can also cost respect, because it may be read as weakness.' },
-    { t: 'Damaging the relationship through hostility.', fb: 'That is the risk of aggressive behaviour.' },
-    { t: 'Confusing the other side with mixed signals.', fb: 'That is more typical of manipulative behaviour.' },
+  passive: qc('qc-passive', 'Which reply in a planning meeting is passive?', [
+    { t: '"I guess that\'s fine… whatever works for everyone."', correct: true, fb: 'Right. Your own needs disappear from the conversation, even if you have them.' },
+    { t: '"That deadline doesn\'t work for me. Could we look at Thursday instead?"', fb: 'That is assertive: clear, respectful and open.' },
+    { t: '"Fine. We do it my way or not at all."', fb: 'That is aggressive.' },
   ]),
   manipulative: qc('qc-manipulative', 'Why does manipulative behaviour usually backfire over time?', [
     { t: 'It is too direct.', fb: 'The opposite: it is indirect.' },
@@ -122,10 +122,10 @@ export const checks = {
     { t: 'Your concern for the outcome.', correct: true, fb: 'Right. The cooperation axis is your concern for the relationship.' },
     { t: 'Your concern for the relationship.', fb: 'That is the cooperation axis.' },
   ]),
-  competing: qc('qc-competing', 'Which situation suits a competing strategy?', [
-    { t: 'A one-time deal where you hold the leverage and the outcome matters more than the relationship.', correct: true, fb: 'Right. Deliver it assertively rather than aggressively.' },
-    { t: 'A long-term partner where trust is vital.', fb: 'Competing can damage that relationship. Collaborating fits better.' },
-    { t: 'A trivial issue on a busy day.', fb: 'That sounds like a case for avoiding.' },
+  competing: qc('qc-competing', 'You decide a competing strategy fits. How should you deliver it?', [
+    { t: 'Aggressively, to show you mean it.', fb: 'Aggression adds damage without adding results.' },
+    { t: 'Assertively: firm and clear on what you need, respectful to the person.', correct: true, fb: 'Right. The strategy is competing; the behaviour stays assertive.' },
+    { t: 'Passively, so they don\'t notice.', fb: 'A competing strategy delivered passively usually just fails.' },
   ]),
   collaborating: qc('qc-collaborating', 'What does collaborating need in order to work?', [
     { t: 'One side with much more power than the other.', fb: 'Collaboration works best when both sides have important stakes and engage.' },
@@ -142,25 +142,25 @@ export const checks = {
     { t: 'When emotions are running high and a cooling-off period is needed.', correct: true, fb: 'Right. Avoid on purpose, and set a time to come back to it.' },
     { t: 'When the issue is critical and urgent.', fb: 'Avoiding critical issues lets them fester into bigger problems.' },
   ]),
-  accommodating: qc('qc-accommodating', 'A new senior stakeholder asks for a small change that costs you little. Why might you accommodate?', [
-    { t: 'To build goodwill, because the relationship matters more than this minor issue.', correct: true, fb: 'Right. Yield on purpose, and notice the goodwill you have built.' },
-    { t: 'Because accommodating is always the safest strategy.', fb: 'Used all the time, it leads to resentment and unmet goals.' },
-    { t: 'So they never ask you for anything again.', fb: 'Accommodating usually invites more requests, not fewer. Use it deliberately.' },
+  accommodating: qc('qc-accommodating', 'You decide to accommodate a stakeholder on a small point. How do you make it count?', [
+    { t: 'Say nothing, so it doesn\'t look like a favour.', fb: 'An unnoticed concession builds little goodwill.' },
+    { t: 'Yield on purpose and name it lightly: "Happy to help on this one."', correct: true, fb: 'Right. Deliberate accommodation builds goodwill you can draw on later.' },
+    { t: 'Ask for something in return straight away, firmly.', fb: 'That turns accommodating into a trade, and the goodwill disappears.' },
   ]),
   factors: qc('qc-factors', 'Which three factors does the module use to choose a strategy?', [
     { t: 'Price, deadline and how you feel that day.', fb: 'Time is part of context, but the module names three broader factors.' },
     { t: 'Desired outcome, the counterpart\'s position, and context.', correct: true, fb: 'Right. Re-check them as the negotiation develops.' },
     { t: 'Your personality, their personality and the venue.', fb: 'Personality shapes behaviour, but strategy follows outcome, counterpart and context.' },
   ]),
-  bridge: qc('qc-bridge', 'Which combination of behaviour and strategy builds the most trust?', [
-    { t: 'Manipulative behaviour with an accommodating strategy.', fb: 'That combination breeds distrust: the other side never knows what you really want.' },
-    { t: 'Assertive behaviour with a collaborating strategy.', correct: true, fb: 'Right: firm on interests, warm on people.' },
-    { t: 'Aggressive behaviour with a compromising strategy.', fb: 'The tone undermines the middle ground you are trying to reach.' },
+  bridge: qc('qc-bridge', 'You choose a collaborating strategy. Which behaviour gives it the best chance of working?', [
+    { t: 'Passive: let them lead so they feel comfortable.', fb: 'Collaborating needs both sides to state their interests. Passive behaviour hides yours.' },
+    { t: 'Assertive: open about your interests, respectful of theirs.', correct: true, fb: 'Right: firm on interests, warm on people.' },
+    { t: 'Manipulative: guide them to your preferred answer.', fb: 'Collaboration depends on trust. Manipulation destroys it.' },
   ]),
-  pareto: qc('qc-pareto', 'Where should most of your preparation effort go?', [
-    { t: 'Evenly across every issue.', fb: 'Not every issue deserves the same effort.' },
-    { t: 'Your Musts and Shoulds: the vital few issues that create most of the value.', correct: true, fb: 'Right. Could and Won\'t items are useful as trades.' },
-    { t: 'The Won\'t items, so that nothing is missed.', fb: 'That is half of all possible effort for almost no extra benefit.' },
+  pareto: qc('qc-pareto', 'How should you treat your Could and Won\'t items when you prepare?', [
+    { t: 'Prepare them in as much detail as your Musts.', fb: 'That spends most of your effort on issues that add little value.' },
+    { t: 'Give them light effort, and keep them ready as things you can trade.', correct: true, fb: 'Right. They are rarely worth deep preparation, but they are useful currency.' },
+    { t: 'Drop them from your plan entirely.', fb: 'They still matter as trades, so keep them on the list.' },
   ]),
 }
 

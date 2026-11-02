@@ -124,15 +124,15 @@ export const inserts = {
     { t: 'Economic well-being', fb: 'Small expenses barely affect financial stability. Look for the need behind the behaviour.' },
   ])],
   'l3-how': [yourTurnInterests],
-  'l4-how': [qc('qc4-options', 'Why separate inventing options from judging them?', [
-    { t: 'Because judging early kills ideas before they can be improved or combined.', correct: true, fb: 'Right. Criticism shuts down creativity. Invent first, evaluate later against agreed criteria.' },
-    { t: 'Because judging is not important in negotiation.', fb: 'Judging is essential, just not at the same time as inventing.' },
-    { t: 'Because the other side should do all the judging.', fb: 'Both sides judge, together, against criteria set in advance.' },
+  'l4-how': [qc('qc4-options', 'In a joint brainstorm, a colleague says, "That will never work," about the very first idea. What do you do?', [
+    { t: 'Agree and drop the idea to keep things moving.', fb: 'You let judging start during inventing, and the flow of ideas will dry up.' },
+    { t: 'Remind everyone that you are inventing now and judging later, and note the idea.', correct: true, fb: 'Right. Keep the judgement-free zone. Ideas are evaluated later, against agreed criteria.' },
+    { t: 'Argue for the idea until they accept it.', fb: 'Defending ideas turns a brainstorm into a debate.' },
   ])],
-  'l5-standards': [qc('qc4-procedure', 'Two departments argue over how to split a shared budget. Which is a fair procedure?', [
-    { t: 'The more senior head decides.', fb: 'That is power, not a fair procedure.' },
-    { t: 'One head proposes the split; the other chooses which share to take.', correct: true, fb: 'Right. "One divides, the other chooses" means nobody needs to trust anybody.' },
-    { t: 'Whoever argues longest wins.', fb: 'That rewards stubbornness, not fairness.' },
+  'l5-standards': [qc('qc4-procedure', 'You are agreeing a daily rate with a new consulting client. Which is a fair standard?', [
+    { t: 'What your biggest client pays you.', fb: 'That is your own reference point, not an independent standard.' },
+    { t: 'A published rate survey for consultants with similar experience.', correct: true, fb: 'Right. An external, objective standard that both sides can check.' },
+    { t: 'The rate you need to hit your annual revenue target.', fb: 'That is your need, not a fair standard for them.' },
   ])],
   'l5-firm': [yourTurnPressure],
 }

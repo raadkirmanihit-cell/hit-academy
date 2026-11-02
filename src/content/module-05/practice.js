@@ -82,21 +82,21 @@ export const inserts = {
     { t: 'The least you will accept before you would rather take your alternative.', correct: true, fb: 'Right. Write it down before the negotiation so pressure doesn\'t move it.' },
     { t: 'The first offer you make.', fb: 'Your first offer should be near your ideal, not your limit.' },
   ])],
-  'l3-what': [qc('qc5-batna', 'Which is a BATNA?', [
-    { t: '"We want a 10% discount."', fb: 'That is a goal or position.' },
-    { t: '"If this supplier won\'t go below €15 a unit, we\'ll order from Supplier B at €16."', correct: true, fb: 'Right. Your BATNA is what you will actually do if there is no deal.' },
-    { t: '"We will accept no less than €15."', fb: 'That is a walk-away point. It is connected to your BATNA but not the same thing.' },
+  'l3-what': [qc('qc5-batna', 'What is the difference between your BATNA and your walk-away point?', [
+    { t: 'There is none: they are two names for the same thing.', fb: 'They are connected, but not the same.' },
+    { t: 'Your BATNA is the alternative itself; your walk-away point is the worst deal you would accept before you prefer that alternative.', correct: true, fb: 'Right. Your BATNA sets your walk-away point, and a stronger BATNA raises it.' },
+    { t: 'Your walk-away point is the other side\'s limit.', fb: 'Their limit is their walk-away point. Yours is about you.' },
   ])],
-  'l3-strengthen': [qc('qc5-strengthen', 'Which action strengthens your BATNA most reliably?', [
-    { t: 'Telling the other side you have many options.', fb: 'Claiming alternatives doesn\'t create them. If tested, a bluff weakens you.' },
-    { t: 'Getting a real quote from an alternative supplier before the negotiation.', correct: true, fb: 'Right. Test your fallback so it isn\'t just theoretical.' },
-    { t: 'Lowering your goals so any deal is acceptable.', fb: 'That weakens your position instead of improving your alternatives.' },
+  'l3-strengthen': [qc('qc5-strengthen', 'Your only alternative supplier says they "might" have capacity, but hasn\'t confirmed. What is the best move before the negotiation?', [
+    { t: 'Treat it as a strong BATNA and mention it confidently.', fb: 'An untested alternative may collapse if they call your bluff.' },
+    { t: 'Test it: ask the alternative supplier for written confirmation and a quote.', correct: true, fb: 'Right. Testing your fallback makes sure it isn\'t just theoretical.' },
+    { t: 'Forget about alternatives and focus on the current supplier.', fb: 'Without an alternative, you have much less room to say no.' },
   ])],
   'l3-leverage': [saySignalBatna],
-  'l3-zopa': [qc('qc5-zopa', 'Your walk-away is €68,000. Their maximum is €72,000. Where should your first offer go?', [
-    { t: 'Around €68,000, so they accept quickly.', fb: 'That is your edge of the zone. You give away the whole zone to them.' },
-    { t: 'Near their edge, around €72,000, with reasons to support it.', correct: true, fb: 'Right. Aim near their edge of the zone and justify it with objective criteria.' },
-    { t: 'There is no ZOPA, so don\'t make an offer.', fb: 'Any deal from €68,000 to €72,000 is in the zone. There is a ZOPA.' },
+  'l3-zopa': [qc('qc5-zopa', 'Your walk-away is €55,000. You estimate their maximum is €52,000. What should you do?', [
+    { t: 'Split the difference at €53,500.', fb: 'That is below your walk-away point. You would be better off with your BATNA.' },
+    { t: 'There may be no ZOPA: check your estimate, look for value beyond salary, or be ready to walk away.', correct: true, fb: 'Right. When the limits don\'t overlap, change the deal or take your alternative.' },
+    { t: 'Accept €52,000 to avoid losing the offer.', fb: 'Accepting below your walk-away point means taking a deal worse than your alternative.' },
   ])],
   'l4-examples': [qc('qc5-normative', 'A client says they "always reward long-term partners". You remind them of this when they push to cut your fees. Which leverage is that?', [
     { t: 'Positive', fb: 'Positive leverage is something they want from you.' },

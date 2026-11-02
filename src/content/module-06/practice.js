@@ -72,27 +72,27 @@ export const inserts = {
     { t: 'Using them with real facts: real losses, justified anchors, genuine fairness and options that work for both sides.', correct: true, fb: 'Right. The same principle can be honest or manipulative; the difference is whether it is true.' },
     { t: 'Only using them on people you don\'t know.', fb: 'Integrity doesn\'t depend on the relationship.' },
   ])],
-  'l2-apply': [qc('qc6-loss', 'Which line uses loss aversion honestly?', [
-    { t: '"Only two spots left!" when there are twenty.', fb: 'Invented scarcity. It may work once, and it costs your credibility when discovered.' },
-    { t: '"Our current price holds until 30 June, when the new rate card takes effect."', correct: true, fb: 'Right. A real deadline, stated clearly, lets the other side feel the cost of waiting.' },
-    { t: '"You\'ll regret it forever if you don\'t sign."', fb: 'Pressure and exaggeration, not a real loss.' },
+  'l2-apply': [qc('qc6-loss', 'Why does the module insist that you only use real losses, deadlines and scarcity?', [
+    { t: 'Because invented ones are illegal everywhere.', fb: 'Not always illegal, but always risky for trust.' },
+    { t: 'Because an invented deadline may work once, but when it is discovered it destroys your credibility.', correct: true, fb: 'Right. Loss aversion is powerful, which is why it must be honest.' },
+    { t: 'Because real losses are always bigger.', fb: 'Size is not the point. Truth is.' },
   ])],
-  'l3-how': [qc('qc6-anchor', 'The other side opens with a very low number. What should you do?', [
-    { t: 'Counter-anchor quickly with your own number, supported by data.', correct: true, fb: 'Right. Re-anchor immediately so their number doesn\'t become the reference point.' },
-    { t: 'Ignore it and wait for them to improve it.', fb: 'Silence can help, but leaving an extreme anchor standing lets it shape the rest of the talk.' },
-    { t: 'Split the difference between their number and yours.', fb: 'Splitting the difference rewards an extreme anchor.' },
+  'l3-how': [qc('qc6-anchor', 'When is it risky to set the first anchor?', [
+    { t: 'When you know the market well.', fb: 'That is exactly when anchoring first works best.' },
+    { t: 'When you don\'t know the market or their limits, because you may anchor far too low (or too high).', correct: true, fb: 'Right. Anchoring works best when you understand the market and what the other side can accept.' },
+    { t: 'Never: going first is always best.', fb: 'Going first is powerful, but only when you have the information to set a good anchor.' },
   ])],
   'l4-how': [sayFairness],
-  'l5-how': [qc('qc6-choice', 'Which is the best example of the illusion of choice, used well?', [
-    { t: '"Do you want to sign or not?"', fb: 'A yes/no question. It gives the other side only one way to say no.' },
-    { t: '"Would you prefer the twelve-month plan with monthly payments, or the annual plan with a 10% saving?"', correct: true, fb: 'Right. Two genuine options, both acceptable to you, and the choice is theirs.' },
-    { t: '"Option A is terrible, option B is what you want."', fb: 'A decoy that obvious feels like manipulation.' },
+  'l5-how': [qc('qc6-choice', 'How many options should you usually put in front of the other side?', [
+    { t: 'One: a clear proposal is best.', fb: 'A single proposal becomes a yes-or-no decision.' },
+    { t: 'Two or three well-designed options.', correct: true, fb: 'Right. Enough to give a sense of control, few enough to make choosing easy.' },
+    { t: 'As many as possible, to show flexibility.', fb: 'Too many options overwhelm people and stall decisions.' },
   ])],
   'l6-how': [yourTurnAnchor],
-  'l7-how': [qc('qc6-reciprocity', 'Which gesture is most likely to build genuine reciprocity?', [
-    { t: 'A branded pen sent to every client.', fb: 'Generic gestures feel like marketing, not a personal favour.' },
-    { t: 'Sharing a market report that answers a problem they mentioned last month.', correct: true, fb: 'Right. Personal, useful and genuine: it gives value before you ask for anything.' },
-    { t: 'A gift sent the day before you ask for a price increase.', fb: 'The timing makes the motive obvious, and obvious manipulation backfires.' },
+  'l7-how': [qc('qc6-reciprocity', 'You introduced a client to a useful contact last month. They thank you. Which reply reinforces reciprocity without sounding transactional?', [
+    { t: '"Great. So now you owe me one."', fb: 'It turns a gift into a debt, and the goodwill disappears.' },
+    { t: '"I was happy to help. I know you\'d do the same."', correct: true, fb: 'Right. It gently names the norm of mutual help while keeping it warm.' },
+    { t: '"Remember this when we discuss the renewal."', fb: 'Linking it openly to a future ask makes the gesture look manipulative.' },
   ])],
 }
 

@@ -113,26 +113,26 @@ const sayAskForNo = {
 }
 
 export const inserts = {
-  'l1-counterfeit': [qc('qc3-counterfeit', 'A supplier says, "Yes, of course, I\'ll get to it," very quickly, and looks away. What is the best response?', [
-    { t: 'Thank them and move on: they said yes.', fb: 'Quick, vague enthusiasm with a mismatched look is a classic counterfeit signal.' },
-    { t: '"Great. Just so we\'re aligned, when do you think you\'ll be able to start?"', correct: true, fb: 'Right. A specific question tests the yes without accusing anyone.' },
-    { t: '"I don\'t believe you."', fb: 'Direct, but it creates conflict. Specific questions reveal the same thing without the damage.' },
+  'l1-counterfeit': [qc('qc3-counterfeit', 'Why does the module tell you to test a yes with specific questions, rather than judge it from body language?', [
+    { t: 'Because body language never tells you anything.', fb: 'Mismatched signals are worth noticing. They just aren\'t proof.' },
+    { t: 'Because people spot lies only about half the time, so a specific question is more reliable than reading a face.', correct: true, fb: 'Right. Research puts lie detection at about 54%, barely better than chance. Questions about the next step reveal far more.' },
+    { t: 'Because asking questions makes you look more confident.', fb: 'It may, but the main reason is reliability: specifics expose an empty yes.' },
   ])],
-  'l1-confirmation': [qc('qc3-confirmation', 'A client says, "Yes, that\'s correct: we have 40 sites." What kind of yes is that, and what do you do with it?', [
-    { t: 'A commitment yes: send the contract.', fb: 'Confirming a fact is not agreeing to buy.' },
-    { t: 'A confirmation yes: use it as a bridge to a deeper question about what 40 sites means for them.', correct: true, fb: 'Right. Move from data to action: "How does managing 40 sites affect your priorities this year?"' },
-    { t: 'A counterfeit yes: challenge it.', fb: 'Nothing here is evasive. It is a neutral factual acknowledgement.' },
+  'l1-confirmation': [qc('qc3-confirmation', 'Your manager says, "Yes, I\'ve read your proposal." What has she committed to?', [
+    { t: 'Approving the proposal.', fb: 'Reading is not approving. Treating it as approval could embarrass you later.' },
+    { t: 'Nothing yet: she has confirmed a fact, which is a good bridge to ask what she thinks of it.', correct: true, fb: 'Right. A confirmation yes acknowledges, it doesn\'t decide. Use it to open the next question.' },
+    { t: 'Funding it this quarter.', fb: 'Nothing in her words points to a decision or a budget.' },
   ])],
-  'l1-commitment': [qc('qc3-commitment', 'Which signals point to a commitment yes?', [
-    { t: 'Enthusiasm and a big smile.', fb: 'Enthusiasm alone can also come with a counterfeit yes.' },
-    { t: 'Specifics such as a timeline, an owner or a next step, with tone and body language that match the words.', correct: true, fb: 'Right. A commitment yes comes with action and consistency.' },
-    { t: 'A short, neutral "yes".', fb: 'That is more typical of a confirmation yes.' },
+  'l1-commitment': [qc('qc3-commitment', 'A client says, "Absolutely. Send the contract." What is your job now?', [
+    { t: 'Confirm and support execution: send the paperwork and agree the next steps.', correct: true, fb: 'Right. At this stage you reinforce the yes and make acting on it easy.' },
+    { t: 'Keep probing for doubts until you are completely sure.', fb: 'Over-testing a real commitment can create the doubts you were looking for.' },
+    { t: 'Ask for a slightly better deal while they are positive.', fb: 'Re-opening terms after a real yes damages trust.' },
   ])],
   'l2-ensure': [yourTurnYes],
-  'l3-reframe': [qc('qc3-reframe', 'Which question is the best no-oriented version of "Can we meet on Friday?"', [
-    { t: '"You can meet on Friday, right?"', fb: 'That pushes for a yes even harder.' },
-    { t: '"Would Friday be a bad time to meet?"', correct: true, fb: 'Right. Saying no feels safe, and either answer gives you clarity.' },
-    { t: '"Don\'t you want to sort this out on Friday?"', fb: 'Phrased for a no, but no one can say no without looking unhelpful. That is a trap.' },
+  'l3-reframe': [qc('qc3-reframe', 'Which of these no-oriented questions is a trap rather than a genuine invitation?', [
+    { t: '"Would it be a bad idea to meet on Friday?"', fb: 'A genuine choice: either answer is easy to give.' },
+    { t: '"Don\'t you want your team to succeed?"', correct: true, fb: 'Right. It is phrased for a no, but nobody can say no without looking bad. People feel the pressure.' },
+    { t: '"Is it out of the question to start in May?"', fb: 'A genuine choice, with disarming language that makes no feel safe.' },
   ])],
   'l3-practice': [sayAskForNo],
   'l3-handling': [
@@ -143,10 +143,10 @@ export const inserts = {
     ]),
     yourTurnNo,
   ],
-  'l4-silence': [qc('qc3-silence', 'You\'ve just made your offer and the other side goes quiet. What do you do?', [
-    { t: 'Fill the silence by explaining your offer again.', fb: 'Talking over the silence often leads you to weaken your own offer.' },
-    { t: 'Hold the silence and let them respond.', correct: true, fb: 'Right. Silence projects confidence and gives them space to think.' },
-    { t: 'Lower the price to break the tension.', fb: 'Negotiating against yourself. The silence was doing the work for you.' },
+  'l4-silence': [qc('qc3-silence', 'You ask a client a thoughtful question, and they go quiet for several seconds. What is the best reading?', [
+    { t: 'They didn\'t understand: rephrase the question straight away.', fb: 'Rephrasing too early interrupts their thinking and often gets a shallower answer.' },
+    { t: 'They are thinking: hold the silence and let them answer.', correct: true, fb: 'Right. The pause after a question is where the deeper answers come from.' },
+    { t: 'They are offended: apologise.', fb: 'Silence after a question usually means thought, not offence.' },
   ])],
   'l4-pauses': [qc('qc3-pauses', 'A colleague says, "The deadline is just… unrealistic." Which pause helps most here?', [
     { t: 'Pause to encourage elaboration, with a mirror: "Unrealistic?" and then silence.', correct: true, fb: 'Right. The mirror plus silence invites them to explain what is behind "unrealistic".' },

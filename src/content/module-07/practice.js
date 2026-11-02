@@ -77,15 +77,15 @@ export const inserts = {
     { t: 'Ask what happens after 5 pm and why the deadline exists.', correct: true, fb: 'Right. Test the deadline with questions. Real deadlines have reasons; false ones often soften.' },
     { t: 'Tell them you know it\'s fake.', fb: 'Accusing them makes them defend the deadline instead of explaining it.' },
   ])],
-  'l3-nibbling': [qc('qc7-nibble', 'After agreeing the price, the client asks, "You\'ll include delivery for free, right?" What is the best counter?', [
-    { t: '"Sure, no problem."', fb: 'A free nibble. Small concessions at the end add up, and teach the other side to keep asking.' },
-    { t: '"If delivery is included, could we agree payment in 30 days instead of 60?"', correct: true, fb: 'Right. Trade any late request for something of value to you.' },
-    { t: '"No. Absolutely not."', fb: 'A flat refusal can sour the close. Trading keeps it constructive.' },
+  'l3-nibbling': [qc('qc7-nibble', 'How can you prevent nibbles before you agree the price?', [
+    { t: 'Agree the price quickly, then sort out the details.', fb: 'Leaving details open is exactly where nibbles live.' },
+    { t: 'Put every term on the table and ask, "Is there anything else we need to cover?" before agreeing the price.', correct: true, fb: 'Right. Surfacing everything first leaves nothing to add at the end.' },
+    { t: 'Refuse to discuss anything after the meeting.', fb: 'Too rigid. The aim is to close all the items, not to stop talking.' },
   ])],
-  'l4-overwhelm': [qc('qc7-overwhelm', 'The other side sends a 90-page document an hour before the meeting. How do you respond?', [
-    { t: 'Skim it and agree to avoid looking unprepared.', fb: 'Agreeing to what you haven\'t read is exactly what the tactic hopes for.' },
-    { t: 'Ask them to summarise the key changes, and take time to review before deciding.', correct: true, fb: 'Right. Bring it back to what matters, and don\'t decide until you understand it.' },
-    { t: 'Refuse to discuss anything.', fb: 'You can protect yourself without shutting the conversation down.' },
+  'l4-overwhelm': [qc('qc7-overwhelm', 'Why does overwhelming someone with information work as a tactic?', [
+    { t: 'Because more information always makes a stronger case.', fb: 'The aim of the tactic is not clarity: it is to tire and confuse.' },
+    { t: 'Because it tires people out and hides the important points, so they agree to what they haven\'t fully understood.', correct: true, fb: 'Right. Recognising that is the first step to asking for a summary and taking time.' },
+    { t: 'Because it shows the other side is well prepared.', fb: 'It may look like preparation, but the effect is confusion.' },
   ])],
   'l5-goodcop': [qc('qc7-goodcop', 'One buyer is aggressive; the other is friendly and says, "Help me help you: give me something to calm my boss." What is going on?', [
     { t: 'The friendly one is on your side.', fb: 'Both are on the same side. The contrast is designed to make you concede to the "nice" one.' },
