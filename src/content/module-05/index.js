@@ -207,35 +207,35 @@ const m5 = {
               { eyebrow: 'Weak BATNA', title: 'A last resort', color: 'var(--b-aggressive)', list: [
                 '**Definition:** a fallback option that offers little value, or is risky, costly or uncertain.',
                 '**Use case:** primarily a pressure release or last resort, not a viable alternative.',
-              ], example: 'Going to court in a divorce: costly, emotionally draining, and the outcome is uncertain.' },
+              ], example: 'Going to court in a commercial contract dispute: costly, slow, and the outcome is uncertain.' },
               { eyebrow: 'Moderate BATNA', title: 'Partial leverage', color: 'var(--orange)', list: [
                 '**Definition:** a somewhat acceptable alternative that meets some, but not all, of your goals.',
                 '**Use case:** provides partial leverage; you might take it if the deal falls through, but it\'s not ideal.',
-              ], example: 'Accepting a job with lower pay but better lifestyle trade-offs.' },
+              ], example: 'Accepting a job with lower pay but better working conditions.' },
               { eyebrow: 'Strong BATNA', title: 'Freedom to walk away', color: 'var(--b-assertive)', list: [
                 '**Definition:** a well-developed, reliable option that is equal to or better than the deal you\'re negotiating.',
                 '**Use case:** gives you high bargaining power and the confidence to walk away if needed.',
-              ], example: 'Renting your home instead of selling it at a loss: income continues, no pressure to settle.' },
+              ], example: 'Leasing out an office building instead of selling it at a loss: income continues, no pressure to settle.' },
             ] },
             { t: 'p', text: `**BATNA examples**` },
             { t: 'table', head: ['Scenario', 'BATNA', 'Strength', 'Explanation'], rows: [
               ['Job offer negotiation', 'Another job offer with lower pay but better work-life balance', 'Moderate', 'It\'s viable but may not fully meet your goals (e.g. salary).'],
               ['Business partnership', 'Partner with a smaller firm', 'Moderate', 'The alternative achieves the objectives, but with less impact or reach.'],
-              ['Buying a car', 'A lower quote from another dealer, or wait for a discount', 'Strong', 'A concrete, often better financial option is available.'],
-              ['Divorce settlement', 'Go to court for a potentially better legal judgement', 'Weak', 'Court is costly and time-consuming, and the outcome is uncertain.'],
-              ['Real estate sale', 'Rent the property instead of selling at a loss', 'Strong', 'Renting generates income and avoids selling at an unfavourable price.'],
+              ['Buying equipment', 'A lower quote from another supplier, or wait for a discount', 'Strong', 'A concrete, often better financial option is available.'],
+              ['Commercial contract dispute', 'Go to court for a potentially better legal judgement', 'Weak', 'Court is costly and time-consuming, and the outcome is uncertain.'],
+              ['Commercial property sale', 'Lease the property instead of selling at a loss', 'Strong', 'Leasing generates income and avoids selling at an unfavourable price.'],
               ['International diplomacy', 'Trade with other partners or focus on domestic production', 'Moderate to strong', 'Depends on the country\'s economic resilience and other partners, but generally viable.'],
             ] },
-            { t: 'p', text: `**The same idea in four everyday contexts.** Open each one to see what a strong, medium and weak BATNA looks like, and what it lets you do.` },
-            { t: 'table', reveal: '1 · A couple negotiating time commitments (work vs relationship time)', head: ['Strength', 'Example', 'Why it\'s that strength', 'What it lets you do'], rows: [
-              ['Strong', 'You already maintain fulfilling social and personal routines (friends, hobbies, independence) outside the relationship.', 'You\'re emotionally balanced and not reliant on your partner to meet all your needs.', 'Negotiate calmly and assertively, not from desperation.'],
-              ['Medium', 'You have some personal outlets, but most free time revolves around your partner.', 'Partial independence; a moderate fallback.', 'Push for compromise, but you may still feel pressured to agree.'],
-              ['Weak', 'Your life is completely centred on your partner, with no other emotional or social outlets.', 'High emotional dependency; no alternative support.', 'Negotiation becomes fear-driven; it\'s harder to assert needs without anxiety.'],
+            { t: 'p', text: `**The same idea in four workplace contexts.** Open each one to see what a strong, medium and weak BATNA looks like, and what it lets you do.` },
+            { t: 'table', reveal: '1 · A team lead asking senior management for more resources', head: ['Strength', 'Example', 'Why it\'s that strength', 'What it lets you do'], rows: [
+              ['Strong', 'Another department has already offered to lend you two people, or you can deliver on time by moving a lower-priority project.', 'A real, workable alternative if the request is turned down.', 'Ask calmly and confidently, not from desperation.'],
+              ['Medium', 'You could cope by reprioritising, but other work would slip.', 'The option exists, but with a visible cost.', 'Push for a compromise, such as one extra person or a later deadline, and weigh the trade-offs.'],
+              ['Weak', 'Without extra people the project will miss its deadline, and there is no other way to deliver.', 'Dependence on one decision-maker limits your alternatives.', 'Shift the focus from leverage to shared goals: what the delay would cost the business.'],
             ] },
-            { t: 'table', reveal: '2 · A family negotiation (adult child and parent discussing living arrangements)', head: ['Strength', 'Example', 'Why it\'s that strength', 'What it lets you do'], rows: [
-              ['Strong', 'You have the financial and logistical ability to live independently if needed.', 'A real, viable alternative.', 'Negotiate boundaries respectfully, without fear of losing shelter.'],
-              ['Medium', 'You could move out, but it would be financially tight or inconvenient.', 'The option exists, but with some cost or discomfort.', 'Push for compromise, but weigh trade-offs carefully.'],
-              ['Weak', 'You have no savings or other living options.', 'Dependence limits alternatives.', 'Shift the focus from leverage to empathy and cooperation.'],
+            { t: 'table', reveal: '2 · A procurement manager renewing a supplier contract', head: ['Strength', 'Example', 'Why it\'s that strength', 'What it lets you do'], rows: [
+              ['Strong', 'Two qualified suppliers have sent written quotes for the same scope.', 'A real alternative with comparable value.', 'Negotiate price and terms firmly, and walk away if needed.'],
+              ['Medium', 'Other suppliers exist, but switching would take months and some retraining.', 'The option exists, but with cost and disruption.', 'Push for better terms, but weigh switching costs carefully.'],
+              ['Weak', 'The current supplier is the only one certified for the part you need.', 'No immediate substitute.', 'Focus on the relationship and a longer-term partnership, and start building alternatives.'],
             ] },
             { t: 'table', reveal: '3 · A B2B sales negotiation (selling a product or service)', head: ['Strength', 'Example', 'Why it\'s that strength', 'What it lets you do'], rows: [
               ['Strong', 'Another customer is ready to buy at full price next week.', 'A real alternative sale with comparable value.', 'Walk away from discounts; maintain price integrity.'],

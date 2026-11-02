@@ -72,7 +72,7 @@ const m1 = {
               '**The relationship.** The process should improve, or at the very least preserve, the relationship between the parties.',
             ] },
             { t: 'research', added: true, title: 'Four principles behind "wise agreements"', text: 'Fisher, Ury and Patton\'s method of *principled negotiation* gives four practical rules for meeting these tests: **separate the people from the problem**; **focus on interests, not positions**; **invent options for mutual gain** before deciding; and **insist on objective criteria** such as market data or precedent. You will see these ideas again in Module 4, "Break the Stalemate".', cite: ['fisher2011'] },
-            { t: 'reflect', id: 'r-l1', prompt: 'Think of a negotiation from the last month, at work or at home. Score it on the three tests: was the agreement wise, was the process efficient, and is the relationship better or worse? What one thing would you change?' },
+            { t: 'reflect', id: 'r-l1', prompt: 'Think of a negotiation from the last month at work, with a client, a supplier or a colleague. Score it on the three tests: was the agreement wise, was the process efficient, and is the relationship better or worse? What one thing would you change?' },
           ],
         },
         {

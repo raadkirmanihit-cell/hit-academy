@@ -32,17 +32,17 @@ export const ultimatumScene = {
 }
 
 export const redHerringScene = {
-  label: 'Example: a partner deflects during an important discussion',
-  cast: { Partner: { initials: 'PA' }, You: you },
+  label: 'Example: a department head deflects in a budget review',
+  cast: { 'Department head': { initials: 'DH' }, You: you },
   lines: [
-    ['Partner', 'I don\'t think we should talk about finances tonight.'],
-    ['You', 'It\'s important we organise our budget together.'],
-    ['Partner', 'Well, before that: why didn\'t you fold the laundry? It\'s been sitting there for days.'],
-    ['You', 'I understand the laundry bothered you. Can you help me understand how that connects to the budget conversation we were having?', 'You recognise the red herring, and ask how it relates.'],
-    ['Partner', '…It doesn\'t, really.'],
-    ['You', 'No problem. Let\'s park the laundry topic and come back to it later so we can stay focused on the budget.', 'Table the side issue.'],
+    ['Department head', 'I don\'t think we should go through the budget today.'],
+    ['You', 'It\'s important we agree on next quarter\'s figures together.'],
+    ['Department head', 'Well, before that: why is your team always booking the big meeting room? We never get it.'],
+    ['You', 'I understand the room bookings have been frustrating. Can you help me understand how that connects to the budget conversation we were having?', 'You recognise the red herring, and ask how it relates.'],
+    ['Department head', '…It doesn\'t, really.'],
+    ['You', 'No problem. Let\'s park the room bookings and come back to them later so we can stay focused on the budget.', 'Table the side issue.'],
     ['', 'After finishing the budget talk…'],
-    ['You', 'Just to keep everything clear: we agreed to review expenses every Sunday. And if laundry is a concern, we\'ll talk about it tomorrow so it doesn\'t get mixed into other discussions.', 'Document what was agreed.'],
+    ['You', 'Just to keep everything clear: we agreed to review spending at the start of every month. And if the room bookings are a concern, let\'s sort them out tomorrow so they don\'t get mixed into other discussions.', 'Document what was agreed.'],
   ],
 }
 
@@ -85,14 +85,14 @@ export const bogeyScene = {
 }
 
 export const strawmanScene = {
-  label: 'Example: a couple discussing chores',
-  cast: { Partner: { initials: 'PA' }, You: you },
+  label: 'Example: rebalancing workload in a team',
+  cast: { Colleague: { initials: 'CO' }, You: you },
   lines: [
-    ['You', 'I think we should talk about how we divide chores more evenly.'],
-    ['Partner', 'So you think I do nothing around here? Really?', 'The straw man: an exaggerated version of what you said.'],
+    ['You', 'I think we should talk about how we divide the project tasks more evenly.'],
+    ['Colleague', 'So you think I do nothing on this team? Really?', 'The straw man: an exaggerated version of what you said.'],
     ['You', 'That\'s not what I said. Let me restate it clearly: I\'m asking that we rebalance a few tasks, not that you do nothing.', 'Clarify immediately.'],
     ['You', 'Can you repeat my point back to me in your own words so we\'re discussing the same thing?', 'Invite correction.'],
-    ['Partner', 'You want to redistribute some chores, not accuse me.'],
+    ['Colleague', 'You want to redistribute some tasks, not accuse me.'],
     ['You', 'Right. So let\'s base the discussion on what was actually proposed: adjusting a few responsibilities.', 'Refocus.'],
   ],
 }
@@ -184,22 +184,22 @@ export const playingDumbScene = {
 }
 
 export const delayScene = {
-  label: 'Example: a close friendship avoiding a difficult decision',
-  cast: { Friend: { initials: 'FR' }, You: you },
+  label: 'Example: a partner company avoiding a difficult decision',
+  cast: { Partner: { initials: 'PA' }, You: you },
   lines: [
-    ['', 'You and a close friend need to decide whether to move in together. The topic keeps getting postponed, creating emotional strain.'],
-    ['You', 'We\'ve talked about this for months. We need to decide whether we\'re moving in together.'],
-    ['Friend', 'I just need more time to think. It\'s a big decision.'],
+    ['', 'Your company and a partner firm need to decide whether to launch a joint product. The decision keeps getting postponed, and your team cannot plan.'],
+    ['You', 'We\'ve discussed this for months. We need to decide whether we\'re going ahead with the joint launch.'],
+    ['Partner', 'We just need more time to think. It\'s a big decision.'],
     ['You', 'I understand that it matters.', 'You feel the pressure but stay grounded.'],
-    ['', 'Time passes with no follow-up.'],
-    ['You', 'I need an answer by Sunday. Sitting in uncertainty is starting to affect me.', 'Set a clear timeline.'],
-    ['Friend', 'I\'m still not ready. I\'ve been really busy and overwhelmed.'],
-    ['You', 'Is there something specific you\'re unsure about, or are you avoiding the decision itself?', 'Escalate honestly, but calmly.'],
-    ['Friend', 'I don\'t know. I just can\'t talk about it right now.'],
-    ['You', 'If we can\'t talk this through this weekend, I\'ll assume the answer is no and make plans accordingly.', 'A drop-dead boundary.'],
-    ['Friend', 'That feels unfair. You\'re pressuring me.'],
-    ['You', 'I\'m not pressuring you to say yes. I\'m protecting myself from being stuck in uncertainty with no end date.', 'Hold firm, and stay transparent.'],
-    ['Friend', '…Okay. Let\'s talk tomorrow.'],
+    ['', 'Weeks pass with no follow-up.'],
+    ['You', 'We need an answer by Friday. The uncertainty is starting to hold up our planning.', 'Set a clear timeline.'],
+    ['Partner', 'We\'re still not ready. It\'s been a very busy quarter.'],
+    ['You', 'Is there something specific you\'re unsure about, or is the decision itself the problem?', 'Escalate honestly, but calmly.'],
+    ['Partner', 'I don\'t know. We just can\'t commit right now.'],
+    ['You', 'If we can\'t settle this by Friday, we\'ll take that as a no and move the budget to other projects.', 'A drop-dead boundary.'],
+    ['Partner', 'That feels unfair. You\'re pressuring us.'],
+    ['You', 'I\'m not pressuring you to say yes. I\'m protecting my team from being stuck in uncertainty with no end date.', 'Hold firm, and stay transparent.'],
+    ['Partner', '…Okay. Let\'s set a call for tomorrow.'],
   ],
 }
 
@@ -237,21 +237,21 @@ export const threatBusinessScene = {
   ],
 }
 
-export const threatPersonalScene = {
-  label: 'Example 3: a breakup used as leverage',
-  cast: { Partner: { initials: 'PA' }, You: you },
+export const threatResignationScene = {
+  label: 'Example 3: a resignation threat used as leverage',
+  cast: { 'Team member': { initials: 'TM' }, You: you },
   lines: [
-    ['', 'You and your partner have been arguing about trust and future plans. Emotions are high, and one person uses a breakup threat to force change.'],
-    ['Partner', 'If this doesn\'t change right now, I\'m done. I\'ll end this relationship.'],
+    ['', 'You manage a valued team member who has been passed over for promotion. Emotions are high, and they use a resignation threat to force a change.'],
+    ['Team member', 'If this doesn\'t change right now, I\'m done. I\'ll hand in my notice.'],
     ['You', 'Okay. Let\'s slow down for a second. I want to understand something clearly.', 'Pause; don\'t plead or defend.'],
-    ['You', 'Are you saying you want to leave, or are you using this to try to scare me into agreeing?', 'Calmly question the threat.'],
-    ['Partner', 'I\'m serious. I can\'t keep doing this.'],
-    ['You', 'Then let\'s talk about what is actually not working, instead of using walking away as pressure.', 'Reframe, firmly.'],
-    ['Partner', 'I need to know you\'ll change.'],
-    ['You', 'I\'m open to working on things, but I won\'t make promises out of fear.', 'Reassert your agency.'],
-    ['You', 'If our only way forward is threats, then we\'re already damaging the relationship, and I\'ll need to step back.', 'A real consequence you are prepared for.'],
-    ['Partner', '…I don\'t want to lose you.'],
-    ['You', 'Then let\'s talk honestly, without ultimatums. If we can\'t do that, we should both be willing to accept what comes next.'],
+    ['You', 'Are you telling me you want to leave, or is this the way to show me how strongly you feel?', 'Calmly question the threat.'],
+    ['Team member', 'I\'m serious. I can\'t keep doing this.'],
+    ['You', 'Then let\'s talk about what is actually not working, instead of using leaving as pressure.', 'Reframe, firmly.'],
+    ['Team member', 'I need to know the promotion will happen.'],
+    ['You', 'I\'m open to working on a path to promotion, but I won\'t make promises under pressure.', 'Reassert your agency.'],
+    ['You', 'If threats are the only way forward, that damages trust between us, and I\'ll have to plan for the team without you.', 'A real consequence you are prepared for.'],
+    ['Team member', '…I don\'t want to leave. I just feel overlooked.'],
+    ['You', 'Then let\'s talk honestly about what a path to promotion would look like, without ultimatums.'],
   ],
 }
 
@@ -309,19 +309,19 @@ export const flinchBusinessScene = {
   ],
 }
 
-export const flinchFriendScene = {
-  label: 'Example 2: friends discussing shared expenses',
-  cast: { Friend: { initials: 'FR' }, You: you },
+export const flinchBudgetScene = {
+  label: 'Example 2: an internal budget request',
+  cast: { Manager: { initials: 'MA' }, You: you },
   lines: [
-    ['', 'You and a close friend are planning a long weekend trip together and discussing how to split costs.'],
-    ['You', 'For the rental and travel, my share would be around $400.'],
-    ['Friend', 'Four hundred? That\'s way more than I thought it would be.'],
+    ['', 'You are asking your manager to fund a two-day negotiation training for your team.'],
+    ['You', 'For the training, I need €8,000 from the department budget.'],
+    ['Manager', 'Eight thousand? That\'s way more than I thought it would be.'],
     ['You', '…Okay.', 'Stay calm; let the reaction sit.'],
-    ['Friend', 'That feels like a lot.'],
-    ['You', 'Let\'s walk through the costs so we\'re on the same page. The rental is two nights, gas is split evenly, and groceries are included. I\'m not adding anything extra.'],
-    ['Friend', 'Oh. When you break it down like that, it makes sense.'],
-    ['You', 'If that number doesn\'t work, we can adjust plans or shorten the trip.', 'Options without conceding.'],
-    ['Friend', 'No. That\'s fair. Let\'s keep it as is.'],
+    ['Manager', 'That feels like a lot.'],
+    ['You', 'Let\'s walk through the costs so we\'re on the same page. The trainer is two days, materials and the venue are included, and it covers all twelve people. I\'m not adding anything extra.'],
+    ['Manager', 'Oh. When you break it down like that, it makes sense.'],
+    ['You', 'If that number doesn\'t work, we can train a smaller group first or spread it over two quarters.', 'Options without conceding.'],
+    ['Manager', 'No. That\'s fair. Let\'s keep it as is.'],
   ],
 }
 
@@ -341,18 +341,18 @@ export const lastMinuteBusinessScene = {
   ],
 }
 
-export const lastMinutePersonalScene = {
-  label: 'Example 2: a late condition in a relationship',
-  cast: { Partner: { initials: 'PA' }, You: you },
+export const lastMinuteOfferScene = {
+  label: 'Example 2: a late condition in a job offer',
+  cast: { 'Hiring manager': { initials: 'HM' }, You: you },
   lines: [
-    ['', 'You and a partner agree on plans to move in together. The decision feels settled.'],
-    ['Partner', 'Before we do this, I need you to agree to not seeing certain friends anymore.'],
+    ['', 'You and a new employer have agreed on salary, title and start date. The decision feels settled.'],
+    ['Hiring manager', 'Before we send the contract, you\'ll need to agree to a two-year non-compete clause.'],
     ['You', 'That\'s new.', 'Pause, and slow things down.'],
-    ['Partner', 'It\'s not a big deal. It should be obvious.'],
-    ['You', 'This changes what we agreed to. We need to talk through what this really means.', 'Reopen the conversation.'],
-    ['Partner', 'We\'ve already decided. Why are you backing out now?'],
-    ['You', 'I\'m not backing out. I\'m saying I can\'t agree to something this significant without really thinking about it. If this is a requirement, then we need to slow down or rethink the plan.', 'Hold the boundary; be willing to walk away.'],
-    ['Partner', '…Okay. Let\'s talk about it.'],
+    ['Hiring manager', 'It\'s standard. It shouldn\'t be a big deal.'],
+    ['You', 'This changes what we agreed to. We need to talk through what it would really mean for me.', 'Reopen the conversation.'],
+    ['Hiring manager', 'We\'ve already agreed on everything. Why are you backing out now?'],
+    ['You', 'I\'m not backing out. I\'m saying I can\'t accept something this significant without reviewing it. If it\'s a requirement, we need to revisit the rest of the package or rethink the offer.', 'Hold the boundary; be willing to walk away.'],
+    ['Hiring manager', '…Okay. Let\'s discuss it.'],
   ],
 }
 
@@ -389,17 +389,17 @@ export const overwhelmBusinessScene = {
   ],
 }
 
-export const overwhelmFriendScene = {
-  label: 'Example 2: a friend avoiding a direct answer',
-  cast: { Friend: { initials: 'FR' }, You: you },
+export const overwhelmSupplierScene = {
+  label: 'Example 2: a supplier avoiding a direct answer',
+  cast: { Supplier: { initials: 'SU' }, You: you },
   lines: [
-    ['', 'You asked a close friend why they backed out of a shared plan at the last minute.'],
+    ['', 'You asked a supplier why they pulled out of a delivery commitment at the last minute.'],
     ['You', 'I need to understand why you cancelled after we agreed.'],
-    ['Friend', 'It\'s not simple. There\'s a lot going on. Work has been intense, my schedule changed, money is tight, my family has opinions, and I read a lot about why this kind of plan usually fails.'],
+    ['Supplier', 'It\'s not simple. There\'s a lot going on. Our production schedule changed, raw-material prices are up, our board has concerns, and we\'ve seen a lot of projects like this run into trouble.'],
     ['You', 'Okay. Before we get into all of that, what is the main reason you decided not to go through with it?', 'Stay grounded, and interrupt with intent.'],
-    ['Friend', 'It\'s all connected. You have to understand the full picture.'],
+    ['Supplier', 'It\'s all connected. You have to understand the full picture.'],
     ['You', 'I want to understand. But listing everything is making it harder, not clearer. Can you name the one or two things that mattered most?', 'Set a clear frame, and prioritise.'],
-    ['Friend', '…I was unsure, and didn\'t want to disappoint you if I changed my mind later.'],
-    ['You', 'Thank you. That\'s what I needed to hear. We can talk about the other factors later. Right now, honesty matters more than detail.'],
+    ['Supplier', '…We weren\'t sure we could meet your quality specification, and didn\'t want to let you down later.'],
+    ['You', 'Thank you. That\'s what I needed to hear. We can talk about the other factors later. Right now, a clear answer matters more than detail.'],
   ],
 }

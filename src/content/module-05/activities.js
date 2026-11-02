@@ -37,12 +37,12 @@ export const rateBatna = {
   cols: 3,
   items: [
     { id: 'b1', text: 'A candidate with a written offer from another company, at a higher salary', answer: 'strong', why: 'Concrete, available and valuable: immediate leverage.' },
-    { id: 'b2', text: 'A seller who can rent the property out instead of selling at a loss', answer: 'strong', why: 'Income continues, so there is no pressure to settle.' },
-    { id: 'b3', text: 'A buyer with a lower written quote from another car dealer', answer: 'strong', why: 'A concrete, often better financial option is available.' },
+    { id: 'b2', text: 'A property company that can lease the building out instead of selling at a loss', answer: 'strong', why: 'Income continues, so there is no pressure to settle.' },
+    { id: 'b3', text: 'A buyer with a lower written quote from another supplier', answer: 'strong', why: 'A concrete, often better financial option is available.' },
     { id: 'b4', text: 'A salesperson with several leads in the pipeline, none close to signing', answer: 'moderate', why: 'Potential, but with timing risk.' },
     { id: 'b5', text: 'A candidate with promising interviews elsewhere, but no offer yet', answer: 'moderate', why: 'Possible but uncertain: some leverage, limited pressure.' },
     { id: 'b6', text: 'A company that could partner with a smaller firm instead', answer: 'moderate', why: 'It achieves the objectives, but with less impact or reach.' },
-    { id: 'b7', text: 'A spouse whose only alternative to a settlement is going to court', answer: 'weak', why: 'Costly, emotionally draining and uncertain: a last resort.' },
+    { id: 'b7', text: 'A company whose only alternative to a settlement is a long court case', answer: 'weak', why: 'Costly, slow and uncertain: a last resort.' },
     { id: 'b8', text: 'A freelancer whose only client this quarter is the one at the table', answer: 'weak', why: 'No immediate substitute. Focus on value and relationship, and on building alternatives.' },
   ],
 }

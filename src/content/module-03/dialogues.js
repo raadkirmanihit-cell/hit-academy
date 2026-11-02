@@ -57,7 +57,7 @@ export const pauseScene = {
     ['Colleague', 'I\'ve just been feeling overwhelmed.'],
     ['You', 'Overwhelmed?', 'Verbal mirror: repeat the key word'],
     ['', 'Pause. Soft eye contact. Say nothing more.'],
-    ['Colleague', 'Yeah, everything at once. Work, family, everything\'s piling up.', 'The silence invited them to go deeper.'],
+    ['Colleague', 'Yeah, everything at once. Deadlines, the new client, everything\'s piling up.', 'The silence invited them to go deeper.'],
     ['', 'Later, a different conversation.'],
     ['Colleague', 'It\'s been a rough week.'],
     ['', 'You just nod silently, and pause…'],

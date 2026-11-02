@@ -175,7 +175,7 @@ const m2 = {
           blocks: [
             { t: 'quote', text: `Empathy is not agreement, it's emotional connection in action.`, by: 'Skill 4 · Empathy' },
             { t: 'p', text: `Social awareness helps you **spot** emotions; empathy helps you **meet** them. It's the bridge from recognition to response: tuning into what someone feels and showing you understand, without judgment or agenda.` },
-            { t: 'img', src: img('empathy'), alt: 'A mother comforting her crying baby', ratio: '16/9', caption: 'We learn empathy long before we learn to negotiate: meeting a feeling before trying to change it.' },
+            { t: 'person', img: img('empathy-work'), alt: 'Two colleagues in a meeting, one listening closely, chin resting on her hand', eyebrow: 'Empathy at work', name: 'Meet the feeling before you try to change it', text: 'A client or colleague who feels understood stops defending and starts engaging. Empathy comes first; the arguments come after.' },
             { t: 'cols2', items: [
               { title: 'What it means', list: [
                 `Listening for what's felt beneath what's said`,

@@ -65,7 +65,7 @@ export const quiz = {
     },
     {
       id: 'q7',
-      q: 'In the library window dispute, identifying that one person wants fresh air and the other wants to avoid a draft illustrates:',
+      q: 'In the office window dispute, identifying that one colleague wants fresh air and the other wants to avoid a draft illustrates:',
       options: [
         { t: 'Positional demands', fb: '"Open the window" and "close the window" are the positions. Fresh air and no draft are what sit beneath them.' },
         { t: 'Miscommunication', fb: 'Both were clear. The problem was that they argued about positions.' },
@@ -145,12 +145,12 @@ export const quiz = {
     },
     {
       id: 'q15', added: true,
-      q: 'Two children must share a cake. One cuts, the other chooses first. Why is this a good example of a fair procedure?',
+      q: 'Two partners closing a joint venture must split its assets. One divides them into two packages, the other chooses first. Why is this a good example of a fair procedure?',
       options: [
-        { t: 'Because the older child gets to decide.', fb: 'The procedure does not depend on who has more power, which is the point.' },
-        { t: 'Because it is fair by design: the one who cuts has every reason to cut equal pieces.', correct: true, fb: 'Correct. The procedure is impartial and transparent, so both accept the result without a contest of will.' },
-        { t: 'Because a parent decides for them.', fb: 'An outside expert can be a fair standard, but this example needs no outside judge.' },
-        { t: 'Because both children get exactly what they demanded.', fb: 'Neither demanded anything. The procedure, not the demands, produces the outcome.' },
+        { t: 'Because the larger partner gets to decide.', fb: 'The procedure does not depend on who has more power, which is the point.' },
+        { t: 'Because it is fair by design: the one who divides has every reason to make both packages equal.', correct: true, fb: 'Correct. The procedure is impartial and transparent, so both accept the result without a contest of will.' },
+        { t: 'Because a judge decides for them.', fb: 'An outside expert can be a fair standard, but this example needs no outside judge.' },
+        { t: 'Because both partners get exactly what they demanded.', fb: 'Neither demanded anything. The procedure, not the demands, produces the outcome.' },
       ],
     },
   ],
