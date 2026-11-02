@@ -27,11 +27,12 @@ export default function Landing() {
             <span className="eyebrow">{course.org} · Online course</span>
             <h1>Master difficult conversations <em>when the stakes are high</em></h1>
             <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
-            <div className="row" style={{ gap: '1.25rem' }}>
-              <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button>
+            <div className="stack" style={{ gap: '.9rem' }}>
+              <div><button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button></div>
+              {!user && <p className="small" style={{ color: '#c9d0e6', margin: 0 }}>Additionally, get 10 AI coach messages also for free: just sign up with your email, no card needed.</p>}
               <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages · or {euro(MODULE_PRICE)} per module</span></div>
+              <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
             </div>
-            <p className="small" style={{ color: '#9aa5c6', margin: 0 }}>Module 1 and 10 AI coach messages are free: just sign up with your email, no card needed. 14-day money-back guarantee on every purchase.</p>
           </div>
           <div className="hero-art">
             <img src="img/m1/cover.webp" alt="Colleagues in a relaxed discussion around a table" />
