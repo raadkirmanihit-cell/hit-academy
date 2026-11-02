@@ -187,66 +187,95 @@ export const pickTheStrategy = {
 }
 
 export const salaryRolePlay = {
-  id: 'a-roleplay-salary',
+  id: 'a-roleplay-salary-v2', // new id: saved paths from the earlier, simpler version do not fit these nodes
   kind: 'branching',
   title: 'Role-play: your salary review',
-  intro: 'You are Riley. You led the product launch, mentored two new hires and helped cut development time by 20%. Market data says people in your role earn 8–12% more than you. Your manager, Alex, is about to make an offer. Watch the two meters: the outcome you secure and the relationship you keep.',
+  intro: 'You are Riley. This year you ran the product launch, mentored two new hires and helped cut development time by 20%. Market data puts your role 8–12% above your salary. Your manager, Alex, is busy, under budget pressure and will not make this easy. Watch the two meters: the outcome you secure and the relationship you keep.',
   img: 'img/m1/sit-assertive.webp',
   counterpart: { name: 'Alex', initials: 'AL', role: 'Your manager' },
-  start: { outcome: 30, relationship: 60 },
+  start: { outcome: 25, relationship: 60 },
   nodes: {
     start: {
-      say: 'Riley, your performance this year has been excellent. Your leadership on the launch really stood out. Based on our standard adjustment, we\'re offering a 5% raise.',
+      say: '(Glancing at the clock) Riley, I\'ve only got about ten minutes, so let\'s keep this quick. You\'ve had a good year. Everyone\'s getting the standard 3% this cycle. Budgets are tight and, honestly, I had to fight to keep that. So, 3%. All good?',
       choices: [
-        { t: '"That\'s not acceptable. I need 15% or I\'m looking elsewhere."', tag: 'Aggressive', d: [5, -25], next: 'defensive', fb: 'You named a number, but as a threat. Alex now has to defend the company instead of considering your case.' },
-        { t: '"Oh, okay. Thank you, that\'s fine."', tag: 'Passive', d: [-15, 5], next: 'endPassive', fb: 'Polite, but you accepted before sharing any of your evidence.' },
-        { t: '"5% is totally fine… I mean, I did get a much higher offer elsewhere, but loyalty matters more to me."', tag: 'Manipulative', d: [5, -15], next: 'suspicious', fb: 'You signalled leverage indirectly. Alex is now unsure what you really want.' },
-        { t: '"Thank you, I appreciate that. I\'d like to discuss it further. Given my added responsibilities and market data, I believe 10% reflects my contribution."', tag: 'Assertive', d: [15, 5], next: 'curious', fb: 'Appreciation first, then a clear and reasoned request. This keeps the door open.' },
+        { t: '"3%? After the year I\'ve had? That\'s frankly insulting."', tag: 'Aggressive', d: [0, -20], next: 'bristle', fb: 'Your frustration is understandable, but Alex now has to defend themselves instead of considering your case.' },
+        { t: '"Thank you for pushing for it. I know this cycle is tight. I see my contribution a bit differently, though, and I\'d like proper time on it. Can we look at it now, or book thirty minutes this week?"', tag: 'Assertive', d: [10, 10], next: 'wall', fb: 'You acknowledged Alex\'s effort, signalled a different view without attacking, and refused to be rushed.' },
+        { t: '"Oh. Yes, of course. I understand. Thanks for fighting for it."', tag: 'Passive', d: [-15, 5], next: 'endPassive', fb: 'The rush and the "everyone gets 3%" framing closed the conversation before you opened it.' },
+        { t: '"Sure… although a recruiter called me last week with a very different number. Just saying."', tag: 'Manipulative', d: [5, -15], next: 'suspicious', fb: 'A veiled threat. Alex now wonders whether you are bluffing, and whether they can trust you.' },
       ],
     },
-    curious: {
-      say: 'I understand where you\'re coming from. 10% is above our usual range. Can you help me understand how you arrived at that number?',
+    wall: {
+      say: '(Sighs and sits back) Fine, let\'s do it now. But I\'ll be straight with you: there\'s no extra money. HR sets the bands. My hands are tied.',
       choices: [
-        { t: '"Sure. I took on project management, mentored two new hires and helped cut development time by 20%. Benchmarks for my role are 8–12% above my salary."', tag: 'Assertive', d: [15, 10], next: 'open', fb: 'Specific contributions plus market data give Alex something to take to HR.' },
-        { t: '"It\'s just what I feel I\'m worth."', tag: 'Passive', d: [-5, 0], next: 'unconvinced', fb: 'A feeling is hard for Alex to defend. Your evidence is strong, so use it.' },
-        { t: '"Other companies pay way more. If you can\'t match it, I\'ll leave."', tag: 'Aggressive', d: [0, -15], next: 'defensive', fb: 'The threat undoes the good start.' },
+        { t: '"Okay. If your hands are tied, I\'ll leave it."', tag: 'Passive', d: [-15, 0], next: 'endPassive', fb: '"My hands are tied" is often a first position, not a final answer. You accepted it without testing it.' },
+        { t: '"It sounds like you\'re getting pressure from above too, and I don\'t want to put you in a bad spot. Help me understand: is the limit the band for my role, or this year\'s pool? My case is about what my role has become, not just this year."', tag: 'Assertive', d: [10, 10], next: 'probe', fb: 'You named Alex\'s pressure, then asked a question that separates a real limit from a habit. That moves the talk from "no" to "what exactly".' },
+        { t: '"I get it. I suppose I\'ll have to think about whether this is the right place for me long term."', tag: 'Manipulative', d: [0, -15], next: 'suspicious', fb: 'Guilt plus a hidden threat. It puts Alex on guard instead of on your side.' },
+        { t: '"Then untie them. That\'s literally your job as my manager."', tag: 'Aggressive', d: [0, -20], next: 'bristle', fb: 'Blaming Alex turns a possible ally into a defender of the system.' },
       ],
     },
-    unconvinced: {
-      say: 'I want to help, but I need more than a feeling to take to HR. What would help me make the case?',
+    bristle: {
+      say: '(Arms crossed) Insulting? Riley, I went to bat for you. Plenty of people got less. I don\'t appreciate that tone.',
       choices: [
-        { t: '"Fair. Here\'s what I delivered: the launch, two mentees, a 20% cut in development time. Market benchmarks are 8–12% higher."', tag: 'Assertive', d: [15, 10], next: 'open', fb: 'Good recovery. Alex now has evidence to work with.' },
-        { t: '"Never mind. 5% is fine."', tag: 'Passive', d: [-10, 0], next: 'endPassive', fb: 'You withdrew just as Alex invited you to make your case.' },
-      ],
-    },
-    defensive: {
-      say: 'Riley, I hear you, but threatening to walk away isn\'t the best way to approach this. I can\'t promise anything with that tone.',
-      choices: [
-        { t: '"You\'re right, that came out too strongly. Let me explain how I got to my number."', tag: 'Assertive', d: [5, 20], next: 'curious', fb: 'Owning the tone and returning to the substance repairs the relationship.' },
-        { t: '"Then I suggest you move quickly. I won\'t wait around."', tag: 'Aggressive', d: [-10, -20], next: 'endBreakdown', fb: 'Escalation. The conversation is now about power, not pay.' },
+        { t: '"Plenty got less because plenty did less."', tag: 'Aggressive', d: [-5, -25], next: 'endBreakdown', fb: 'Escalation. This is now about pride and power, not pay.' },
+        { t: '"You\'re right, that came out wrong, and I do appreciate you backing me. Let me reset. I\'m not questioning your effort. I\'m asking us to look at my role against the market. Can I show you what I mean?"', tag: 'Assertive', d: [5, 20], next: 'probe', fb: 'Owning the tone without dropping the request repairs the relationship and brings the talk back to substance.' },
+        { t: '"Sorry. Forget I said anything."', tag: 'Passive', d: [-15, 5], next: 'endPassive', fb: 'You apologised for the tone and abandoned the request with it. Adjust the tone, keep the goal.' },
       ],
     },
     suspicious: {
-      say: 'You received an outside offer? I… I may need to revisit this with HR.',
+      say: '(Face tightens) If you\'ve got another offer, Riley, just say so. I don\'t like being played. Are you leaving or not?',
       choices: [
-        { t: '"Yes, I did, and I\'d rather be direct. I want to stay, and I\'d like my pay to reflect my contribution. Here\'s my reasoning…"', tag: 'Assertive', d: [10, 15], next: 'open', fb: 'Switching to transparency rebuilds trust and turns the offer into honest context.' },
-        { t: '"No rush. I trust you\'ll do what\'s best for the people who quietly go the extra mile."', tag: 'Manipulative', d: [5, -15], next: 'endManipulative', fb: 'Guilt as a closing move. You might get something, at the cost of trust.' },
+        { t: '"Maybe. It depends on what you do in the next week."', tag: 'Aggressive', d: [0, -25], next: 'endBreakdown', fb: 'An ultimatum on top of a hint. Alex now feels cornered.' },
+        { t: '"I\'m just saying I have options. You decide what I\'m worth."', tag: 'Manipulative', d: [0, -15], next: 'endManipulative', fb: 'Staying vague keeps Alex guessing, and guessing erodes trust.' },
+        { t: '"No, I\'m not trying to play you, and that hint wasn\'t fair. I want to stay. I\'d like my pay to reflect what I now do. Can I walk you through it?"', tag: 'Assertive', d: [5, 15], next: 'probe', fb: 'Switching to transparency rebuilds trust. Clear intent beats hidden leverage.' },
       ],
     },
-    open: {
-      say: 'That\'s a strong case. I\'ll need to discuss it with HR, but I can advocate for a higher adjustment. If we can\'t meet 10% right away, would other forms of compensation interest you?',
+    probe: {
+      say: 'Go on, then. But I\'ll warn you: "the market" is what everyone says. Where are your numbers from?',
       choices: [
-        { t: '"I\'d consider it, depending on what\'s offered. But my priority is a salary that reflects my contributions. Can we follow up after you speak with HR?"', tag: 'Assertive', d: [10, 10], next: 'endAssertive', fb: 'Open to options while keeping your priority clear, with a concrete next step.' },
-        { t: '"Sure, whatever works for you."', tag: 'Passive', d: [-15, 0], next: 'endSoft', fb: 'You gave away your priority at the last step.' },
-        { t: '"No. It\'s 10% or nothing."', tag: 'Aggressive', d: [0, -20], next: 'endHard', fb: 'Rigid. You turned an advocate back into an opponent.' },
+        { t: '"Just things I\'ve read online. People say it\'s more."', tag: 'Passive', d: [-10, 0], next: 'weak', fb: 'Vague evidence is easy to dismiss. Alex cannot take "people say" to HR.' },
+        { t: '"Everyone knows this company underpays. Don\'t pretend otherwise."', tag: 'Aggressive', d: [-5, -15], next: 'cold', fb: 'A sweeping accusation. Alex now defends the company instead of weighing your case.' },
+        { t: '"Three sources: our own salary survey, two industry reports and current job ads for my title here. They put my role 8–12% above where I am. On top of that, since March I\'ve run the launch, mentored two new hires and we cut development time by 20%."', tag: 'Assertive', d: [15, 5], next: 'doubt', fb: 'Specific, checkable evidence plus concrete results. You gave Alex something to defend upwards.' },
       ],
     },
-    endAssertive: { end: true, verdict: 'Strong, balanced result', say: 'That\'s fair. I\'ll get back to you by next week. Thanks for raising it professionally.', summary: 'You stated your needs clearly, backed them with evidence, and stayed open to options. Alex became your advocate. This mirrors the assertive example in the module.' },
-    endPassive: { end: true, verdict: 'Pleasant, but you left value on the table', say: 'Alright. Let\'s check in again at your next review.', summary: 'The relationship is intact, but you accepted 5% without sharing your evidence. Passive behaviour preserves peace at the cost of your outcome.' },
-    endSoft: { end: true, verdict: 'Good case, weak close', say: 'Great, I\'ll see what HR can offer.', summary: 'You built a strong case, then let go of your main priority. Assertive negotiators stay open to options without dropping what matters most.' },
-    endHard: { end: true, verdict: 'Deal at risk', say: 'Then I can\'t promise anything. I\'ll pass it on.', summary: 'Your case was strong, but the ultimatum at the end made Alex defensive. Adjust tone, not values.' },
-    endBreakdown: { end: true, verdict: 'Breakdown', say: 'I\'ll bring your concerns to HR, but I can\'t make promises.', summary: 'Aggression turned a pay discussion into a power struggle. This is the risk the module warns about: concessions at best, a broken relationship at worst.' },
-    endManipulative: { end: true, verdict: 'Uncertain result, eroded trust', say: 'I see… I\'ll look into it.', summary: 'You might get a raise, but Alex now wonders what else you aren\'t saying. Manipulative behaviour creates short-term advantage and long-term distrust.' },
+    weak: {
+      say: 'I can\'t take "people say" to HR, Riley. Without something concrete, 3% is where this lands.',
+      choices: [
+        { t: '"Okay. 3% then."', tag: 'Passive', d: [-10, 0], next: 'endPassive', fb: 'You had strong evidence and did not use it.' },
+        { t: '"Fair point. Let me be concrete: our salary survey and two industry reports put my role 8–12% higher. And this year I ran the launch, mentored two hires and helped cut development time by 20%."', tag: 'Assertive', d: [10, 5], next: 'doubt', fb: 'Good recovery. Accepting the challenge and answering it with facts restores your credibility.' },
+      ],
+    },
+    doubt: {
+      say: 'The launch was great, I\'ll give you that. But let\'s not forget the Q2 deadline slipped by three weeks, and leadership noticed. That\'s part of the picture too.',
+      choices: [
+        { t: '"Funny, nobody mentioned that when they were praising the launch."', tag: 'Manipulative', d: [-5, -15], next: 'cold', fb: 'Sarcasm dodges the point and implies bad faith.' },
+        { t: '"That\'s fair. The Q2 slip was real, and I own my part in it. We changed the process because of it, and that\'s partly where the 20% time saving came from. Looking at the whole year, I still believe 10% reflects the role."', tag: 'Assertive', d: [15, 10], next: 'options', fb: 'You acknowledged the weakness, showed what you learned, and held your number. That is credibility under pressure.' },
+        { t: '"That wasn\'t my fault. The client kept changing the brief."', tag: 'Aggressive', d: [-5, -10], next: 'cold', fb: 'Defensiveness makes the slip the topic and your contribution the footnote.' },
+        { t: '"True… maybe I\'m asking for too much."', tag: 'Passive', d: [-15, 0], next: 'endSoft', fb: 'One counterpoint and you discounted your whole case.' },
+      ],
+    },
+    cold: {
+      say: '(Closing the laptop) Look, I\'m not here to argue. Let\'s leave it at 3% and revisit it next year.',
+      choices: [
+        { t: '"Next year? No. I want an answer today."', tag: 'Aggressive', d: [-5, -15], next: 'endHard', fb: 'Demanding an answer from someone who has just shut down rarely gets a yes.' },
+        { t: '"I don\'t want to argue either, and I\'m sorry I got defensive. Next year is a long time for me, though. Could we agree what it would take, and look at it again properly in three months?"', tag: 'Assertive', d: [10, 15], next: 'options', fb: 'You de-escalated, owned your part and still asked for a concrete step.' },
+        { t: '"Okay, next year then."', tag: 'Passive', d: [-10, 0], next: 'endPassive', fb: 'You let the frustration end the conversation.' },
+      ],
+    },
+    options: {
+      say: '(Leans back, quieter) Okay. You\'ve made a better case than most. I can\'t promise 10%. What I could do is look at it again next year, informally, and we\'ll see. Is that alright?',
+      choices: [
+        { t: '"Sure, next year sounds fine."', tag: 'Passive', d: [-15, 5], next: 'endSoft', fb: '"Informally, we\'ll see" is a vague promise with no date and no amount. You built the case, then let it dissolve.' },
+        { t: '"I appreciate that, and I\'d like to make it concrete. Could you take my case to HR this cycle for 8–10%? If the full amount isn\'t possible now, I\'d consider part now and the rest at a formal review in six months, agreed in writing and linked to clear goals."', tag: 'Assertive', d: [20, 10], next: 'endAssertive', fb: 'You turned a vague promise into options, a range, a date and a written agreement, without pushing Alex into a corner.' },
+        { t: '"Informally? That\'s a brush-off. 10% or I start looking."', tag: 'Aggressive', d: [-5, -20], next: 'endHard', fb: 'An ultimatum at the finish line turns your advocate back into an opponent.' },
+        { t: '"I\'ll take your word for it. I\'m sure you\'ll remember who stayed late all year."', tag: 'Manipulative', d: [0, -15], next: 'endManipulative', fb: 'Guilt as a closing move. It might work once, at the cost of trust.' },
+      ],
+    },
+    endAssertive: { end: true, verdict: 'Strong, balanced result', say: 'Alright. That\'s reasonable, and it gives me something I can actually take to HR. Send me a short summary today and I\'ll come back to you by Friday.', summary: 'Alex rushed you, hid behind the budget, challenged your data and raised a weakness. You stayed calm and kept your goal: acknowledge their pressure, back your case with evidence, own what is fair, then turn vague promises into concrete options and a date.' },
+    endPassive: { end: true, verdict: 'Pleasant, but you left value on the table', say: 'Great. Thanks for being understanding, Riley. Let\'s check in at your next review.', summary: 'The relationship is intact, but the first push-back ended the conversation. Real managers often open with "everyone gets the standard" or "my hands are tied". Treat these as positions to explore, not final answers.' },
+    endSoft: { end: true, verdict: 'Good case, weak close', say: 'Good. We\'ll see how things look next year.', summary: 'You made progress, then accepted a vague promise with no amount, date or commitment. Assertive negotiators stay open to options without dropping what matters most, and they close with a concrete next step.' },
+    endHard: { end: true, verdict: 'Deal at risk', say: 'Then I can\'t promise you anything. I\'ll pass it on.', summary: 'Your case had merit, but the ultimatum made Alex defensive. Firm on the goal, flexible on the route, and calm in tone.' },
+    endBreakdown: { end: true, verdict: 'Breakdown', say: 'I think we should stop here. I\'ll let HR know you\'re unhappy.', summary: 'Aggression turned a pay discussion into a power struggle. At best you get a grudging concession, at worst a damaged relationship with the person who decides your next raise.' },
+    endManipulative: { end: true, verdict: 'Uncertain result, eroded trust', say: 'I see. I\'ll look into it.', summary: 'Hints and guilt might move Alex once, but now they are wondering what else you are not saying. Manipulative tactics buy short-term leverage with long-term distrust.' },
   },
 }
 

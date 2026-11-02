@@ -4,7 +4,8 @@
 // - Module 1 is free for every account (no payment needed).
 // - Single modules 2 to 7: €24.99 each (€149.94 for all six).
 // - Complete course (all 7 modules): €99, or €79 at the launch price (first 100 buyers, or until
-//   LAUNCH_PRICE_UNTIL if that is set on the server). It includes 3 months of the AI coach.
+//   LAUNCH_PRICE_UNTIL if that is set on the server). It includes a pack of AI role-play
+//   practice messages for the Practice studio (no expiry).
 // - Students who already bought single modules can upgrade to the complete course and pay only
 //   the difference: the package price minus €24.99 for each module they bought.
 // All sums are done in cents, so €24.99 never turns into €24.990000001.
@@ -18,7 +19,8 @@ export const MODULE_PRICE = 24.99
 export const MODULE_IDS = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']
 export const FREE_MODULES = ['m1']
 export const PAID_MODULES = MODULE_IDS.filter((m) => !FREE_MODULES.includes(m))
-export const BUNDLE_COACH_MONTHS = 3 // AI coach months included with the complete course
+export const BUNDLE_PRACTICE_MESSAGES = 150 // AI role-play messages in the Practice studio, included with the complete course (no expiry)
+export const BUNDLE_COACH_MONTHS = 3 // only for students who bought before 1 November 2026: the coach months they were given
 
 export const moduleProductId = (moduleId) => `hit-negotiation-${moduleId}`
 export const moduleFromProduct = (productId) => MODULE_IDS.find((m) => moduleProductId(m) === productId) || null

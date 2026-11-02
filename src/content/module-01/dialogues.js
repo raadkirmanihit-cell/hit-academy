@@ -5,6 +5,7 @@ export const cast = { Alex: { initials: 'AL', role: 'Manager' }, Riley: { initia
 export const salary = {
   aggressive: {
     label: 'Aggressive', color: 'var(--b-aggressive)',
+    audio: 'audio/m1/salary-aggressive.mp4',
     gauge: { outcome: 55, relationship: 15 },
     lines: [
       [A, 'Riley, thanks for your hard work this year. We\'re offering a 5% raise based on company policy and performance.'],
@@ -20,6 +21,7 @@ export const salary = {
   },
   passive: {
     label: 'Passive', color: 'var(--b-passive)',
+    audio: 'audio/m1/salary-passive.mp4',
     gauge: { outcome: 10, relationship: 70 },
     lines: [
       [A, 'Riley, thanks again for a solid year. We\'re offering you a 5% raise based on your performance and company standards.'],
@@ -35,6 +37,7 @@ export const salary = {
   },
   manipulative: {
     label: 'Manipulative', color: 'var(--b-manipulative)',
+    audio: 'audio/m1/salary-manipulative.mp4',
     gauge: { outcome: 40, relationship: 25 },
     lines: [
       [A, 'Riley, thanks again for your contributions this year. We\'re offering a 5% raise, which reflects your performance and aligns with our compensation policy.'],
@@ -52,6 +55,7 @@ export const salary = {
   },
   assertive: {
     label: 'Assertive', color: 'var(--b-assertive)',
+    audio: 'audio/m1/salary-assertive.mp4',
     gauge: { outcome: 75, relationship: 85 },
     lines: [
       [A, 'Riley, your performance this past year has been excellent—your leadership on the product launch really stood out. Based on our standard adjustment, we\'re offering a 5% raise.'],

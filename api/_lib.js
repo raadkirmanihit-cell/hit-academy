@@ -1,6 +1,6 @@
 // Shared helpers for the server functions in /api (files starting with _ are not routes).
 import { createClient } from '@supabase/supabase-js'
-import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS } from '../src/content/pricing.js'
+import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS, BUNDLE_PRACTICE_MESSAGES } from '../src/content/pricing.js'
 
 export const PRODUCT_ID = BUNDLE_ID // the complete course (all 7 modules); single modules are hit-negotiation-m1…m7
 
@@ -101,7 +101,8 @@ export async function notifyOwner(subject, lines, { replyTo } = {}) {
   } catch (e) { console.error('Notification email failed', e) }
 }
 
-// The AI coach months included with the complete course. Never replaces a paid subscription,
+// The AI coach months that used to come with the complete course (purchases before 1 November 2026;
+// new buyers get the practice pack instead). Never replaces a paid subscription,
 // and never charges anything: when they end, the student can choose to subscribe.
 export async function grantBundleCoach(userId, { livemode = false } = {}) {
   const cur = await getCoachSubscription(userId)
@@ -191,8 +192,19 @@ export async function coachAccess(userId) {
   const { data: used, error } = await db().rpc('coach_usage_since', { p_user: userId, p_since: since })
   // Before update 4 the counter function is missing: count nothing, so nobody is locked out by mistake.
   const count = error ? 0 : used || 0
+  // The practice pack: AI role-play messages for complete-course buyers, counted separately, no expiry.
+  let practiceLimit = 0, practiceUsed = 0
+  const { data: bundle } = await db().from('purchases').select('id').eq('user_id', userId).eq('product_id', BUNDLE_ID).eq('status', 'paid').limit(1)
+  if (bundle?.length) {
+    practiceLimit = BUNDLE_PRACTICE_MESSAGES
+    const { data: pu, error: pe } = await db().rpc('practice_usage_total', { p_user: userId })
+    practiceUsed = pe ? 0 : pu || 0 // before update 5 the counter is missing: count nothing
+  }
   return {
     subscribed,
+    practiceLimit,
+    practiceUsed,
+    practiceLeft: Math.max(0, practiceLimit - practiceUsed),
     status: sub?.status || 'none',
     periodEnd: sub?.current_period_end || null,
     cancelAtPeriodEnd: !!sub?.cancel_at_period_end,

@@ -1,4 +1,4 @@
-import { MODULE_PRICE, euro, BUNDLE_PRICE, LAUNCH_PRICE, BUNDLE_COACH_MONTHS, FREE_MODULES } from '../content/pricing.js'
+import { MODULE_PRICE, euro, BUNDLE_PRICE, LAUNCH_PRICE, BUNDLE_PRACTICE_MESSAGES, FREE_MODULES } from '../content/pricing.js'
 import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
@@ -29,7 +29,7 @@ export default function Landing() {
             <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
             <div className="row" style={{ gap: '1.25rem' }}>
               <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button>
-              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_COACH_MONTHS} months AI coach · or {euro(MODULE_PRICE)} per module</span></div>
+              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages · or {euro(MODULE_PRICE)} per module</span></div>
             </div>
             <p className="small" style={{ color: '#9aa5c6', margin: 0 }}>Module 1 and 10 AI coach messages are free: just sign up with your email, no card needed. 14-day money-back guarantee on every purchase.</p>
           </div>
