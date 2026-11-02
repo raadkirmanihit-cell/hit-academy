@@ -38,6 +38,32 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      <section className="section">
+        <div className="wrap trainer">
+          <img className="trainer-photo" src="img/brand/raad.webp" alt="Raad Kirmani, founder of Human Interactions Translated" loading="lazy" />
+          <div className="stack" style={{ gap: '.75rem' }}>
+            <span className="eyebrow">Your trainer</span>
+            <h2>Raad Kirmani</h2>
+            <p className="trainer-role">Founder of Human Interactions Translated · Negotiation and conflict resolution trainer</p>
+            <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. This course brings those same methods to you, so you can learn and practise them at your own pace.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="wrap stack" style={{ gap: '1.5rem' }}>
+          <span className="eyebrow">From past participants</span>
+          <div className="quote-grid">
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>Changed how I handle business conversations. I lead with clarity and calm.</p><span className="small muted">Sara T., Tech Entrepreneur</span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
+          </div>
+          <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
+            <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
+          </a>
+          <div><button className="btn btn-dark" onClick={cta}>Start Module 1 <Icon.arrowR /></button></div>
+        </div>
+      </section>
       <section className="section promo-section">
         <div className="wrap">
           {/* Course promo. Swap the file for Raad's own video once it's recorded. */}
@@ -84,32 +110,6 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="wrap trainer">
-          <img className="trainer-photo" src="img/brand/raad.webp" alt="Raad Kirmani, founder of Human Interactions Translated" loading="lazy" />
-          <div className="stack" style={{ gap: '.75rem' }}>
-            <span className="eyebrow">Your trainer</span>
-            <h2>Raad Kirmani</h2>
-            <p className="trainer-role">Founder of Human Interactions Translated · Negotiation and conflict resolution trainer</p>
-            <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. This course brings those same methods to you, so you can learn and practise them at your own pace.</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="wrap stack" style={{ gap: '1.5rem' }}>
-          <span className="eyebrow">From past participants</span>
-          <div className="quote-grid">
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>Changed how I handle business conversations. I lead with clarity and calm.</p><span className="small muted">Sara T., Tech Entrepreneur</span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
-          </div>
-          <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
-            <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
-          </a>
-          <div><button className="btn btn-dark" onClick={cta}>Start Module 1 <Icon.arrowR /></button></div>
-        </div>
-      </section>
       <footer className="wrap" style={{ paddingBlock: '2rem', borderTop: '1px solid var(--line)' }}>
         <p className="small muted">© 2026 Human Interactions Translated · Offenbach, Germany · All rights reserved · <LegalLinks /></p>
       </footer>
