@@ -17,6 +17,7 @@ import ContactPage from './ui/Contact.jsx'
 import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
 import { TERMS_VERSION } from './content/terms.js'
 import { ownedModules } from './content/pricing.js'
+import { fromHash, writeHash } from './platform/route.js'
 
 // Modules the student may open, and whether they bought anything at all.
 const ownedOf = (u) => ownedModules(u?.purchases)
@@ -48,7 +49,27 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), ms)
   }, [])
 
-  const go = useCallback((name, extra = {}) => setView({ name, ...extra }), [])
+  // Changes screen and records it in the browser history. { replace: true } swaps the current entry instead.
+  const go = useCallback((name, extra = {}, { replace = false } = {}) => {
+    const next = { name, ...extra }
+    setView(next)
+    writeHash(next, replace)
+  }, [])
+
+  // Back and Forward buttons: show the screen the address now points to.
+  const userRef = useRef(null)
+  userRef.current = user
+  useEffect(() => {
+    const onPop = () => {
+      const next = fromHash(window.location.hash)
+      if (!next) return
+      // Signed-in students who step back onto the sign-in forms go to their dashboard instead.
+      if (userRef.current && ['signup', 'signin', 'reset'].includes(next.name)) { go('dashboard', {}, { replace: true }); return }
+      setView(next)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [go])
 
   // Signs a user in on this device: loads their saved progress and picks the right screen.
   const enter = useCallback(async (u, { welcome = false } = {}) => {
@@ -60,7 +81,7 @@ export default function App() {
     lastSaved.current = JSON.stringify(start)
     setProgress(start)
     loaded.current = true
-    go(hasAny(u) ? 'dashboard' : 'checkout', welcome ? { welcome: true } : {})
+    go(hasAny(u) ? 'dashboard' : 'checkout', welcome ? { welcome: true } : {}, { replace: true })
     if (isLive) backend.isAdmin().then(setAdmin, () => setAdmin(false))
   }, [go])
 
@@ -69,6 +90,8 @@ export default function App() {
     let off = () => {}
     ;(async () => {
       const params = new URLSearchParams(window.location.search)
+      // The screen the address points to (after a refresh or from a shared link), read before sign-in touches the URL.
+      const startView = fromHash(window.location.hash)
       const checkout = params.get('checkout')
       const item = params.get('item') // what they just paid for: 'bundle' or a module id
       const coach = params.get('coach') // back from the coach subscription checkout or Stripe's subscription page
@@ -84,8 +107,15 @@ export default function App() {
         }
       }
       if (u) await enter(u, { welcome: checkout === 'success' && unlocked(u, item) })
-      if (u && checkout === 'success' && item && item !== 'bundle' && unlocked(u, item)) go('module', { moduleId: item })
-      if (LEGAL_PAGES[params.get('page')]) go('legal', { page: params.get('page') })
+      if (u && checkout === 'success' && item && item !== 'bundle' && unlocked(u, item)) go('module', { moduleId: item }, { replace: true })
+      if (LEGAL_PAGES[params.get('page')]) go('legal', { page: params.get('page') }, { replace: true })
+      else if (startView && startView.name !== 'landing' && !checkout && !coach) {
+        // Reopen the screen they were on. Sign-in forms make no sense once signed in.
+        if (!(u && ['signup', 'signin', 'reset'].includes(startView.name))) {
+          const { name, ...extra } = startView
+          go(name, extra, { replace: true })
+        }
+      }
       if (checkout === 'cancel' || coach === 'cancel') notify('Payment cancelled. You have not been charged.')
       if (u && coach === 'success') {
         // Stripe confirms the subscription to our server a few seconds after the redirect.

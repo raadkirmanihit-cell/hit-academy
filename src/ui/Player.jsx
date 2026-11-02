@@ -7,7 +7,7 @@ import { Icon } from './icons.jsx'
 const kindLabel = { overview: '', quiz: 'Quiz', takeaways: '', resources: 'PDF' }
 
 export default function Player({ module, initialStep }) {
-  const { progress, markDone, visit, go, completeModule, notify } = useApp()
+  const { progress, markDone, visit, go, view, completeModule, notify } = useApp()
   const steps = useMemo(() => flatSteps(module), [module])
   const ms = moduleState(progress, module.id)
   const firstOpen = steps.find((s) => !ms.done[s.id])?.id
@@ -19,6 +19,15 @@ export default function Player({ module, initialStep }) {
   const stats = moduleStats(module, progress)
 
   useEffect(() => { visit(module.id, step.id); window.scrollTo({ top: 0 }) }, [step.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Each section gets its own address, so the browser's Back button returns to the previous section.
+  useEffect(() => {
+    if (view.name === 'module' && view.moduleId === module.id && view.stepId !== step.id) go('module', { moduleId: module.id, stepId: step.id }, { replace: !steps.some((s) => s.id === view.stepId) })
+  }, [step.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Back or Forward landed on another section of this module: show it.
+  useEffect(() => {
+    if (initialStep && initialStep !== stepId && steps.some((s) => s.id === initialStep)) { setStepId(initialStep); setFinished(false); setRailOpen(false) }
+  }, [initialStep]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Leaving a section (by Next, Back or the outline) counts as having read it. The quiz counts only when passed.
   const goTo = (id) => { if (step.kind !== 'quiz' && id !== step.id) markDone(module.id, step.id); setStepId(id); setRailOpen(false); setFinished(false) }
