@@ -1235,3 +1235,14 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .word-trail span.done { color: var(--ink-2); }
 .word-trail span.on { color: #1c0f00; background: var(--orange); border-radius: 4px; padding: 0 .15rem; }
 .contour-in { position: relative; }
+
+/* Trainer section on the landing page */
+.trainer { display: grid; grid-template-columns: 300px 1fr; gap: 2.5rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: clamp(1.25rem, 3vw, 2rem); }
+.trainer-photo { width: 100%; aspect-ratio: 4/5; object-fit: cover; object-position: 54% 30%; border-radius: var(--r-m); }
+.trainer h2 { margin: 0; }
+.trainer-role { margin: 0; font-weight: 600; color: var(--orange-ink); }
+.trainer .muted { max-width: 60ch; margin: 0; }
+@media (max-width: 720px) {
+  .trainer { grid-template-columns: 1fr; gap: 1.25rem; }
+  .trainer-photo { max-width: 260px; }
+}

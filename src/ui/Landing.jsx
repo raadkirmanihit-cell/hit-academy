@@ -85,6 +85,18 @@ export default function Landing() {
       </section>
 
       <section className="section" style={{ paddingTop: 0 }}>
+        <div className="wrap trainer">
+          <img className="trainer-photo" src="img/brand/raad.webp" alt="Raad Kirmani, founder of Human Interactions Translated" loading="lazy" />
+          <div className="stack" style={{ gap: '.75rem' }}>
+            <span className="eyebrow">Your trainer</span>
+            <h2>Raad Kirmani</h2>
+            <p className="trainer-role">Founder of Human Interactions Translated · Negotiation and conflict resolution trainer</p>
+            <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. This course brings those same methods to you, so you can learn and practise them at your own pace.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section" style={{ paddingTop: 0 }}>
         <div className="wrap stack" style={{ gap: '1.5rem' }}>
           <span className="eyebrow">From past participants</span>
           <div className="quote-grid">
