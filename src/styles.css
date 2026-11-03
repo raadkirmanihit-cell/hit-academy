@@ -1253,3 +1253,5 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .hero-proof { display: inline-flex; align-items: center; gap: .5rem; align-self: flex-start; justify-self: start; width: fit-content; padding: .35rem .8rem; border-radius: 99px; background: rgba(255,255,255,.08); color: #fff; font-size: .92rem; font-weight: 600; text-decoration: none; }
 .hero-proof:hover { background: rgba(255,255,255,.14); }
 .hero-proof .stars { color: #fbbc04; letter-spacing: .08em; }
+.reviewer { display: flex; align-items: center; gap: .6rem; }
+.reviewer-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex: none; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 1rem; }
