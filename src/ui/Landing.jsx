@@ -29,7 +29,7 @@ export default function Landing() {
             <span className="eyebrow">HIT Academy · by {course.org}</span>
             <a className="hero-proof" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer"><span className="stars" aria-hidden="true">★★★★★</span> 5.0 · 25 Google reviews</a>
             <h1>Master difficult conversations <em>when the stakes are high</em></h1>
-            <p className="lede">When the stakes are high, do you react, or do you respond with intention? HIT Academy is the online home of Human Interactions Translated: practical, self-paced courses for professionals and leaders who want to communicate with clarity, confidence and calm.</p>
+            <p className="lede">When the stakes are high, do you react, or do you respond with intention?<br />HIT Academy is the online home of Human Interactions Translated: practical, self-paced courses for professionals and leaders who want to communicate with clarity, confidence and calm.</p>
             <p className="hero-now"><span className="pill orange">Now open</span> Our first course: <strong>{course.title}</strong></p>
             <div className="stack" style={{ gap: '.9rem' }}>
               <div className="row" style={{ gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
