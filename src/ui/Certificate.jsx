@@ -12,7 +12,7 @@ function certId(user) {
   return 'HIT-' + h.toString(36).toUpperCase().padStart(7, '0')
 }
 
-async function draw(canvas, { name, course, date, id, locked, logo }) {
+async function draw(canvas, { name, course, date, id, locked, logo, stamp = 'PREVIEW' }) {
   const ctx = canvas.getContext('2d')
   canvas.width = W; canvas.height = H
   try { await Promise.all(['italic 400 40px "DM Sans Variable"', '750 60px "Bricolage Grotesque Variable"', '500 18px "DM Mono"'].map((f) => document.fonts.load(f))); await document.fonts.ready } catch { /* fonts optional */ }
@@ -67,8 +67,20 @@ async function draw(canvas, { name, course, date, id, locked, logo }) {
   if (locked) {
     ctx.save(); ctx.translate(W / 2 + 180, H / 2); ctx.rotate(-0.35)
     ctx.fillStyle = 'rgba(192,58,43,.16)'; ctx.font = '800 150px "Bricolage Grotesque Variable", sans-serif'; ctx.textAlign = 'center'
-    ctx.fillText('PREVIEW', 0, 40); ctx.restore()
+    ctx.fillText(stamp, 0, 40); ctx.restore()
   }
+}
+
+// Small sample certificate for the landing page.
+export function CertificateSample({ course }) {
+  const ref = useRef()
+  useEffect(() => {
+    const logo = new Image()
+    logo.src = 'img/brand/logo.webp'
+    const go = () => draw(ref.current, { name: 'Your Name', course, date: '15 March 2027', id: 'HIT-SAMPLE1', locked: true, stamp: 'SAMPLE', logo: logo.complete && logo.naturalWidth ? logo : null })
+    logo.onload = go; logo.onerror = go
+  }, [course])
+  return <canvas ref={ref} className="cert-sample" aria-label="Sample certificate of completion" />
 }
 
 export default function CertificatePage() {

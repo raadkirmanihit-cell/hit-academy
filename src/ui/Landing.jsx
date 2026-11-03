@@ -1,3 +1,4 @@
+import { CertificateSample } from './Certificate.jsx'
 import { MODULE_PRICE, euro, BUNDLE_PRICE, LAUNCH_PRICE, BUNDLE_PRACTICE_MESSAGES, FREE_MODULES } from '../content/pricing.js'
 import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
@@ -10,6 +11,7 @@ const features = [
   { icon: 'clock', title: 'Self-paced', text: 'Progress saves automatically. Pick up exactly where you left off.' },
   { icon: 'doc', title: 'Worksheets', text: 'A downloadable planning worksheet for every module to use before real negotiations.' },
   { icon: 'device', title: 'Any device', text: 'Learn on your laptop at work or your phone on the train.' },
+  { icon: 'award', wide: true, title: 'Certificate of completion', text: 'Included with the complete course. Finish all seven modules and pass each quiz to earn your certificate, with your name and a unique ID.' },
 ]
 
 const GOOGLE_REVIEWS = 'https://www.google.com/search?hl=en-DE&q=human+interactions+translated+reviews&uds=AJ5uw1_a2D0D09lxm8gpKKOTUn4rroxomuMMUq4TL01afLYbLYTGJTCwJBttE7EAUtqS7M1aSAZ4IWT2caGTJcBh38e1ba0um6AOxqeTu4b8W2r0P9q6UHGeDKLbbuRvn9S7ldp_NcG85hie7zP-hXGc8cY_P-SxnaB0dr2xelUR4hKL7JWMFNp0PiQVPP-4U187VeE_iIJg&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_4t2CVO9nnawaUR0K28fQryOQFqUeZ_9xiSZKejFYGP84ZpGz4SKlJgvDV0I7peLkJxuGNHUOidZ2hAyg1KNEpdOOcBFOZL33iNSSh4L_3wuPnI_RA%3D%3D'
@@ -25,13 +27,18 @@ export default function Landing() {
         <div className="wrap hero-grid">
           <div className="stack" style={{ gap: '1.4rem' }}>
             <span className="eyebrow">{course.org} · Online course</span>
+            <a className="hero-proof" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer"><span className="stars" aria-hidden="true">★★★★★</span> 5.0 · 25 Google reviews</a>
             <h1>Master difficult conversations <em>when the stakes are high</em></h1>
             <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
-            <div className="row" style={{ gap: '1.25rem' }}>
-              <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button>
-              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages · or {euro(MODULE_PRICE)} per module</span></div>
+            <div className="stack" style={{ gap: '.9rem' }}>
+              <div className="row" style={{ gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button>
+                {!user && <span style={{ color: '#7fb2ff', fontWeight: 700, fontSize: '1.05rem' }}>Includes 10 AI coach messages</span>}
+              </div>
+              {!user && <p style={{ margin: '0 0 1rem', fontSize: '1rem', lineHeight: 1.6, color: '#fff' }}>Sign up with your email, no card needed.</p>}
+              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages + certificate of completion · or {euro(MODULE_PRICE)} per module</span></div>
+              <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
             </div>
-            <p className="small" style={{ color: '#9aa5c6', margin: 0 }}>Module 1 and 10 AI coach messages are free: just sign up with your email, no card needed. 14-day money-back guarantee on every purchase.</p>
           </div>
           <div className="hero-art">
             <img src="img/m1/cover.webp" alt="Colleagues in a relaxed discussion around a table" />
@@ -54,9 +61,9 @@ export default function Landing() {
         <div className="wrap stack" style={{ gap: '1.5rem' }}>
           <span className="eyebrow">From past participants</span>
           <div className="quote-grid">
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>Changed how I handle business conversations. I lead with clarity and calm.</p><span className="small muted">Sara T., Tech Entrepreneur</span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>I used the preparation framework in a compensation discussion and got a better offer.</p><span className="small muted">Arun T., Sr. Program Manager</span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>These tools gave me an unexpected edge. I use strategic empathy every day now, at work, in meetings, and even at home.</p><span className="small muted">Jamal B., Software Team Lead</span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I wanted to improve my confidence level in terms of communication with colleagues and customers… Moreover, he helped me to get a raise of my bonus from my supervisor.”</p><span className="reviewer"><span className="reviewer-avatar" style={{ background: '#689f38' }} aria-hidden="true">I</span><span className="small muted">Ildar A., Google review</span></span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I was having a hard time and several issues overcoming some difficulties at the work place… a brilliant and well thought approach that helped improve my communication skills and my fear of conflict.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/teji.webp" alt="" /><span className="small muted">Teji, Google review</span></span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“It completely transformed the way I perceive workplace relationships, approach challenges, and handle a wide range of client situations. The insights I gained have had an immediate and meaningful impact on how I work every day.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/milica.webp" alt="" /><span className="small muted">Milica J., Google review</span></span></div>
           </div>
           <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
@@ -81,11 +88,22 @@ export default function Landing() {
             {features.map((f) => {
               const I = Icon[f.icon]
               return (
+                f.wide ? (
+                  <div className="feature feature-cert" key={f.title}>
+                    <div className="stack" style={{ gap: '.5rem', alignContent: 'start' }}>
+                      <I />
+                      <h4>{f.title}</h4>
+                      <p className="muted small">{f.text}</p>
+                    </div>
+                    <CertificateSample course={course} />
+                  </div>
+                ) : (
                 <div className="feature" key={f.title}>
                   <I />
                   <h4>{f.title}</h4>
                   <p className="muted small">{f.text}</p>
                 </div>
+                )
               )
             })}
           </div>

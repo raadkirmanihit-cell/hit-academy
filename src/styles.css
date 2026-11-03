@@ -146,6 +146,9 @@ button { font: inherit; color: inherit; }
 .section { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .feature { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); padding: 1.25rem; display: grid; gap: .5rem; align-content: start; }
+.feature-cert { grid-column: 1 / -1; border-color: var(--orange); grid-template-columns: minmax(0, 1fr) minmax(0, 460px); gap: 2rem; align-items: center; }
+.cert-sample { width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 8px 24px rgba(11,26,68,.14); }
+@media (max-width: 720px) { .feature-cert { grid-template-columns: 1fr; } }
 .feature svg { width: 28px; height: 28px; color: var(--orange-ink); }
 .syllabus { display: grid; gap: .5rem; counter-reset: mod; }
 .syllabus li { list-style: none; display: grid; grid-template-columns: 3rem 1fr auto; gap: 1rem; align-items: center; padding: 1rem 1.1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); }
@@ -1246,3 +1249,9 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
   .trainer { grid-template-columns: 1fr; gap: 1.25rem; }
   .trainer-photo { max-width: 260px; }
 }
+
+.hero-proof { display: inline-flex; align-items: center; gap: .5rem; align-self: flex-start; justify-self: start; width: fit-content; padding: .35rem .8rem; border-radius: 99px; background: rgba(255,255,255,.08); color: #fff; font-size: .92rem; font-weight: 600; text-decoration: none; }
+.hero-proof:hover { background: rgba(255,255,255,.14); }
+.hero-proof .stars { color: #fbbc04; letter-spacing: .08em; }
+.reviewer { display: flex; align-items: center; gap: .6rem; }
+.reviewer-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex: none; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 1rem; }
