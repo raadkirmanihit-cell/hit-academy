@@ -28,7 +28,7 @@ export default function Topbar() {
           <button className="brand" onClick={() => go(user && paid ? 'dashboard' : 'landing')} aria-label="Home">
             <img src="img/brand/logo.webp" alt="" />
             <span>
-              <span className="brand-name">{course.title}</span><br />
+              <span className="brand-name">HIT Academy</span><br />
               <span className="brand-sub">{course.org}</span>
             </span>
           </button>

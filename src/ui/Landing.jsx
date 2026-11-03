@@ -26,17 +26,18 @@ export default function Landing() {
       <section className="hero">
         <div className="wrap hero-grid">
           <div className="stack" style={{ gap: '1.4rem' }}>
-            <span className="eyebrow">{course.org} · Online course</span>
+            <span className="eyebrow">HIT Academy · by {course.org}</span>
             <a className="hero-proof" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer"><span className="stars" aria-hidden="true">★★★★★</span> 5.0 · 25 Google reviews</a>
             <h1>Master difficult conversations <em>when the stakes are high</em></h1>
-            <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
+            <p className="lede">When the stakes are high, do you react, or do you respond with intention? HIT Academy is the online home of Human Interactions Translated: practical, self-paced courses for professionals and leaders who want to communicate with clarity, confidence and calm.</p>
+            <p className="hero-now"><span className="pill orange">Now open</span> Our first course: <strong>{course.title}</strong></p>
             <div className="stack" style={{ gap: '.9rem' }}>
               <div className="row" style={{ gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button>
+                <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start the first module free'} <Icon.arrowR /></button>
                 {!user && <span style={{ color: '#7fb2ff', fontWeight: 700, fontSize: '1.05rem' }}>Includes 10 AI coach messages</span>}
               </div>
               {!user && <p style={{ margin: '0 0 1rem', fontSize: '1rem', lineHeight: 1.6, color: '#fff' }}>Sign up with your email, no card needed.</p>}
-              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages + certificate of completion · or {euro(MODULE_PRICE)} per module</span></div>
+              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}complete course: all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages + certificate of completion · or {euro(MODULE_PRICE)} per module</span></div>
               <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
             </div>
           </div>
@@ -52,7 +53,7 @@ export default function Landing() {
             <span className="eyebrow">Your trainer</span>
             <h2>Raad Kirmani</h2>
             <p className="trainer-role">Founder of Human Interactions Translated · Negotiation and conflict resolution trainer</p>
-            <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. This course brings those same methods to you, so you can learn and practise them at your own pace.</p>
+            <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. HIT Academy brings those same methods online, so you can learn and practise them at your own pace.</p>
             <ul className="creds">
               <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" /></svg></span><span><strong>10+ years</strong>cross-cultural negotiation</span></li>
               <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /><path d="M8.5 12h7M8.5 9h5" /></svg></span><span><strong>Persuasion expert</strong>sales &amp; business development</span></li>
@@ -74,10 +75,52 @@ export default function Landing() {
           <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
           </a>
-          <div><button className="btn btn-dark" onClick={cta}>Start Module 1 <Icon.arrowR /></button></div>
+                  </div>
+      </section>
+
+      <section className="section" id="courses" style={{ paddingTop: 0 }}>
+        <div className="wrap stack" style={{ gap: '1.5rem' }}>
+          <div className="stack" style={{ gap: '.5rem', maxWidth: '62ch' }}>
+            <span className="eyebrow">HIT Academy courses</span>
+            <h2>Courses for the conversations that matter at work</h2>
+            <p className="muted" style={{ margin: 0 }}>Every course follows the same approach: short lessons, real workplace scenarios and plenty of practice, so the skills hold up when the pressure is on.</p>
+          </div>
+          <div className="course-grid">
+            <article className="course-card">
+              <img src="img/m4/cover.webp" alt="" loading="lazy" />
+              <div className="stack" style={{ gap: '.6rem', padding: '1.25rem', alignContent: 'start' }}>
+                <span className="pill orange" style={{ justifySelf: 'start' }}>Now open</span>
+                <h3 style={{ margin: 0 }}>{course.title}</h3>
+                <p className="muted small" style={{ margin: 0 }}>Seven in-depth modules on behaviour, empathy, body language, preparation, perception and objections, with AI role-play practice and a certificate of completion.</p>
+                <p className="small" style={{ margin: 0 }}><strong>{euro(bundle)}</strong>{launch.launch ? <> <s className="muted">{euro(BUNDLE_PRICE)}</s> launch price</> : null} · or {euro(MODULE_PRICE)} per module · first module free</p>
+                <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
+                  <button className="btn btn-primary btn-sm" onClick={cta}>{user ? 'Go to my course' : 'Start free'} <Icon.arrowR /></button>
+                  <a className="btn btn-ghost btn-sm" href="#course-details" onClick={(e) => { e.preventDefault(); document.getElementById('course-details')?.scrollIntoView({ behavior: 'smooth' }) }}>See what's inside</a>
+                </div>
+              </div>
+            </article>
+            {[1, 2].map((n) => (
+              <article className="course-card soon" key={n} aria-label="Course coming soon">
+                <div className="soon-art" aria-hidden="true"><Icon.lock /></div>
+                <div className="stack" style={{ gap: '.6rem', padding: '1.25rem', alignContent: 'start' }}>
+                  <span className="pill" style={{ justifySelf: 'start' }}>Coming soon</span>
+                  <h3 style={{ margin: 0 }}>New course in development</h3>
+                  <p className="muted small" style={{ margin: 0 }}>More HIT Academy courses are on the way.</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
-      <section className="section promo-section">
+
+      <section className="section course-intro" id="course-details">
+        <div className="wrap"><div className="stack" style={{ gap: '.5rem', maxWidth: '68ch' }}>
+          <span className="eyebrow">Featured course</span>
+          <h2 style={{ margin: 0 }}>{course.title}</h2>
+          <p className="muted" style={{ margin: 0 }}>Handle tough negotiations and workplace conflict without caving under pressure or damaging the relationship.</p>
+        </div></div>
+      </section>
+      <section className="section promo-section" style={{ paddingTop: 0 }}>
         <div className="wrap">
           {/* Course promo. Swap the file for Raad's own video once it's recorded. */}
           <video className="promo-video" src="video/promo.mp4" poster="video/promo-poster.jpg" autoPlay muted loop playsInline controls preload="metadata" aria-label="Course overview video, about one minute" />
@@ -131,11 +174,12 @@ export default function Landing() {
               </li>
             ))}
           </ol>
+          <div><button className="btn btn-dark" onClick={cta}>{user ? 'Go to my course' : 'Start the first module free'} <Icon.arrowR /></button></div>
         </div>
       </section>
 
       <footer className="wrap" style={{ paddingBlock: '2rem', borderTop: '1px solid var(--line)' }}>
-        <p className="small muted">© 2026 Human Interactions Translated · Offenbach, Germany · All rights reserved · <LegalLinks /></p>
+        <p className="small muted">© 2026 HIT Academy by Human Interactions Translated · Offenbach, Germany · All rights reserved · <LegalLinks /></p>
       </footer>
     </>
   )
