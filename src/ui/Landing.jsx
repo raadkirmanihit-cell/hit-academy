@@ -10,6 +10,7 @@ const features = [
   { icon: 'clock', title: 'Self-paced', text: 'Progress saves automatically. Pick up exactly where you left off.' },
   { icon: 'doc', title: 'Worksheets', text: 'A downloadable planning worksheet for every module to use before real negotiations.' },
   { icon: 'device', title: 'Any device', text: 'Learn on your laptop at work or your phone on the train.' },
+  { icon: 'award', wide: true, title: 'Certificate of completion', text: 'Included with the complete course. Finish all seven modules and pass each quiz to earn your certificate, with your name and a unique ID.' },
 ]
 
 const GOOGLE_REVIEWS = 'https://www.google.com/search?hl=en-DE&q=human+interactions+translated+reviews&uds=AJ5uw1_a2D0D09lxm8gpKKOTUn4rroxomuMMUq4TL01afLYbLYTGJTCwJBttE7EAUtqS7M1aSAZ4IWT2caGTJcBh38e1ba0um6AOxqeTu4b8W2r0P9q6UHGeDKLbbuRvn9S7ldp_NcG85hie7zP-hXGc8cY_P-SxnaB0dr2xelUR4hKL7JWMFNp0PiQVPP-4U187VeE_iIJg&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_4t2CVO9nnawaUR0K28fQryOQFqUeZ_9xiSZKejFYGP84ZpGz4SKlJgvDV0I7peLkJxuGNHUOidZ2hAyg1KNEpdOOcBFOZL33iNSSh4L_3wuPnI_RA%3D%3D'
@@ -33,7 +34,7 @@ export default function Landing() {
                 {!user && <span style={{ color: '#7fb2ff', fontWeight: 700, fontSize: '1.05rem' }}>Includes 10 AI coach messages</span>}
               </div>
               {!user && <p style={{ margin: '0 0 1rem', fontSize: '1rem', lineHeight: 1.6, color: '#fff' }}>Sign up with your email, no card needed.</p>}
-              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages · or {euro(MODULE_PRICE)} per module</span></div>
+              <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages + certificate of completion · or {euro(MODULE_PRICE)} per module</span></div>
               <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
             </div>
           </div>
@@ -85,7 +86,7 @@ export default function Landing() {
             {features.map((f) => {
               const I = Icon[f.icon]
               return (
-                <div className="feature" key={f.title}>
+                <div className="feature" key={f.title} style={f.wide ? { gridColumn: '1 / -1', borderColor: 'var(--orange)' } : undefined}>
                   <I />
                   <h4>{f.title}</h4>
                   <p className="muted small">{f.text}</p>
