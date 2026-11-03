@@ -1,3 +1,4 @@
+import { CertificateSample } from './Certificate.jsx'
 import { MODULE_PRICE, euro, BUNDLE_PRICE, LAUNCH_PRICE, BUNDLE_PRACTICE_MESSAGES, FREE_MODULES } from '../content/pricing.js'
 import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
@@ -86,11 +87,22 @@ export default function Landing() {
             {features.map((f) => {
               const I = Icon[f.icon]
               return (
-                <div className="feature" key={f.title} style={f.wide ? { gridColumn: '1 / -1', borderColor: 'var(--orange)' } : undefined}>
+                f.wide ? (
+                  <div className="feature feature-cert" key={f.title}>
+                    <div className="stack" style={{ gap: '.5rem', alignContent: 'start' }}>
+                      <I />
+                      <h4>{f.title}</h4>
+                      <p className="muted small">{f.text}</p>
+                    </div>
+                    <CertificateSample course={course} />
+                  </div>
+                ) : (
+                <div className="feature" key={f.title}>
                   <I />
                   <h4>{f.title}</h4>
                   <p className="muted small">{f.text}</p>
                 </div>
+                )
               )
             })}
           </div>
