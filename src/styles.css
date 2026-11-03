@@ -1255,3 +1255,9 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .hero-proof .stars { color: #fbbc04; letter-spacing: .08em; }
 .reviewer { display: flex; align-items: center; gap: .6rem; }
 .reviewer-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex: none; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 1rem; }
+.creds { list-style: none; margin: .5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.creds li { display: flex; align-items: center; gap: .7rem; padding: .75rem .9rem; border-radius: var(--r-m); background: var(--bg, #f4f5fa); border: 1px solid var(--line); }
+.cred-icon { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--navy, #0b1a44); color: var(--orange, #f7861b); box-shadow: inset 0 0 0 1px rgba(247,134,27,.35); }
+.creds li > span:last-child { display: grid; font-size: .9rem; color: var(--muted, #5d6888); line-height: 1.3; }
+.creds strong { color: var(--ink); font-size: 1rem; }
+@media (max-width: 900px) { .creds { grid-template-columns: 1fr; } }
