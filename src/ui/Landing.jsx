@@ -97,18 +97,10 @@ export default function Landing() {
                   </div>
       </section>
 
-      <section className="section course-intro" id="course-details">
-        <div className="wrap"><div className="stack" style={{ gap: '.5rem', maxWidth: '68ch' }}>
-          <span className="eyebrow">Featured course</span>
-          <h2 style={{ margin: 0 }}>{course.title}</h2>
-          <p className="muted" style={{ margin: 0 }}>Handle tough negotiations and workplace conflict without caving under pressure or damaging the relationship.</p>
-        </div></div>
-      </section>
-
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section" id="course-details" style={{ paddingTop: 0 }}>
         <div className="wrap stack" style={{ gap: '2rem' }}>
           <div className="stack" style={{ gap: '.5rem', maxWidth: '60ch' }}>
-            <span className="eyebrow">What you get</span>
+            <span className="eyebrow">Inside {course.title}</span>
             <h2>Built for practice, designed for busy people</h2>
           </div>
           <div className="feature-grid">
