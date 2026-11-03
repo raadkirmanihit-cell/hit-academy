@@ -1249,3 +1249,7 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
   .trainer { grid-template-columns: 1fr; gap: 1.25rem; }
   .trainer-photo { max-width: 260px; }
 }
+
+.hero-proof { display: inline-flex; align-items: center; gap: .5rem; align-self: flex-start; justify-self: start; width: fit-content; padding: .35rem .8rem; border-radius: 99px; background: rgba(255,255,255,.08); color: #fff; font-size: .92rem; font-weight: 600; text-decoration: none; }
+.hero-proof:hover { background: rgba(255,255,255,.14); }
+.hero-proof .stars { color: #fbbc04; letter-spacing: .08em; }
