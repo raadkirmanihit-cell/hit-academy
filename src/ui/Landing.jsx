@@ -24,7 +24,7 @@ export default function Landing() {
   return (
     <>
       <section className="hero">
-        <div className="wrap hero-grid">
+        <div className="wrap hero-grid hero-grid-video">
           <div className="stack" style={{ gap: '1.4rem' }}>
             <span className="eyebrow">HIT Academy · by {course.org}</span>
             <a className="hero-proof" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer"><span className="stars" aria-hidden="true">★★★★★</span> 5.0 · 25 Google reviews</a>
@@ -41,48 +41,18 @@ export default function Landing() {
               <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
             </div>
           </div>
-          <div className="hero-art">
-            <img src="img/m1/cover.webp" alt="Colleagues in a relaxed discussion around a table" />
-          </div>
-        </div>
-      </section>
-      <section className="section">
-        <div className="wrap trainer">
-          <img className="trainer-photo" src="img/brand/raad.webp" alt="Raad Kirmani, founder of Human Interactions Translated" loading="lazy" />
-          <div className="stack" style={{ gap: '.75rem' }}>
-            <span className="eyebrow">Your trainer</span>
-            <h2>Raad Kirmani</h2>
-            <p className="trainer-role">Founder of Human Interactions Translated · Negotiation and conflict resolution trainer</p>
-            <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. HIT Academy brings those same methods online, so you can learn and practise them at your own pace.</p>
-            <ul className="creds">
-              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" /></svg></span><span><strong>10+ years</strong>cross-cultural negotiation</span></li>
-              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /><path d="M8.5 12h7M8.5 9h5" /></svg></span><span><strong>Persuasion expert</strong>sales &amp; business development</span></li>
-              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" /><path d="M18.5 4.5c1 .9 1.5 2.1 1.5 3.5s-.5 2.6-1.5 3.5M5.5 4.5C4.5 5.4 4 6.6 4 8s.5 2.6 1.5 3.5" /></svg></span><span><strong>Human behaviour</strong>specialist</span></li>
-              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9l10-5 10 5-10 5-10-5z" /><path d="M6 11v5c1.7 1.4 3.7 2 6 2s4.3-.6 6-2v-5" /><path d="M22 9v5" /></svg></span><span><strong>Master's degree</strong>Management &amp; Psychology</span></li>
-            </ul>
+          <div className="hero-video">
+            {/* Course promo. Swap the file for Raad's own video once it's recorded. */}
+            <video className="promo-video" src="video/promo.mp4" poster="video/promo-poster.jpg" autoPlay muted loop playsInline controls preload="metadata" aria-label="Course overview video, about one minute" />
           </div>
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="wrap stack" style={{ gap: '1.5rem' }}>
-          <span className="eyebrow">From past participants</span>
-          <div className="quote-grid">
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I wanted to improve my confidence level in terms of communication with colleagues and customers… Moreover, he helped me to get a raise of my bonus from my supervisor.”</p><span className="reviewer"><span className="reviewer-avatar" style={{ background: '#689f38' }} aria-hidden="true">I</span><span className="small muted">Ildar A., Google review</span></span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I was having a hard time and several issues overcoming some difficulties at the work place… a brilliant and well thought approach that helped improve my communication skills and my fear of conflict.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/teji.webp" alt="" /><span className="small muted">Teji, Google review</span></span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“It completely transformed the way I perceive workplace relationships, approach challenges, and handle a wide range of client situations. The insights I gained have had an immediate and meaningful impact on how I work every day.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/milica.webp" alt="" /><span className="small muted">Milica J., Google review</span></span></div>
-          </div>
-          <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
-            <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
-          </a>
-                  </div>
-      </section>
-
-      <section className="section" id="courses" style={{ paddingTop: 0 }}>
+      <section className="section" id="courses">
         <div className="wrap stack" style={{ gap: '1.5rem' }}>
           <div className="stack" style={{ gap: '.5rem', maxWidth: '62ch' }}>
             <span className="eyebrow">HIT Academy courses</span>
-            <h2>Courses for the conversations that matter at work</h2>
+            <h2>Courses for the conversations that matter</h2>
             <p className="muted" style={{ margin: 0 }}>Every course follows the same approach: short lessons, real workplace scenarios and plenty of practice, so the skills hold up when the pressure is on.</p>
           </div>
           <div className="course-grid">
@@ -113,6 +83,20 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="wrap stack" style={{ gap: '1.5rem' }}>
+          <span className="eyebrow">From past participants</span>
+          <div className="quote-grid">
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I wanted to improve my confidence level in terms of communication with colleagues and customers… Moreover, he helped me to get a raise of my bonus from my supervisor.”</p><span className="reviewer"><span className="reviewer-avatar" style={{ background: '#689f38' }} aria-hidden="true">I</span><span className="small muted">Ildar A., Google review</span></span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I was having a hard time and several issues overcoming some difficulties at the work place… a brilliant and well thought approach that helped improve my communication skills and my fear of conflict.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/teji.webp" alt="" /><span className="small muted">Teji, Google review</span></span></div>
+            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“It completely transformed the way I perceive workplace relationships, approach challenges, and handle a wide range of client situations. The insights I gained have had an immediate and meaningful impact on how I work every day.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/milica.webp" alt="" /><span className="small muted">Milica J., Google review</span></span></div>
+          </div>
+          <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
+            <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
+          </a>
+                  </div>
+      </section>
+
       <section className="section course-intro" id="course-details">
         <div className="wrap"><div className="stack" style={{ gap: '.5rem', maxWidth: '68ch' }}>
           <span className="eyebrow">Featured course</span>
@@ -120,14 +104,8 @@ export default function Landing() {
           <p className="muted" style={{ margin: 0 }}>Handle tough negotiations and workplace conflict without caving under pressure or damaging the relationship.</p>
         </div></div>
       </section>
-      <section className="section promo-section" style={{ paddingTop: 0 }}>
-        <div className="wrap">
-          {/* Course promo. Swap the file for Raad's own video once it's recorded. */}
-          <video className="promo-video" src="video/promo.mp4" poster="video/promo-poster.jpg" autoPlay muted loop playsInline controls preload="metadata" aria-label="Course overview video, about one minute" />
-        </div>
-      </section>
 
-      <section className="section">
+      <section className="section" style={{ paddingTop: 0 }}>
         <div className="wrap stack" style={{ gap: '2rem' }}>
           <div className="stack" style={{ gap: '.5rem', maxWidth: '60ch' }}>
             <span className="eyebrow">What you get</span>
@@ -175,6 +153,24 @@ export default function Landing() {
             ))}
           </ol>
           <div><button className="btn btn-dark" onClick={cta}>{user ? 'Go to my course' : 'Start the first module free'} <Icon.arrowR /></button></div>
+        </div>
+      </section>
+
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="wrap trainer">
+          <img className="trainer-photo" src="img/brand/raad.webp" alt="Raad Kirmani, founder of Human Interactions Translated" loading="lazy" />
+          <div className="stack" style={{ gap: '.75rem' }}>
+            <span className="eyebrow">Your trainer</span>
+            <h2>Raad Kirmani</h2>
+            <p className="trainer-role">Founder of Human Interactions Translated · Negotiation and conflict resolution trainer</p>
+            <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. HIT Academy brings those same methods online, so you can learn and practise them at your own pace.</p>
+            <ul className="creds">
+              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" /></svg></span><span><strong>10+ years</strong>cross-cultural negotiation</span></li>
+              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /><path d="M8.5 12h7M8.5 9h5" /></svg></span><span><strong>Persuasion expert</strong>sales &amp; business development</span></li>
+              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" /><path d="M18.5 4.5c1 .9 1.5 2.1 1.5 3.5s-.5 2.6-1.5 3.5M5.5 4.5C4.5 5.4 4 6.6 4 8s.5 2.6 1.5 3.5" /></svg></span><span><strong>Human behaviour</strong>specialist</span></li>
+              <li><span className="cred-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9l10-5 10 5-10 5-10-5z" /><path d="M6 11v5c1.7 1.4 3.7 2 6 2s4.3-.6 6-2v-5" /><path d="M22 9v5" /></svg></span><span><strong>Master's degree</strong>Management &amp; Psychology</span></li>
+            </ul>
+          </div>
         </div>
       </section>
 
