@@ -1284,3 +1284,8 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 }
 @media (max-width: 420px) { .topbar-inner { gap: .4rem; } .topbar .btn-sm { padding: 0 .6rem; } }
 .hero-grid-video { padding-top: clamp(1.5rem, 3vw, 2.25rem); }
+/* Money-back guarantee badge in the hero */
+.guarantee { display: flex; align-items: center; gap: .85rem; align-self: flex-start; width: fit-content; max-width: 100%; padding: .75rem 1.1rem .75rem .8rem; border-radius: var(--r-m); background: rgba(247,134,27,.1); border: 1px solid rgba(247,134,27,.55); }
+.guarantee-icon { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--orange); color: var(--navy); }
+.guarantee > span:last-child { display: grid; gap: .1rem; color: #c9d0e6; font-size: .9rem; line-height: 1.35; }
+.guarantee strong { color: #fff; font-size: 1.02rem; }
