@@ -12,6 +12,12 @@ export default function Topbar() {
     return () => document.removeEventListener('pointerdown', close)
   }, [])
   const stats = paid ? courseStats(course, modules, progress) : null
+  // Jump to the "HIT Academy courses" section on the home page, from any screen.
+  const showCourses = () => {
+    const scroll = () => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' })
+    if (view.name === 'landing') scroll()
+    else { go('landing'); setTimeout(scroll, 150) }
+  }
   const initials = user?.name?.split(/\s+/).map((s) => s[0]).slice(0, 2).join('').toUpperCase()
 
   return (
@@ -33,8 +39,9 @@ export default function Topbar() {
             </span>
           </button>
           <div className="spacer" />
+          <button className="btn btn-ghost btn-sm nav-courses" onClick={showCourses}>Courses</button>
           {stats && view.name !== 'dashboard' && (
-            <button className="btn btn-ghost btn-sm" onClick={() => go('dashboard')}>
+            <button className={'btn btn-ghost btn-sm' + (user ? '' : ' hide-phone')} onClick={() => go('dashboard')}>
               <span className="hide-phone">Dashboard</span> <span className="pill orange tnum">{stats.pctAll}%</span>
             </button>
           )}
