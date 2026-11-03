@@ -32,7 +32,7 @@ export default function Landing() {
                 <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button>
                 {!user && <span style={{ color: '#7fb2ff', fontWeight: 700, fontSize: '1.05rem' }}>Includes 10 AI coach messages</span>}
               </div>
-              {!user && <p style={{ margin: 0, fontSize: '1.25rem', lineHeight: 1.45, color: '#fff' }}>Just sign up with your email, no card needed.</p>}
+              {!user && <p style={{ margin: 0, fontSize: '1rem', lineHeight: 1.6, color: '#fff' }}>Sign up with your email, no card needed.</p>}
               <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages · or {euro(MODULE_PRICE)} per module</span></div>
               <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
             </div>
