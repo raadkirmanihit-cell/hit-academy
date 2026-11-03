@@ -1283,3 +1283,4 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
   .brand-name { word-break: normal; }
 }
 @media (max-width: 420px) { .topbar-inner { gap: .4rem; } .topbar .btn-sm { padding: 0 .6rem; } }
+.hero-grid-video { padding-top: clamp(1.5rem, 3vw, 2.25rem); }
