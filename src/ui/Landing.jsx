@@ -27,7 +27,7 @@ export default function Landing() {
         <div className="wrap hero-grid">
           <div className="stack" style={{ gap: '1.4rem' }}>
             <span className="eyebrow">{course.org} · Online course</span>
-            <a className="hero-proof" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer"><span className="stars" aria-hidden="true">★★★★★</span> 5-star reviews on Google</a>
+            <a className="hero-proof" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer"><span className="stars" aria-hidden="true">★★★★★</span> 5.0 · 25 Google reviews</a>
             <h1>Master difficult conversations <em>when the stakes are high</em></h1>
             <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
             <div className="stack" style={{ gap: '.9rem' }}>
