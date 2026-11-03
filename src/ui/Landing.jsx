@@ -56,6 +56,7 @@ export default function Landing() {
             <ul className="creds">
               <li><span className="cred-icon" aria-hidden="true">🌍</span><span><strong>10+ years</strong>cross-cultural negotiation</span></li>
               <li><span className="cred-icon" aria-hidden="true">🤝</span><span><strong>Sales expert</strong>sales &amp; business development</span></li>
+              <li><span className="cred-icon" aria-hidden="true">🧠</span><span><strong>Human behaviour</strong>specialist</span></li>
               <li><span className="cred-icon" aria-hidden="true">🎓</span><span><strong>Master's degree</strong>Management &amp; Psychology</span></li>
             </ul>
           </div>
