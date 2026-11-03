@@ -6,7 +6,7 @@ import { LEGAL } from '../content/terms.js'
 import { offers, MODULE_PRICE, CURRENCY, BUNDLE_PRACTICE_MESSAGES, euro } from '../content/pricing.js'
 
 
-// Buy the complete course (€149, or €99 at launch, less €29 for each module already bought) or a single module (€29).
+// Buy the complete course (€199, or €129 at launch, less €39 for each module already bought) or a single module (€39).
 // Module 1 is free for everyone.
 // `choice`: the module the student tried to open, or 'bundle'.
 export default function Checkout({ choice }) {
