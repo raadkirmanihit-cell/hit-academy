@@ -53,6 +53,11 @@ export default function Landing() {
             <h2>Raad Kirmani</h2>
             <p className="trainer-role">Founder of Human Interactions Translated · Negotiation and conflict resolution trainer</p>
             <p className="muted">I train professionals to handle high-stakes conversations in live workshops and one-to-one coaching. This course brings those same methods to you, so you can learn and practise them at your own pace.</p>
+            <ul className="creds">
+              <li><span className="cred-icon" aria-hidden="true">🌍</span><span><strong>10+ years</strong>cross-cultural negotiation</span></li>
+              <li><span className="cred-icon" aria-hidden="true">🤝</span><span><strong>Sales expert</strong>sales &amp; business development</span></li>
+              <li><span className="cred-icon" aria-hidden="true">🎓</span><span><strong>Master's degree</strong>Management &amp; Psychology</span></li>
+            </ul>
           </div>
         </div>
       </section>
