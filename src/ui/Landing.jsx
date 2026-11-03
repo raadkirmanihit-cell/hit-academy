@@ -38,7 +38,10 @@ export default function Landing() {
               </div>
               {!user && <p style={{ margin: '0 0 1rem', fontSize: '1rem', lineHeight: 1.6, color: '#fff' }}>Sign up with your email, no card needed.</p>}
               <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}complete course: all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages + certificate of completion · or {euro(MODULE_PRICE)} per module</span></div>
-              <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
+              <div className="guarantee">
+                <span className="guarantee-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6L12 3z" /><path d="M8.5 12.2l2.4 2.4 4.6-4.8" /></svg></span>
+                <span><strong>14-day money-back guarantee</strong>On every purchase. Not happy? Full refund, no questions asked.</span>
+              </div>
             </div>
           </div>
           <div className="hero-video">
