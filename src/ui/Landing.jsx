@@ -29,7 +29,7 @@ export default function Landing() {
             <p className="lede">When the stakes are high, do you react, or do you respond with intention? A practical, self-paced course in negotiation and conflict resolution for professionals, leaders and anyone who wants to communicate with clarity, confidence and calm.</p>
             <div className="stack" style={{ gap: '.9rem' }}>
               <div><button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start Module 1 free'} <Icon.arrowR /></button></div>
-              {!user && <p className="small" style={{ color: '#c9d0e6', margin: 0 }}>Additionally, get 10 AI coach messages also for free: just sign up with your email, no card needed.</p>}
+              {!user && <p style={{ color: '#c9d0e6', margin: 0, fontSize: '1.05rem', lineHeight: 1.45 }}>Additionally, get 10 AI coach messages also for free.<br /><strong style={{ color: '#fff' }}>Just sign up with your email, no card needed.</strong></p>}
               <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}all 7 modules + {BUNDLE_PRACTICE_MESSAGES} AI role-play messages · or {euro(MODULE_PRICE)} per module</span></div>
               <p className="small" style={{ color: '#fff', margin: 0, fontWeight: 700 }}>14-day money-back guarantee on every purchase.</p>
             </div>
