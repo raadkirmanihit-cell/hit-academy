@@ -1,5 +1,10 @@
 {
   "functions": {
-    "api/coach.js": { "maxDuration": 60 }
+    "api/coach.js": {
+      "maxDuration": 60
+    },
+    "api/practice.js": {
+      "maxDuration": 60
+    }
   }
 }

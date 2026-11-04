@@ -44,27 +44,31 @@ export function useVoice({ alt = false } = {}) {
     return () => { s.cancel(); rec.current?.abort?.() }
   }, [])
 
-  function speak(text) {
-    const s = synth(); if (!s) return
+  // onEnd runs when the reply has been spoken (used by hands-free mode to open the microphone).
+  function speak(text, onEnd) {
+    const s = synth(); if (!s) { onEnd?.(); return }
     s.cancel()
     const u = new SpeechSynthesisUtterance(speakable(text))
     const v = pickVoice(alt); if (v) { u.voice = v; u.lang = v.lang } else u.lang = 'en-GB'
     u.rate = 1; u.pitch = alt ? 0.95 : 1
     u.onstart = () => setSpeaking(true)
-    u.onend = u.onerror = () => setSpeaking(false)
+    u.onend = () => { setSpeaking(false); onEnd?.() }
+    u.onerror = () => setSpeaking(false)
     s.speak(u)
   }
   function stopSpeaking() { synth()?.cancel(); setSpeaking(false) }
 
-  // Listens once; streams the words into onText and calls onFinal with the full sentence.
-  function listen(onText, onFinal) {
+  // Listens once; streams the words into onText and calls onFinal with the full sentence and how long
+  // the learner spoke ({ secs }), measured from the first to the last word heard.
+  function listen(onText, onFinal, onNothing) {
     const R = Recognition(); if (!R) return
     if (listening) { rec.current?.stop(); return }
     stopSpeaking()
     const r = new R()
     r.lang = 'en-US'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1
-    let finalText = ''
+    let finalText = '', first = 0, last = 0
     r.onresult = (e) => {
+      const now = performance.now(); if (!first) first = now; last = now
       let interim = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) finalText += e.results[i][0].transcript
@@ -78,7 +82,12 @@ export function useVoice({ alt = false } = {}) {
         setMicNote('The microphone isn\'t available here. Please type instead, or check your browser\'s microphone permission.')
       }
     }
-    r.onend = () => { setListening(false); if (finalText.trim()) onFinal(finalText.trim()) }
+    r.onend = () => {
+      setListening(false)
+      // The first result arrives about half a second after speech starts.
+      if (finalText.trim()) onFinal(finalText.trim(), { secs: first ? Math.max(0.5, (last - first) / 1000 + 0.5) : 0 })
+      else onNothing?.()
+    }
     rec.current = r
     try { r.start(); setListening(true); setMicNote('') } catch { setListening(false) }
   }

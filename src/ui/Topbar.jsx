@@ -3,7 +3,7 @@ import { useApp } from '../App.jsx'
 import { courseStats } from '../platform/progress.js'
 
 export default function Topbar() {
-  const { course, modules, user, paid, progress, go, signOut, resetProgress, authorMode, setAuthorMode, view, admin, isLive } = useApp()
+  const { course, modules, user, paid, progress, go, signOut, resetProgress, authorMode, setAuthorMode, view, admin, isLive, practice } = useApp()
   const [open, setOpen] = useState(false)
   const ref = useRef()
   useEffect(() => {
@@ -11,7 +11,7 @@ export default function Topbar() {
     document.addEventListener('pointerdown', close)
     return () => document.removeEventListener('pointerdown', close)
   }, [])
-  const stats = paid ? courseStats(course, modules, progress) : null
+  const stats = paid ? courseStats(course, modules, progress, practice) : null
   // Jump to the "HIT Academy courses" section on the home page, from any screen.
   const showCourses = () => {
     const scroll = () => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' })

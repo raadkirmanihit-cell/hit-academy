@@ -8,6 +8,8 @@ import { buildChunks, retrieve, formatExcerpts, library } from './knowledge.js'
 import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
 import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
+import { practiceTurn, practiceScore } from './practiceApi.js'
+import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, LEVELS, computeScore, practiceSummary } from './scoring.js'
 import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, CoachPaywall, PlanNote } from './plan.jsx'
 
 const MicIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
@@ -224,74 +226,127 @@ export function Spar({ scenarioId, compact }) {
   const sc = scenarioById(scenarioId)
   const kb = useKb()
   const { ready, sample } = useSample()
+  const { practice, recordPractice } = useApp()
   const [turns, setTurns] = useState(null) // null = not started
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [live, setLive] = useState('')
   const [ended, setEnded] = useState(false)
   const [report, setReport] = useState(null)
+  const [score, setScore] = useState(null)
   const [reporting, setReporting] = useState(false)
   const [err, setErr] = useState('')
+  const [handsFree, setHandsFree] = useState(false)
+  const [hint, setHint] = useState('')
   const ctl = useRef(null)
   const end = useRef(null)
+  const session = useRef(null) // the server's id for this role-play
   const { practiceLocked: locked } = useCoachPlan()
   const voice = useVoice({ alt: true })
   const voiceOn = useRef(false); voiceOn.current = voice.voiceOn
+  const hf = useRef(false); hf.current = handsFree
+  const sendRef = useRef(null)
+  const endedRef = useRef(false); endedRef.current = ended
   useEffect(() => { if (turns) end.current?.scrollIntoView({ block: 'nearest' }) }, [turns, live])
   useEffect(() => () => ctl.current?.abort(), [])
+  const history = practice.filter((a) => a.scenario_id === sc.id)
 
-  const start = () => { setTurns([{ role: 'assistant', content: sc.opening }]); setEnded(false); setReport(null); setErr(''); if (voiceOn.current) voice.speak(sc.opening) }
+  // Hands-free: after the counterpart has spoken, the microphone opens by itself, and the learner's
+  // turn is sent as soon as they stop talking.
+  function listenNext() {
+    if (!hf.current || endedRef.current || !voice.canListen) return
+    setHint('')
+    voice.listen(setDraft, (t, d) => sendRef.current(t, d), () => setHint('I didn\'t catch that. Tap the microphone and speak again.'))
+  }
+  function say(text) {
+    if (voiceOn.current) voice.speak(text, listenNext)
+    else listenNext()
+  }
 
-  async function send(msg) {
+  function start() {
+    voice.stopSpeaking()
+    session.current = null
+    setTurns([{ role: 'assistant', content: sc.opening }]); setEnded(false); setReport(null); setScore(null); setErr(''); setHint('')
+    if (voiceOn.current || hf.current) say(sc.opening)
+  }
+
+  function toggleHandsFree() {
+    const on = !handsFree
+    setHandsFree(on); hf.current = on
+    if (on) { voice.setVoiceOn(true); voiceOn.current = true; if (turns && !ended && !busy && !voice.listening) listenNext() }
+    else voice.stopSpeaking()
+  }
+
+  async function send(msg, delivery) {
     msg = msg.trim()
     if (!msg || busy || ended || !sample) return
-    setErr(''); setDraft('')
-    const history = [...turns, { role: 'user', content: msg }]
+    setErr(''); setDraft(''); setHint('')
+    const past = turns
+    const history = [...past, { role: 'user', content: msg }]
     setTurns(history); setBusy(true); setLive('')
     ctl.current = new AbortController()
-    // The opening line is the counterpart's, so the instructions turn comes first and the transcript follows.
-    const transcript = history.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
-    const input = SPAR_RULES(sc) + `\n\nCONVERSATION SO FAR\n${transcript}\n\nWrite ${sc.counterpart.name}'s next reply only.`
     try {
-      const { text } = await sample(input, { cache: false, modelTier: 'quick', purpose: 'practice', signal: ctl.current.signal, onText: ({ text }) => setLive(text.replace('[END]', '')) })
+      let text
+      if (isLive) {
+        const r = await practiceTurn({ scenarioId: sc.id, sessionId: session.current, message: msg, delivery, turns: past, signal: ctl.current.signal, onText: (t) => setLive(t.replace('[END]', '')) })
+        if (r.saved) session.current = r.sessionId
+        text = r.text
+      } else {
+        // claude.ai preview: the conversation is built in the browser.
+        const transcript = history.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
+        const input = SPAR_RULES(sc) + `\n\nCONVERSATION SO FAR\n${transcript}\n\nWrite ${sc.counterpart.name}'s next reply only.`
+        text = (await sample(input, { cache: false, modelTier: 'quick', purpose: 'practice', signal: ctl.current.signal, onText: ({ text }) => setLive(text.replace('[END]', '')) })).text
+      }
       const done = text.includes('[END]')
-      setTurns((t) => [...t, { role: 'assistant', content: text.replace('[END]', '').trim() }])
+      const reply = text.replace('[END]', '').trim()
+      setTurns((t) => [...t, { role: 'assistant', content: reply }])
       usedOnePractice()
-      if (voiceOn.current) voice.speak(text.replace('[END]', ''))
-      if (done) setEnded(true)
+      if (done) { setEnded(true); endedRef.current = true; if (voiceOn.current) voice.speak(reply) }
+      else if (voiceOn.current || hf.current) say(reply)
     } catch (e) {
       noteError(e)
-      if (e?.code !== 'cancelled') setErr(errorText(e))
+      if (e?.code !== 'cancelled') { setErr(errorText(e)); setTurns(past) }
     } finally { setBusy(false); setLive('') }
   }
+  sendRef.current = send
 
   async function feedback() {
     if (!sample || reporting) return
+    voice.stopSpeaking(); setHandsFree(false); hf.current = false
     setEnded(true); setReporting(true); setErr('')
-    const transcript = turns.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
-    const excerpts = formatExcerpts(retrieve(kb, sc.query + ' ' + transcript, {}, 12))
     try {
-      const r = await sample.json(FEEDBACK_PROMPT(sc, transcript, excerpts, kb.library), { cache: false, purpose: 'practice' })
-      setReport(r && typeof r === 'object' ? r : null)
+      let r, s
+      if (isLive) {
+        ({ report: r, score: s } = await practiceScore({ sessionId: session.current, scenarioId: sc.id, turns }))
+      } else {
+        const transcript = turns.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
+        const excerpts = formatExcerpts(retrieve(kb, sc.query + ' ' + transcript, {}, 12))
+        r = await sample.json(FEEDBACK_PROMPT(sc, transcript, excerpts, kb.library), { cache: false, purpose: 'practice' })
+        s = { ...computeScore(r?.skills), level: sc.level, saved: true, at: new Date().toISOString() }
+      }
       usedOnePractice()
-      if (!r || typeof r !== 'object') setErr('The feedback report could not be created. Please try again.')
+      if (!r || typeof r !== 'object') { setErr('The feedback report could not be created. Please try again.'); return }
+      setReport(r); setScore(s)
+      if (s?.saved) recordPractice({ scenario_id: sc.id, level: sc.level, overall: s.overall, passed: s.passed, skills: r.skills, created_at: s.at })
     } catch (e) {
       noteError(e)
       setErr(e?.code === 'invalid_json' ? 'The feedback report could not be read. Please try again.' : errorText(e))
+      if (e?.code !== 'finished') setEnded(false)
     } finally { setReporting(false) }
   }
 
   const learnerTurns = turns ? turns.filter((t) => t.role === 'user').length : 0
+  const canHandsFree = voice.canListen && voice.canSpeak
   return (
     <div className={'activity spar' + (compact ? ' compact' : '')}>
-      <span className="eyebrow" style={{ color: 'var(--orange-ink)' }}>Live sparring partner · AI coach{isLive ? '' : ' (premium prototype)'}</span>
+      <span className="eyebrow" style={{ color: 'var(--orange-ink)' }}>Live sparring partner · AI coach{isLive ? '' : ' (premium prototype)'} · {sc.level}</span>
       <h4>{sc.title}</h4>
       <div className="spar-brief">
         <img src={sc.img} alt="" />
         <div>
           <p><strong>Your role:</strong> {sc.you}.</p>
           <p>{sc.brief}</p>
-          <p className="small muted">You'll negotiate with {sc.counterpart.name} ({sc.counterpart.role}), played by the AI. Type or say what you would say. When you're done, ask for your feedback report.</p>
+          <p className="small muted">You'll negotiate with {sc.counterpart.name} ({sc.counterpart.role}), played by the AI. Type or say what you would say{canHandsFree ? ', or switch on hands-free to talk it through like a phone call' : ''}. When you're done, ask for your feedback report and score.</p>
         </div>
       </div>
       {sc.background?.length > 0 && (
@@ -304,10 +359,12 @@ export function Spar({ scenarioId, compact }) {
           ))}
         </div>
       )}
+      {history.length > 0 && <ScoreHistory attempts={history} />}
       {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? <CoachPaywall compact={compact} practice /> : !turns ? (
-        <div className="row" style={{ gap: '.6rem' }}>
+        <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={start}>Start the negotiation</button>
           <VoiceToggle voice={voice} />
+          {canHandsFree && <HandsFreeToggle on={handsFree} onClick={toggleHandsFree} />}
         </div>
       ) : (
         <>
@@ -318,24 +375,61 @@ export function Spar({ scenarioId, compact }) {
           </div>
           {err && <p className="small coach-err" role="alert">{err}</p>}
           {voice.micNote && <p className="small muted">{voice.micNote}</p>}
+          {handsFree && !ended && <p className="small hands-free-status" role="status">{voice.listening ? 'Listening… speak now. Your turn is sent when you stop talking.' : voice.speaking ? `${sc.counterpart.name} is speaking…` : busy ? `${sc.counterpart.name} is thinking…` : hint || 'Hands-free is on.'}</p>}
           <PlanNote practice />
           {!ended && (
             <form className="coach-input" onSubmit={(e) => { e.preventDefault(); send(draft) }}>
               <textarea rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={voice.listening ? 'Listening… speak now' : `Your reply to ${sc.counterpart.name}…`}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(draft) } }} aria-label="Your reply" disabled={busy} />
-              <MicButton voice={voice} disabled={busy} onText={setDraft} onFinal={(t) => { voice.setVoiceOn(true); voiceOn.current = true; send(t) }} />
+              <MicButton voice={voice} disabled={busy} onText={setDraft} onFinal={(t, d) => { voice.setVoiceOn(true); voiceOn.current = true; send(t, d) }} />
               {busy ? <button type="button" className="btn btn-sm" onClick={() => ctl.current?.abort()}>Stop</button>
                 : <button className="btn btn-primary btn-sm" disabled={!draft.trim()}>Send</button>}
             </form>
           )}
           <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
-            {!report && <button className="btn btn-dark" onClick={feedback} disabled={reporting || busy || learnerTurns < 2}>{reporting ? 'Writing your feedback…' : ended ? 'Get my feedback report' : 'End and get feedback'}</button>}
+            {!report && <button className="btn btn-dark" onClick={feedback} disabled={reporting || busy || learnerTurns < 2}>{reporting ? 'Writing your feedback and score…' : ended ? 'Get my feedback and score' : 'End and get feedback'}</button>}
             <button className="btn" onClick={start} disabled={busy || reporting}>Start again</button>
             <VoiceToggle voice={voice} />
+            {canHandsFree && !ended && <HandsFreeToggle on={handsFree} onClick={toggleHandsFree} />}
             {learnerTurns < 2 && !report && <span className="small muted">Feedback unlocks after two of your replies.</span>}
           </div>
-          {report && <Report r={report} sc={sc} />}
+          {report && <Report r={report} sc={sc} score={score} />}
         </>
+      )}
+    </div>
+  )
+}
+
+function HandsFreeToggle({ on, onClick }) {
+  return (
+    <button type="button" className={'btn btn-sm voice-toggle' + (on ? ' on' : '')} aria-pressed={on} onClick={onClick}
+      title="Talk it through like a phone call: the microphone opens after each reply and sends your turn when you stop talking.">
+      <MicIcon /> {on ? 'Hands-free on' : 'Hands-free'}
+    </button>
+  )
+}
+
+// Earlier scores for this scenario: best, latest and a small chart.
+function ScoreHistory({ attempts }) {
+  const scored = attempts.filter((a) => a.overall != null)
+  const best = scored.length ? Math.max(...scored.map((a) => a.overall)) : null
+  const latest = scored.length ? scored[scored.length - 1].overall : null
+  const passed = attempts.some((a) => a.passed)
+  const pts = scored.slice(-12)
+  const w = 220, h = 56, x = (i) => (pts.length < 2 ? w / 2 : 8 + (i * (w - 16)) / (pts.length - 1)), y = (v) => h - 6 - ((v / 100) * (h - 12))
+  return (
+    <div className="score-history">
+      <div>
+        <span className="eyebrow">Your scores here</span>
+        <p className="small"><strong className="tnum">{best ?? '–'}</strong> best · <strong className="tnum">{latest ?? '–'}</strong> latest · {attempts.length} attempt{attempts.length === 1 ? '' : 's'}
+          {passed && <span className="pill pass-pill">Passed</span>}</p>
+      </div>
+      {pts.length > 0 && (
+        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`Scores over time: ${pts.map((a) => a.overall).join(', ')}`}>
+          <line x1="0" x2={w} y1={y(PASS_SCORE)} y2={y(PASS_SCORE)} className="pass-line" />
+          {pts.length > 1 && <polyline fill="none" className="score-line" points={pts.map((a, i) => `${x(i)},${y(a.overall)}`).join(' ')} />}
+          {pts.map((a, i) => <circle key={i} cx={x(i)} cy={y(a.overall)} r="3.5" className={a.passed ? 'dot pass' : 'dot'} />)}
+        </svg>
       )}
     </div>
   )
@@ -357,12 +451,42 @@ function SparLine({ t, sc, typing, voice }) {
 
 const HANDLED = { well: ['Handled well', 'var(--b-assertive)'], partly: ['Partly handled', 'var(--orange)'], missed: ['Missed', 'var(--b-aggressive)'] }
 
-function Report({ r, sc }) {
+function Report({ r, sc, score }) {
   const list = (x) => (Array.isArray(x) ? x : [])
+  const skills = new Map(list(r.skills).map((s) => [s?.id, s]))
+  const hasSkills = skills.size > 0
   return (
     <div className="spar-report fade-in">
       <span className="eyebrow">Feedback report</span>
-      <h4>{r.rating ? `${r.rating}: ` : ''}{r.outcome}</h4>
+      {score?.overall != null ? (
+        <div className={'score-head' + (score.passed ? ' pass' : '')}>
+          <div className="score-num"><strong className="tnum">{score.overall}</strong><span>/100</span></div>
+          <div>
+            <h4>{score.label}{score.passed ? ' · Passed' : ' · Not passed yet'}</h4>
+            <p className="small muted">{score.passed ? `You passed this ${sc.level} scenario.` : `To pass: ${PASS_SCORE} or more, with no skill below ${PASS_MIN_SKILL}.`}{score.saved === false ? ' This score wasn\'t saved.' : ''}</p>
+          </div>
+        </div>
+      ) : hasSkills && <p className="small muted">This role-play was too short for an overall score: at least {MIN_SKILLS} of the 5 skills need to come up. Play it a little longer next time.</p>}
+      <h4>{!hasSkills && r.rating ? `${r.rating}: ` : ''}{r.outcome}</h4>
+      {hasSkills && (
+        <div className="skill-bars">
+          {SKILLS.map((k) => {
+            const s = skills.get(k.id) || {}
+            return (
+              <div key={k.id} className="skill-bar">
+                <div className="row" style={{ justifyContent: 'space-between', gap: '.5rem' }}>
+                  <strong>{k.name}</strong>
+                  <span className="tnum small">{s.score ? `${s.score} / 5` : 'Not shown'}</span>
+                </div>
+                <div className="bar" aria-hidden="true"><span style={{ width: `${(s.score || 0) * 20}%` }} className={s.score && s.score < PASS_MIN_SKILL ? 'low' : ''} /></div>
+                {s.reason && <p className="small">{s.reason}</p>}
+                {s.evidence && <p className="small muted">"{String(s.evidence).replace(/^"|"$/g, '')}"</p>}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {list(r.flags).length > 0 && <p className="small report-flags"><strong>Noted:</strong> {list(r.flags).join(' ')}</p>}
       {list(r.tactics).length > 0 && (
         <div className="stack" style={{ gap: '.5rem' }}>
           <h5>{sc?.faced || 'Tactics you faced'}</h5>
@@ -395,8 +519,10 @@ function Report({ r, sc }) {
 // ---- Practice studio (dashboard page) --------------------------------------
 
 export function PracticeStudio() {
-  const { go, view } = useApp()
+  const { go, view, practice, course } = useApp()
   const active = view.scenarioId && scenarioById(view.scenarioId)
+  const sum = practiceSummary(practice)
+  const need = course.certificate.practiceLevels || []
   return (
     <div className="wrap" style={{ paddingBottom: '4rem', maxWidth: 920 }}>
       <button className="btn btn-sm" onClick={() => (active ? go('practice') : go('dashboard'))} style={{ marginBottom: '1rem' }}>← {active ? 'All scenarios' : 'Dashboard'}</button>
@@ -404,17 +530,37 @@ export function PracticeStudio() {
         <div className="stack" style={{ gap: '1.2rem' }}>
           <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
           <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Practice studio</h1>
-          <p className="muted">Negotiate live with an AI counterpart who knows all seven modules and adapts to whatever you say, including ideas from your own experience. Afterwards you get a feedback report that links back to the lessons, and to well-documented research where it adds something.</p>
-          <div className="studio-grid">
-            {scenarios.map((s) => (
-              <button key={s.id} className="card studio-card" onClick={() => go('practice', { scenarioId: s.id })}>
-                <img src={s.img} alt="" />
-                <span className="eyebrow">{s.level}</span>
-                <h4>{s.title}</h4>
-                <p className="small muted">Play {s.you}. Opposite you: {s.counterpart.name} ({s.counterpart.role}).</p>
-              </button>
-            ))}
-          </div>
+          <p className="muted">Negotiate live with an AI counterpart who knows all seven modules and adapts to whatever you say, including ideas from your own experience. Type, speak, or go hands-free and talk it through like a phone call. Afterwards you get a score out of 100 on five skills and a feedback report that links back to the lessons.</p>
+          {need.length > 0 && (
+            <div className="card practice-goal">
+              <div>
+                <h4>For your certificate</h4>
+                <p className="small muted">Pass one role-play at each level: a score of {PASS_SCORE} or more, with no skill below {PASS_MIN_SKILL}. You can try as often as you like.</p>
+              </div>
+              <div className="row" style={{ gap: '.5rem', flexWrap: 'wrap' }}>
+                {need.map((l) => <span key={l} className={'pill level-pill' + (sum.levels.has(l) ? ' done' : '')}>{sum.levels.has(l) ? '✓ ' : ''}{l}</span>)}
+              </div>
+            </div>
+          )}
+          {LEVELS.map((level) => (
+            <div key={level} className="stack" style={{ gap: '.6rem' }}>
+              <h3 style={{ fontSize: '1.1rem' }}>{level}{sum.levels.has(level) ? ' · passed' : ''}</h3>
+              <div className="studio-grid">
+                {scenarios.filter((s) => s.level === level).map((s) => {
+                  const r = sum.byScenario[s.id]
+                  return (
+                    <button key={s.id} className="card studio-card" onClick={() => go('practice', { scenarioId: s.id })}>
+                      <img src={s.img} alt="" />
+                      <span className="eyebrow">{s.level}{r?.passed ? ' · Passed' : ''}</span>
+                      <h4>{s.title}</h4>
+                      <p className="small muted">Play {s.you}. Opposite you: {s.counterpart.name} ({s.counterpart.role}).</p>
+                      {r && <p className="small tnum"><strong>{r.best ?? '–'}</strong> best · <strong>{r.latest ?? '–'}</strong> latest</p>}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

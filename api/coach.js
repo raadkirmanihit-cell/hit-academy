@@ -3,10 +3,9 @@
 // Complete-course buyers also get a practice pack for the Practice studio role-plays.
 // Subscribers have a monthly fair-use cap, and everyone has a daily limit.
 import Anthropic from '@anthropic-ai/sdk'
-import { env, db, requireUser, readJson, fail, coachAccess } from './_lib.js'
+import { env, requireUser, readJson, fail, chargeCoach } from './_lib.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
-const DAILY_LIMIT = Number(process.env.COACH_DAILY_LIMIT || 80)
 const MAX_CHARS = 120_000
 
 export default async function handler(req, res) {
@@ -28,29 +27,10 @@ export default async function handler(req, res) {
     if (JSON.stringify(messages).length > MAX_CHARS) return res.status(413).json({ error: 'That conversation is too long. Please start a new one.' })
   } catch { return res.status(400).json({ error: 'Bad request.' }) }
 
-  let access
-  try { access = await coachAccess(user.id) } catch (e) { return fail(res, e) }
-  // Which allowance pays for this message:
-  // - coach chat: the free taster, or the subscription's monthly messages;
-  // - a practice role-play: the subscription's monthly messages first (they expire), then the
-  //   practice pack that comes with the complete course (no expiry), then the free taster.
-  const usedUp = () => access.subscribed
-    ? res.status(429).json({ error: `You have used this month's ${access.limit} coach messages. ${access.periodEnd ? `They renew on ${new Date(access.periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.` : 'They renew with your next monthly payment.'}`, code: 'monthly_limit' })
-    : res.status(402).json({ error: practice && access.practiceLimit ? `You have used the ${access.practiceLimit} practice messages that come with the course. Subscribe to the AI coach to keep practising.` : 'Your free coach messages are used up. Subscribe to keep coaching.', code: 'needs_subscription' })
-  let fromPack = false
-  if (practice) {
-    if (access.subscribed && access.left > 0) { /* monthly messages first */ }
-    else if (access.practiceLeft > 0) fromPack = true
-    else if (access.left <= 0) return usedUp()
-  } else if (access.left <= 0) return usedUp()
-
-  let count, usageError
-  if (fromPack) {
-    ({ data: count, error: usageError } = await db().rpc('bump_practice_usage', { p_user: user.id }))
-    if (usageError) ({ data: count, error: usageError } = await db().rpc('bump_coach_usage', { p_user: user.id })) // before update 5
-  } else ({ data: count, error: usageError } = await db().rpc('bump_coach_usage', { p_user: user.id }))
-  if (usageError) return fail(res, usageError)
-  if (count > DAILY_LIMIT) return res.status(429).json({ error: 'You have reached today\'s coach limit. It resets at midnight.', code: 'rate_limited' })
+  try {
+    const stop = await chargeCoach(user.id, { practice })
+    if (stop) return res.status(stop.status).json(stop.body)
+  } catch (e) { return fail(res, e) }
 
   const client = new Anthropic({ apiKey: env('ANTHROPIC_API_KEY') })
   const ctl = new AbortController()

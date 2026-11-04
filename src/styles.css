@@ -1076,7 +1076,7 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 @media (max-width: 760px) { .coach-teaser { grid-template-columns: auto 1fr; } .coach-teaser .row { grid-column: 1 / -1; } }
 .studio-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 @media (max-width: 760px) { .studio-grid { grid-template-columns: 1fr; } }
-.studio-card { display: grid; gap: .4rem; text-align: left; padding: .9rem; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
+.studio-card { display: grid; align-content: start; gap: .4rem; text-align: left; padding: .9rem; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
 .studio-card:hover { border-color: var(--orange); }
 .studio-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
 .studio-card h4 { margin: 0; }
@@ -1289,3 +1289,30 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .guarantee-icon { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--orange); color: var(--navy); }
 .guarantee > span:last-child { display: grid; gap: .1rem; color: #c9d0e6; font-size: .9rem; line-height: 1.35; }
 .guarantee strong { color: #fff; font-size: 1.02rem; }
+
+/* Practice studio scores */
+.score-head { display: flex; gap: 1rem; align-items: center; padding: .8rem 1rem; border-radius: var(--r-m); background: var(--surface-2); }
+.score-head.pass { background: var(--good-soft); }
+.score-head h4 { margin: 0; }
+.score-num { display: flex; align-items: baseline; gap: .15rem; font-family: var(--f-display); color: var(--navy); }
+.score-head.pass .score-num { color: var(--good); }
+.score-num strong { font-size: 2.4rem; line-height: 1; }
+.score-num span { color: var(--muted); font-size: .95rem; }
+.skill-bars { display: grid; gap: .8rem; margin: .3rem 0 .4rem; }
+.skill-bar { display: grid; gap: .3rem; }
+.skill-bar p { margin: 0; }
+.skill-bar .bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.skill-bar .bar span { display: block; height: 100%; border-radius: 99px; background: var(--b-assertive); }
+.skill-bar .bar span.low { background: var(--b-aggressive); }
+.report-flags { padding: .6rem .8rem; border-radius: var(--r-m); background: var(--orange-soft); color: var(--ink-2); }
+.score-history { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; padding: .8rem 1rem; border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); }
+.score-history p { margin: .2rem 0 0; display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+.score-history svg { max-width: 100%; }
+.score-history .pass-line { stroke: var(--good); stroke-dasharray: 4 4; stroke-width: 1; opacity: .7; }
+.score-history .score-line { stroke: var(--navy-2); stroke-width: 2; }
+.score-history .dot { fill: var(--navy-2); }
+.score-history .dot.pass { fill: var(--good); }
+.pill.pass-pill, .pill.level-pill.done { background: var(--good-soft); color: var(--good); }
+.practice-goal { padding: 1rem 1.2rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+.practice-goal h4 { margin: 0 0 .2rem; }
+.hands-free-status { padding: .45rem .75rem; border-radius: var(--r-m); background: var(--info-soft); color: var(--ink-2); }

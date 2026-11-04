@@ -16,23 +16,33 @@ function moduleSummary(mods) {
   return out
 }
 
+function practiceOf(tries) {
+  const scores = tries.map((a) => a.overall).filter((n) => n != null)
+  return { attempts: tries.length, best: scores.length ? Math.max(...scores) : null, levelsPassed: [...new Set(tries.filter((a) => a.passed).map((a) => a.level))] }
+}
+
 export default async function handler(req, res) {
   try {
     const user = await requireUser(req)
     if (req.query?.check !== undefined || /[?&]check\b/.test(req.url || '')) return res.status(200).json({ admin: isAdmin(user) })
     if (!isAdmin(user)) return res.status(403).json({ error: 'Admins only.' })
-    const [profiles, purchases, progress, messages, coachSubs, coachPays] = await Promise.all([
+    const [profiles, purchases, progress, messages, coachSubs, coachPays, attempts] = await Promise.all([
       db().from('profiles').select('*').order('created_at', { ascending: false }).limit(5000),
       db().from('purchases').select('*').order('created_at', { ascending: false }),
       db().from('progress').select('user_id, data, updated_at'),
       db().from('messages').select('*').order('created_at', { ascending: false }).limit(500),
       db().from('coach_subscriptions').select('*').order('started_at', { ascending: false }),
       db().from('coach_payments').select('*').order('paid_at', { ascending: false }),
+      db().from('practice_attempts').select('id, user_id, scenario_id, level, overall, passed, skills, learner_turns, created_at').order('created_at', { ascending: false }).limit(5000),
     ])
     for (const r of [profiles, purchases, progress]) if (r.error) throw r.error
     const people = new Map(profiles.data.map((p) => [p.id, p]))
     const paid = new Map(purchases.data.filter((p) => p.status === 'paid').map((p) => [p.user_id, p]))
     const prog = new Map(progress.data.map((p) => [p.user_id, p]))
+    // Practice studio scores need database update 6; until then the lists are empty.
+    const tries = attempts.error ? [] : attempts.data
+    const triesOf = new Map()
+    for (const a of tries) (triesOf.get(a.user_id) || triesOf.set(a.user_id, []).get(a.user_id)).push(a)
     const students = profiles.data.map((p) => {
       const pr = prog.get(p.id)
       const mods = pr?.data?.modules || {}
@@ -44,6 +54,7 @@ export default async function handler(req, res) {
         quizzesPassed: Object.values(mods).filter((m) => m?.quiz?.passed).length,
         lastActive: pr?.updated_at || null,
         modules: moduleSummary(mods),
+        practice: practiceOf(triesOf.get(p.id) || []),
       }
     })
     const payments = purchases.data.map((p) => ({
@@ -63,7 +74,12 @@ export default async function handler(req, res) {
         ...who(c.user_id), amount: c.amount, currency: c.currency, status: c.status, live: !!c.livemode, paidAt: c.paid_at, refundedAt: c.refunded_at,
       })),
     }
+    // Practice studio scores need database update 6; until then the list is empty.
+    const practice = {
+      ready: !attempts.error,
+      attempts: tries.map((a) => ({ ...who(a.user_id), scenario: a.scenario_id, level: a.level, overall: a.overall, passed: a.passed, skills: a.skills, turns: a.learner_turns, at: a.created_at })),
+    }
     // Messages need database update 2; until then the inbox is simply empty.
-    res.status(200).json({ students, payments, coach, messages: messages.error ? [] : messages.data, messagesReady: !messages.error })
+    res.status(200).json({ students, payments, coach, practice, messages: messages.error ? [] : messages.data, messagesReady: !messages.error })
   } catch (e) { fail(res, e) }
 }
