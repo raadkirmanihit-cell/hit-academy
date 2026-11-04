@@ -1,6 +1,6 @@
 // The AI coach subscription for the signed-in student.
 //   GET                          -> what the student may do with the coach (free messages left, subscription status)
-//   POST { action: 'subscribe' } -> Stripe Checkout page for the €19.99/month subscription
+//   POST { action: 'subscribe' } -> Stripe Checkout page for the €21/month subscription
 //   POST { action: 'portal' }    -> Stripe's page to cancel the subscription or change the card
 import Stripe from 'stripe'
 import { env, requireUser, readJson, siteUrl, fail, coachAccess, getCoachSubscription, COACH_PRICE_CENTS, stripeCustomerFor } from './_lib.js'

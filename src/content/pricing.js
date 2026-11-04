@@ -2,20 +2,20 @@
 // so the price shown is always the price charged.
 //
 // - Module 1 is free for every account (no payment needed).
-// - Single modules 2 to 7: €29 each (€174 for all six).
-// - Complete course (all 7 modules): €149, or €99 at the launch price (first 100 buyers, or until
+// - Single modules 2 to 7: €38 each (€228 for all six).
+// - Complete course (all 7 modules): €196, or €126 at the launch price (first 100 buyers, or until
 //   LAUNCH_PRICE_UNTIL if that is set on the server). It includes a pack of AI role-play
 //   practice messages for the Practice studio (no expiry).
 // - Students who already bought single modules can upgrade to the complete course and pay only
-//   the difference: the package price minus €29 for each module they bought.
+//   the difference: the package price minus €38 for each module they bought.
 // All sums are done in cents, so prices never pick up rounding errors.
 
 export const CURRENCY = 'EUR'
 export const BUNDLE_ID = 'hit-negotiation-selfpaced'
-export const BUNDLE_PRICE = 149
-export const LAUNCH_PRICE = 99
+export const BUNDLE_PRICE = 196
+export const LAUNCH_PRICE = 126
 export const LAUNCH_BUYERS = 100 // the launch price ends after this many (real) package sales
-export const MODULE_PRICE = 29
+export const MODULE_PRICE = 38
 export const MODULE_IDS = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']
 export const FREE_MODULES = ['m1']
 export const PAID_MODULES = MODULE_IDS.filter((m) => !FREE_MODULES.includes(m))
@@ -75,7 +75,7 @@ export function quote(choice, purchases, opts) {
   return { productId: moduleProductId(choice), cents: Math.round(MODULE_PRICE * 100), name: `Negotiation & Conflict Resolution: Module ${MODULE_IDS.indexOf(choice) + 1}` }
 }
 
-// "€29", "€149": cents only when there are any.
+// "€38", "€196": cents only when there are any.
 export function euro(n) {
   return new Intl.NumberFormat('en-IE', { style: 'currency', currency: CURRENCY, minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }).format(n)
 }

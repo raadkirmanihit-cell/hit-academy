@@ -1,6 +1,6 @@
 // GET: whether the launch price for the complete course is on (no sign-in needed).
 // POST: starts a Stripe Checkout payment for the signed-in student and returns the payment page URL.
-//   body.choice: 'bundle' (all 7 modules: €149, or €99 at launch, less €29 per module already bought)
+//   body.choice: 'bundle' (all 7 modules: €196, or €126 at launch, less €38 per module already bought)
 //   or a module id like 'm3' (€19). Module 1 is free.
 import Stripe from 'stripe'
 import { env, requireUser, coursePurchases, readJson, siteUrl, fail, INVOICE_FOOTER, launchStatus } from './_lib.js'
