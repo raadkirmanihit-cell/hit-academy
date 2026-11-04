@@ -3,6 +3,8 @@
 // Blocks of type 'research' (and items marked { added: true }) are material added beyond the module.
 import { references } from './references.js'
 import { quiz } from './quiz.js'
+import * as P from './practice.js'
+import { withPractice } from '../withPractice.js'
 import { batnaScene, stageScene } from './dialogues.js'
 import * as act from './activities.js'
 
@@ -375,4 +377,4 @@ const m5 = {
   },
 }
 
-export default m5
+export default withPractice(m5, P)
