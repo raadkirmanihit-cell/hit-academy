@@ -34,7 +34,8 @@ export function computeScore(skills, { turns = Infinity, level, conduct } = {}) 
     return n >= 1 && n <= 5 ? n : null
   }).filter((n) => n != null)
   if (scored.length < MIN_SKILLS) return { overall: null, label: null, passed: false, scoredCount: scored.length }
-  const overall = Math.round((scored.reduce((a, n) => a + n, 0) / scored.length) * 20)
+  // 1 on every skill is 0 and 5 on every skill is 100, so the score uses the whole range.
+  const overall = Math.round(((scored.reduce((a, n) => a + n, 0) / scored.length) - 1) * 25)
   const minTurns = MIN_TURNS[level] || 0
   const blocked = conduct === 'abusive' ? 'conduct' : turns < minTurns ? 'short' : null
   const passed = !blocked && overall >= PASS_SCORE && scored.every((n) => n >= PASS_MIN_SKILL)
