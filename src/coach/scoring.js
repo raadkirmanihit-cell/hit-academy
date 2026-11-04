@@ -13,6 +13,16 @@ export const PASS_SCORE = 65 // overall score out of 100
 export const PASS_MIN_SKILL = 2 // no scored skill below this
 export const MIN_SKILLS = 4 // skills that must be scored before there is an overall score
 export const LEVELS = ['Beginner', 'Intermediate', 'Advanced']
+// The game: clear a level (pass one role-play at it) to earn its rank and unlock the next level.
+// Clearing the last level completes the practice part of the certificate.
+export const RANKS = {
+  Beginner: { title: 'Composed Communicator', line: 'You stay calm and keep the relationship under pressure.' },
+  Intermediate: { title: 'Strategic Negotiator', line: 'You trade on interests, options and alternatives.' },
+  Advanced: { title: 'Master Negotiator', line: 'You hold your ground against hard tactics and close well.' },
+}
+// passed: a Set of levels already cleared. A level is open when every level before it is cleared.
+export const levelOpen = (level, passed) => LEVELS.slice(0, Math.max(0, LEVELS.indexOf(level))).every((l) => passed.has(l))
+export const currentRank = (passed) => [...LEVELS].reverse().find((l) => passed.has(l) && levelOpen(l, passed)) || null
 // Learner turns needed before a role-play can pass (a real negotiation can't be shown in two or three lines).
 export const MIN_TURNS = { Beginner: 5, Intermediate: 6, Advanced: 7 }
 

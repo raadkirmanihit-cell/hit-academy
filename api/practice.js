@@ -6,11 +6,11 @@
 //   GET                                                                -> the student's attempts (history)
 import Anthropic from '@anthropic-ai/sdk'
 import { randomUUID } from 'node:crypto'
-import { env, db, requireUser, readJson, fail, chargeCoach } from './_lib.js'
+import { env, db, requireUser, readJson, fail, chargeCoach, isAdmin } from './_lib.js'
 import { SPAR_RULES, FEEDBACK_PROMPT } from '../src/coach/prompts.js'
 import { scenarioById } from '../src/coach/scenarios.js'
 import { buildChunks, retrieve, formatExcerpts, library } from '../src/coach/knowledge.js'
-import { computeScore, SKILLS } from '../src/coach/scoring.js'
+import { computeScore, SKILLS, LEVELS } from '../src/coach/scoring.js'
 import { modules } from '../src/content/index.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
@@ -90,6 +90,16 @@ async function turn(req, res, user, body) {
   const sc = scenarioById(session?.scenario_id || body.scenarioId)
   if (!sc) return res.status(400).json({ error: 'Unknown scenario.' })
   if (session?.scored) return res.status(409).json({ error: 'This role-play is finished. Start again to practise once more.', code: 'finished' })
+  if (!session && saved && !isAdmin(user)) {
+    // Levels unlock in order: a new role-play needs every earlier level cleared (admins can test them all).
+    const before = LEVELS.slice(0, Math.max(0, LEVELS.indexOf(sc.level)))
+    if (before.length) {
+      const { data: won, error } = await db().from('practice_attempts').select('level').eq('user_id', user.id).eq('passed', true).in('level', before)
+      if (!error && !before.every((l) => (won || []).some((a) => a.level === l))) {
+        return res.status(403).json({ error: `Clear the ${before.find((l) => !(won || []).some((a) => a.level === l))} level first to unlock this role-play.`, code: 'locked' })
+      }
+    }
+  }
   if (!session) {
     // Without the database the browser sends the conversation so far (used only until update 6 is run).
     const prior = !saved && Array.isArray(body.turns)

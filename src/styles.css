@@ -1079,7 +1079,53 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 /* Scenario cards: the whole photo on the left, the text beside it, two cards filling the row. */
 .studio-card { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 1rem; align-items: start; text-align: left; padding: .9rem; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
 .studio-card:hover { border-color: var(--orange); }
-.studio-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+.studio-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; display: block; }
+.studio-img { position: relative; display: block; }
+.studio-lock { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 10px; background: rgba(11, 26, 68, .55); color: #fff; }
+.studio-card:disabled { cursor: not-allowed; opacity: .75; }
+.studio-card:disabled:hover { border-color: var(--line); }
+.studio-card:disabled img { filter: grayscale(1); }
+.level-tag { margin-left: .6rem; font: 500 .72rem/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--orange-ink); display: inline-flex; gap: .3rem; align-items: center; vertical-align: middle; }
+.level-block.locked .level-tag { color: var(--muted); }
+/* The level path: rank card + Beginner -> Intermediate -> Advanced -> Certificate. */
+.quest { display: grid; grid-template-columns: minmax(180px, 230px) 1fr; gap: 1.2rem; align-items: center; padding: 1.2rem 1.4rem; border-radius: 16px; background: var(--navy); color: var(--on-navy, #f4f6fb); }
+.quest .eyebrow { color: #9aa5c6; }
+.quest-rank { display: grid; gap: .25rem; }
+.quest-rank strong { font-size: 1.25rem; color: var(--orange); }
+.quest-rank .small { color: #c9d0e6; }
+.quest-path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .8rem; counter-reset: none; }
+.quest-step { display: grid; justify-items: center; text-align: center; gap: .4rem; position: relative; }
+.quest-step + .quest-step::before { content: ''; position: absolute; top: 20px; right: calc(50% + 24px); width: calc(100% - 48px + .8rem); height: 2px; background: #2c3c74; }
+.quest-step.done + .quest-step::before, .quest-step.done + .quest-step.done::before { background: var(--orange); }
+.quest-dot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; border: 2px solid #2c3c74; background: #13245a; color: #9aa5c6; }
+.quest-step.open .quest-dot { border-color: var(--orange); color: #fff; box-shadow: 0 0 0 4px rgba(242, 122, 26, .25); }
+.quest-step.done .quest-dot { background: var(--orange); border-color: var(--orange); color: #fff; }
+.quest-label { display: grid; gap: .1rem; }
+.quest-label .small { color: #c9d0e6; }
+.quest-state { font: 500 .68rem/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; }
+.quest-step.open .quest-state, .quest-step.done .quest-state { color: var(--orange); }
+@media (max-width: 760px) {
+  .quest { grid-template-columns: 1fr; }
+  .quest-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .quest-step + .quest-step::before { display: none; }
+}
+.practice-rules { padding: 1rem 1.2rem; display: grid; gap: .8rem; }
+.practice-rules h4 { margin: 0; }
+.practice-rules ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .35rem; }
+.dos-donts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 760px) { .dos-donts { grid-template-columns: 1fr; } }
+.dos-donts > div { border-radius: 12px; padding: .8rem 1rem; }
+.dos-donts h5 { margin: 0 0 .5rem; display: flex; gap: .4rem; align-items: center; font-size: .95rem; }
+.dos { background: color-mix(in srgb, var(--good) 10%, transparent); }
+.dos h5 { color: var(--good); }
+.donts { background: color-mix(in srgb, #d14343 10%, transparent); }
+.donts h5 { color: #c23b3b; }
+/* Report: level cleared */
+.level-up { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center; padding: 1rem 1.2rem; border-radius: 14px; background: var(--navy); color: #f4f6fb; margin: .6rem 0 1rem; animation: levelup .6s ease-out; }
+.level-up .eyebrow { color: var(--orange); }
+.level-up h4 { margin: .15rem 0; color: #fff; }
+@keyframes levelup { from { transform: scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .level-up { animation: none; } }
 .studio-card-text { display: grid; gap: .4rem; align-content: start; }
 .studio-card h4 { margin: 0; }
 @media (max-width: 420px) { .studio-card { grid-template-columns: 110px minmax(0, 1fr); gap: .8rem; } }

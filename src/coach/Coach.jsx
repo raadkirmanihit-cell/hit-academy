@@ -2,6 +2,7 @@ import { isLive } from '../platform/backend.js'
 import { makeServerSample } from './serverSample.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
+import { Icon } from '../ui/icons.jsx'
 import { flatSteps } from '../platform/progress.js'
 import { Md } from '../ui/md.jsx'
 import { buildChunks, retrieve, formatExcerpts, library } from './knowledge.js'
@@ -10,7 +11,7 @@ import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
 import { practiceTurn, practiceScore } from './practiceApi.js'
 import { combineVoice, readings } from '../activities/speechMetrics.js'
-import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, MIN_TURNS, LEVELS, computeScore, practiceSummary } from './scoring.js'
+import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, MIN_TURNS, LEVELS, RANKS, levelOpen, currentRank, computeScore, practiceSummary } from './scoring.js'
 import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, CoachPaywall, PlanNote, PracticeCounter, TopUpCard } from './plan.jsx'
 
 const MicIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
@@ -507,6 +508,21 @@ function VoiceReport({ turns }) {
   )
 }
 
+// Shown in the report when a role-play passes: the rank earned and what it unlocks.
+function LevelUp({ level }) {
+  const next = LEVELS[LEVELS.indexOf(level) + 1]
+  return (
+    <div className="level-up">
+      <span className="level-up-badge" aria-hidden="true"><Icon.award width="40" height="40" /></span>
+      <div>
+        <span className="eyebrow">{level} level cleared</span>
+        <h4>You are now a {RANKS[level].title}</h4>
+        <p className="small">{next ? `The ${next} level is now unlocked.` : 'You have cleared every level: the practice part of your certificate is done.'}</p>
+      </div>
+    </div>
+  )
+}
+
 function Report({ r, sc, score, turns = [] }) {
   const list = (x) => (Array.isArray(x) ? x : [])
   const skills = new Map(list(r.skills).map((s) => [s?.id, s]))
@@ -523,6 +539,7 @@ function Report({ r, sc, score, turns = [] }) {
           </div>
         </div>
       ) : hasSkills && <p className="small muted">This role-play was too short for an overall score: at least {MIN_SKILLS} of the 5 skills need to come up. Play it a little longer next time.</p>}
+      {score?.passed && RANKS[sc.level] && <LevelUp level={sc.level} />}
       <h4>{!hasSkills && r.rating ? `${r.rating}: ` : ''}{r.outcome}</h4>
       {hasSkills && (
         <div className="skill-bars">
@@ -576,11 +593,28 @@ function Report({ r, sc, score, turns = [] }) {
 // ---- Practice studio (dashboard page) --------------------------------------
 
 export function PracticeStudio() {
-  const { go, view, practice, course } = useApp()
+  const { go, view, practice, course, admin } = useApp()
   const active = view.scenarioId && scenarioById(view.scenarioId)
   const sum = practiceSummary(practice)
-  const need = course.certificate.practiceLevels || []
+  const needCert = (course.certificate.practiceLevels || []).length > 0
   const [buying, setBuying] = useState(false)
+  const open = (level) => admin || levelOpen(level, sum.levels)
+  const rank = currentRank(sum.levels)
+  const nextLevel = LEVELS.find((l) => !sum.levels.has(l))
+  if (active && !open(active.level)) {
+    const need = LEVELS.find((l) => !sum.levels.has(l))
+    return (
+      <div className="wrap" style={{ paddingBottom: '4rem', maxWidth: 920 }}>
+        <button className="btn btn-sm" onClick={() => go('practice')} style={{ marginBottom: '1rem' }}>← All scenarios</button>
+        <div className="card" style={{ padding: '1.5rem', display: 'grid', gap: '.6rem' }}>
+          <span className="eyebrow">Locked</span>
+          <h3>Clear the {need} level to unlock this role-play</h3>
+          <p className="muted">Pass one {need} role-play first. Each level you clear unlocks the next one.</p>
+          <button className="btn btn-primary" style={{ justifySelf: 'start' }} onClick={() => go('practice')}>Go to the {need} level</button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="wrap" style={{ paddingBottom: '4rem', maxWidth: 920 }}>
       <button className="btn btn-sm" onClick={() => (active ? go('practice') : go('dashboard'))} style={{ marginBottom: '1rem' }}>← {active ? 'All scenarios' : 'Dashboard'}</button>
@@ -593,55 +627,92 @@ export function PracticeStudio() {
             </div>
             <PracticeCounter onBuy={() => setBuying(true)} />
           </div>
-          <p className="muted">Negotiate live with an AI counterpart who knows all seven modules and reacts to whatever you say, including ideas from your own experience.</p>
+          <p className="muted">Negotiate live with AI counterparts who react to whatever you say. Clear three levels to earn your ranks{needCert ? ' and unlock your certificate' : ''}.</p>
           {buying && <TopUpCard onClose={() => setBuying(false)} />}
-          <div className="card practice-howto">
-            <h4>How it works</h4>
-            <ul className="small">
-              <li><strong>Pick a scenario</strong> below. Each one has a level: Beginner, Intermediate or Advanced.</li>
-              <li><strong>Type, speak or go hands-free.</strong> Hands-free works like a phone call: talk, pause, and the AI answers out loud.</li>
-              <li><strong>Each AI reply uses 1 message</strong>, and the feedback report at the end uses 1 more. A full role-play usually takes 10 to 20 messages.</li>
-              <li><strong>Stay with the conversation for a while.</strong> To pass you need at least {MIN_TURNS.Beginner} replies at Beginner, {MIN_TURNS.Intermediate} at Intermediate and {MIN_TURNS.Advanced} at Advanced.</li>
-              <li><strong>End the role-play to get your report:</strong> a score out of 100 on five skills, with your own words quoted as evidence and links back to the lessons.</li>
-              <li><strong>Speaking on a computer</strong> also gives you feedback on your pace, pauses and tone.</li>
-            </ul>
+
+          <div className="quest">
+            <div className="quest-rank">
+              <span className="eyebrow">Your rank</span>
+              <strong>{rank ? RANKS[rank].title : 'Newcomer'}</strong>
+              <span className="small">{rank ? RANKS[rank].line : 'Clear the Beginner level to earn your first rank.'}</span>
+            </div>
+            <ol className="quest-path">
+              {LEVELS.map((l, i) => {
+                const done = sum.levels.has(l)
+                const state = done ? 'done' : open(l) ? 'open' : 'locked'
+                return (
+                  <li key={l} className={'quest-step ' + state}>
+                    <span className="quest-dot" aria-hidden="true">{done ? <Icon.check /> : state === 'locked' ? <Icon.lock /> : i + 1}</span>
+                    <span className="quest-label"><strong>{l}</strong><span className="small">{RANKS[l].title}</span><span className="small quest-state">{done ? 'Cleared' : state === 'open' ? 'Play now' : 'Locked'}</span></span>
+                  </li>
+                )
+              })}
+              {needCert && (
+                <li className={'quest-step ' + (sum.allLevels ? 'done' : 'locked')}>
+                  <span className="quest-dot" aria-hidden="true">{sum.allLevels ? <Icon.check /> : <Icon.lock />}</span>
+                  <span className="quest-label"><strong>Certificate</strong><span className="small">Practice part</span><span className="small quest-state">{sum.allLevels ? 'Unlocked' : 'Clear all 3 levels'}</span></span>
+                </li>
+              )}
+            </ol>
           </div>
-          {need.length > 0 && (
-            <div className="card practice-goal">
-              <div>
-                <h4>For your certificate</h4>
-                <ul className="small muted">
-                  <li>Pass one role-play at each level.</li>
-                  <li>A pass is a score of {PASS_SCORE} or more, with no skill below {PASS_MIN_SKILL}.</li>
-                  <li>You can try as often as you like. Your best result counts.</li>
+
+          <div className="card practice-rules">
+            <h4>Rules of the game</h4>
+            <ul className="small rules-how">
+              <li><strong>Clear a level</strong> by passing one of its role-plays: a score of {PASS_SCORE} or more out of 100, with no skill below {PASS_MIN_SKILL}. Retry as often as you like.</li>
+              <li><strong>Messages:</strong> each AI reply uses 1 message, and your feedback report uses 1 more. A full role-play takes about 10 to 20.</li>
+            </ul>
+            <div className="dos-donts">
+              <div className="dos">
+                <h5><Icon.check /> Do</h5>
+                <ul className="small">
+                  <li>Treat it like a real meeting and stay in your role.</li>
+                  <li>Ask questions, listen, and use what the course teaches.</li>
+                  <li>Say your full point in one message. It saves messages and reads better.</li>
+                  <li>Take your time. Pauses are fine: hands-free waits for 4 seconds of silence.</li>
+                  <li>Keep going for at least {MIN_TURNS.Beginner} replies at Beginner, {MIN_TURNS.Intermediate} at Intermediate and {MIN_TURNS.Advanced} at Advanced, or you can't pass.</li>
                 </ul>
               </div>
-              <div className="row" style={{ gap: '.5rem', flexWrap: 'wrap' }}>
-                {need.map((l) => <span key={l} className={'pill level-pill' + (sum.levels.has(l) ? ' done' : '')}>{sum.levels.has(l) ? '✓ ' : ''}{l}</span>)}
+              <div className="donts">
+                <h5><Icon.close width="18" height="18" /> Don't</h5>
+                <ul className="small">
+                  <li>Insult or swear at the other side. They end the meeting and the role-play can't pass.</li>
+                  <li>Use strong swear words. One slip is forgiven; after that your score drops.</li>
+                  <li>Send test messages or random text. Each one uses a message and, if repeated, lowers your score.</li>
+                  <li>Drift off topic for long. A little small talk is fine; they will steer you back.</li>
+                  <li>Ask for the report after two lines. It still uses a message and can't pass.</li>
+                </ul>
               </div>
             </div>
-          )}
-          {LEVELS.map((level) => (
-            <div key={level} className="stack" style={{ gap: '.6rem' }}>
-              <h3 style={{ fontSize: '1.1rem' }}>{level}{sum.levels.has(level) ? ' · passed' : ''}</h3>
-              <div className="studio-grid">
-                {scenarios.filter((s) => s.level === level).map((s) => {
-                  const r = sum.byScenario[s.id]
-                  return (
-                    <button key={s.id} className="card studio-card" onClick={() => go('practice', { scenarioId: s.id })}>
-                      <img src={s.img} alt="" />
-                      <span className="studio-card-text">
-                        <span className="eyebrow">{s.level}{r?.passed ? ' · Passed' : ''}</span>
-                        <h4>{s.title}</h4>
-                        <span className="small muted">Play {s.you}. Opposite you: {s.counterpart.name} ({s.counterpart.role}).</span>
-                        {r && <span className="small tnum"><strong>{r.best ?? '–'}</strong> best · <strong>{r.latest ?? '–'}</strong> latest</span>}
-                      </span>
-                    </button>
-                  )
-                })}
+          </div>
+
+          {LEVELS.map((level, i) => {
+            const isOpen = open(level)
+            return (
+              <div key={level} className={'stack level-block' + (isOpen ? '' : ' locked')} style={{ gap: '.6rem' }}>
+                <h3 style={{ fontSize: '1.1rem' }}>
+                  Level {i + 1} · {level}
+                  <span className="level-tag">{sum.levels.has(level) ? <>✓ Cleared · {RANKS[level].title}</> : isOpen ? (level === nextLevel ? 'Your next level' : 'Open') : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
+                </h3>
+                <div className="studio-grid">
+                  {scenarios.filter((s) => s.level === level).map((s) => {
+                    const r = sum.byScenario[s.id]
+                    return (
+                      <button key={s.id} className="card studio-card" disabled={!isOpen} onClick={() => go('practice', { scenarioId: s.id })}>
+                        <span className="studio-img"><img src={s.img} alt="" />{!isOpen && <span className="studio-lock"><Icon.lock width="28" height="28" /></span>}</span>
+                        <span className="studio-card-text">
+                          <span className="eyebrow">{s.level}{r?.passed ? ' · Passed' : ''}</span>
+                          <h4>{s.title}</h4>
+                          <span className="small muted">Play {s.you}. Opposite you: {s.counterpart.name} ({s.counterpart.role}).</span>
+                          {r && <span className="small tnum"><strong>{r.best ?? '–'}</strong> best · <strong>{r.latest ?? '–'}</strong> latest</span>}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
