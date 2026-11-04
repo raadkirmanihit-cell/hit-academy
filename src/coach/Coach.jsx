@@ -9,6 +9,7 @@ import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
 import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
 import { practiceTurn, practiceScore } from './practiceApi.js'
+import { combineVoice, readings } from '../activities/speechMetrics.js'
 import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, MIN_TURNS, LEVELS, computeScore, practiceSummary } from './scoring.js'
 import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, CoachPaywall, PlanNote } from './plan.jsx'
 
@@ -25,14 +26,14 @@ function VoiceToggle({ voice }) {
     </button>
   )
 }
-function MicButton({ voice, onText, onFinal, disabled }) {
+function MicButton({ voice, onText, onFinal, disabled, measure = false }) {
   if (!voice.canListen) return (
     <button type="button" className="btn btn-sm mic-btn off" disabled={disabled} aria-label="How to speak instead of typing" onClick={() => voice.dictationTip()}><MicIcon /></button>
   )
   return (
     <button type="button" className={'btn btn-sm mic-btn' + (voice.listening ? ' listening' : '')} disabled={disabled}
       aria-label={voice.listening ? 'Stop listening' : 'Speak instead of typing'} aria-pressed={voice.listening}
-      onClick={() => voice.listen(onText, onFinal)}><MicIcon /></button>
+      onClick={() => voice.listen(onText, onFinal, undefined, { measure })}><MicIcon /></button>
   )
 }
 function PlayButton({ voice, text }) {
@@ -257,7 +258,7 @@ export function Spar({ scenarioId, compact }) {
   function listenNext() {
     if (!hf.current || endedRef.current || !voice.canListen) return
     setHint('')
-    voice.listen(setDraft, (t, d) => sendRef.current(t, d), () => setHint('I didn\'t catch that. Tap the microphone and speak again.'))
+    voice.listen(setDraft, (t, d) => sendRef.current(t, d), () => setHint('I didn\'t catch that. Tap the microphone and speak again.'), { measure: true })
   }
   function say(text) {
     if (voiceOn.current) voice.speak(text, listenNext)
@@ -284,7 +285,7 @@ export function Spar({ scenarioId, compact }) {
     sending.current = true
     setErr(''); setDraft(''); setHint('')
     const past = turns
-    const history = [...past, { role: 'user', content: msg }]
+    const history = [...past, { role: 'user', content: msg, ...(delivery ? { delivery } : {}) }]
     setTurns(history); setBusy(true); setLive('')
     ctl.current = new AbortController()
     try {
@@ -384,7 +385,7 @@ export function Spar({ scenarioId, compact }) {
             <form className="coach-input" onSubmit={(e) => { e.preventDefault(); send(draft) }}>
               <textarea rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={voice.listening ? 'Listening… speak now' : `Your reply to ${sc.counterpart.name}…`}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(draft) } }} aria-label="Your reply" disabled={busy} />
-              <MicButton voice={voice} disabled={busy} onText={setDraft} onFinal={(t, d) => { voice.setVoiceOn(true); voiceOn.current = true; send(t, d) }} />
+              <MicButton voice={voice} disabled={busy} measure onText={setDraft} onFinal={(t, d) => { voice.setVoiceOn(true); voiceOn.current = true; send(t, d) }} />
               {busy ? <button type="button" className="btn btn-sm" onClick={() => ctl.current?.abort()}>Stop</button>
                 : <button className="btn btn-primary btn-sm" disabled={!draft.trim()}>Send</button>}
             </form>
@@ -397,7 +398,7 @@ export function Spar({ scenarioId, compact }) {
             {learnerTurns < 2 && !report && <span className="small muted">Feedback unlocks after two of your replies.</span>}
             {learnerTurns >= 2 && learnerTurns < (MIN_TURNS[sc.level] || 0) && !report && !reporting && <span className="small muted">To pass, give at least {MIN_TURNS[sc.level]} replies before you end.</span>}
           </div>
-          {report && <Report r={report} sc={sc} score={score} />}
+          {report && <Report r={report} sc={sc} score={score} turns={turns} />}
         </>
       )}
     </div>
@@ -485,7 +486,28 @@ function SparLine({ t, sc, typing, voice }) {
 
 const HANDLED = { well: ['Handled well', 'var(--b-assertive)'], partly: ['Partly handled', 'var(--orange)'], missed: ['Missed', 'var(--b-aggressive)'] }
 
-function Report({ r, sc, score }) {
+// How the learner sounded across their spoken turns, measured in the browser (the same readings as
+// the modules' "Say it out loud" exercises). Shown only when at least one turn was spoken.
+function VoiceReport({ turns }) {
+  const v = combineVoice(turns.filter((t) => t.role === 'user').map((t) => t.delivery?.voice))
+  if (!v) return null
+  return (
+    <div className="stack" style={{ gap: '.5rem' }}>
+      <h5>How you sounded ({v.turns} spoken {v.turns === 1 ? 'reply' : 'replies'})</h5>
+      <div className="metric-grid">
+        {readings(v).map((x) => (
+          <div key={x.k} className={'metric ' + x.tone}>
+            <span className="small muted">{x.k}</span>
+            <strong>{x.v}</strong>
+            <span className="small">{x.t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Report({ r, sc, score, turns = [] }) {
   const list = (x) => (Array.isArray(x) ? x : [])
   const skills = new Map(list(r.skills).map((s) => [s?.id, s]))
   const hasSkills = skills.size > 0
@@ -520,6 +542,7 @@ function Report({ r, sc, score }) {
           })}
         </div>
       )}
+      <VoiceReport turns={turns} />
       {list(r.flags).length > 0 && <p className="small report-flags"><strong>Noted:</strong> {list(r.flags).join(' ')}</p>}
       {list(r.tactics).length > 0 && (
         <div className="stack" style={{ gap: '.5rem' }}>

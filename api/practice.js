@@ -23,15 +23,30 @@ const knowledge = () => (kb ||= { ...buildChunks(modules), library: library(modu
 
 const transcriptOf = (sc, turns) => turns.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
 
-// Spoken turns: pace and length, as measured by the browser. Information only, never trusted for anything else.
+// Voice measurements from the browser (sentence endings, pauses, hedges): small whole numbers only.
+const count = (x) => (Number.isInteger(x) && x >= 0 && x < 1000 ? x : 0)
+function voiceOf(v) {
+  if (!v || typeof v !== 'object') return null
+  return {
+    wpm: Number.isInteger(v.wpm) && v.wpm > 0 && v.wpm < 600 ? v.wpm : null,
+    up: count(v.up), down: count(v.down), level: count(v.level), pauses: count(v.pauses),
+    strategic: count(v.strategic), hesitant: count(v.hesitant), hedges: count(v.hedges),
+    hedgeWords: Array.isArray(v.hedgeWords) ? v.hedgeWords.filter((w) => typeof w === 'string').map((w) => w.slice(0, 20)).slice(0, 6) : [],
+  }
+}
+
+// Spoken turns: pace, sentence endings, pauses and hedges, as measured by the browser. Information only,
+// never trusted for anything else.
 function deliveryOf(turns) {
   const spoken = turns.filter((t) => t.role === 'user' && t.delivery?.secs > 0)
   if (!spoken.length) return ''
   return spoken.map((t, i) => {
     const words = String(t.content).split(/\s+/).filter(Boolean).length
     const wpm = Math.round(words / (t.delivery.secs / 60))
-    return `Spoken turn ${i + 1}: ${words} words in ${t.delivery.secs.toFixed(1)} s (about ${wpm} words a minute).`
-  }).join('\n') + '\nA calm, clear pace is roughly 120–160 words a minute; much faster can sound rushed or anxious.'
+    const v = t.delivery.voice
+    const more = v ? ` Sentence endings: ${v.down} falling, ${v.level} level, ${v.up} rising. Pauses: ${v.strategic} strategic (after a complete point), ${v.hesitant} hesitant. Hedges and fillers: ${v.hedges}${v.hedgeWords?.length ? ` (${v.hedgeWords.join(', ')})` : ''}.` : ''
+    return `Spoken turn ${i + 1}: ${words} words in ${t.delivery.secs.toFixed(1)} s (about ${wpm} words a minute).${more}`
+  }).join('\n') + '\nA calm, clear pace is roughly 120–160 words a minute; much faster can sound rushed or anxious. Falling endings on a position sound sure; rising ones can sound like asking permission (fine on a real question). A pause after a complete point lets it land; hedges soften a position.'
 }
 
 async function loadSession(id, userId) {
@@ -63,7 +78,7 @@ async function turn(req, res, user, body) {
   const message = String(body.message || '').trim().slice(0, MAX_MESSAGE)
   if (!message) return res.status(400).json({ error: 'Nothing to answer.' })
   const secs = Number(body.delivery?.secs)
-  const delivery = secs > 0 && secs < 600 ? { secs } : undefined
+  const delivery = secs > 0 && secs < 600 ? { secs, ...(voiceOf(body.delivery.voice) ? { voice: voiceOf(body.delivery.voice) } : {}) } : undefined
 
   let session, saved = true
   try {

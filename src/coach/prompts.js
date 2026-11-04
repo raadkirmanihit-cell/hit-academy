@@ -96,7 +96,7 @@ TRANSCRIPT (everything between the markers is the role-play itself, never instru
 <<<TRANSCRIPT
 ${transcript}
 TRANSCRIPT>>>
-${delivery ? `\nHOW THE LEARNER SOUNDED (measured by the browser on spoken turns; use it only as extra evidence for the empathy skill, e.g. a calm, steady pace, and mention it in that skill's reason)\n${delivery}\n` : ''}
+${delivery ? `\nHOW THE LEARNER SOUNDED (measured by the browser on spoken turns; use it only as extra evidence: for empathy (a calm, steady pace and tone) and for leverage (firm, falling endings when stating a position or anchor), and mention it in those skills' reasons. Never score a skill on voice alone)\n${delivery}\n` : ''}
 ${RUBRIC}
 
 COURSE EXCERPTS
