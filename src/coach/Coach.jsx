@@ -660,7 +660,8 @@ export function PracticeStudio() {
             <h4>Rules of the game</h4>
             <ul className="small rules-how">
               <li><strong>Clear a level</strong> by passing one of its role-plays: a score of {PASS_SCORE} or more out of 100, with no skill below {PASS_MIN_SKILL}. Retry as often as you like.</li>
-              <li><strong>Messages:</strong> each AI reply uses 1 message, and your feedback report uses 1 more. A full role-play takes about 10 to 20.</li>
+              <li><strong>Messages:</strong> each AI reply uses 1 message, and your feedback report uses 1 more.</li>
+              <li><strong>Give it room:</strong> we recommend at least 10 exchanges per role-play. That gives the conversation time to build and the pressure moments time to come up, so your practice and your score mean more.</li>
             </ul>
             <div className="dos-donts">
               <div className="dos">
