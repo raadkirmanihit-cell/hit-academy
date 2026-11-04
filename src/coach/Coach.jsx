@@ -449,7 +449,7 @@ function Spoken({ text }) {
     flush(); parts.push({ stage: m[0].slice(1, -1).trim() })
   }
   speech += text.slice(last); flush()
-  return parts.map((x, i) => x.stage ? <span key={i} className="stage">{x.stage}</span> : <div key={i}><Md text={x.say} /></div>)
+  return parts.map((x, i) => x.stage ? <span key={i} className="action">{x.stage}</span> : <div key={i}><Md text={x.say} /></div>)
 }
 
 // Creating the report takes a while and can't report its own progress, so this estimates it from the time
