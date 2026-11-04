@@ -160,7 +160,7 @@ export async function requireAdmin(req) {
 
 // ---- AI coach subscription -------------------------------------------------
 
-export const COACH_PRICE_CENTS = 2200 // €22 a month (used when STRIPE_COACH_PRICE_ID isn't set)
+export const COACH_PRICE_CENTS = 2100 // €21 a month (used when STRIPE_COACH_PRICE_ID isn't set)
 export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free messages for every account
 export const COACH_MONTHLY_LIMIT = Number(process.env.COACH_MONTHLY_LIMIT || 300) // fair use per month
 // past_due: Stripe is still retrying a failed renewal, so access stays on until it gives up.
