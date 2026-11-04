@@ -1,11 +1,11 @@
-// The student's AI coach plan: free messages left, included months, or the €19.99/month subscription.
+// The student's AI coach plan: free messages left, included months, or the €21/month subscription.
 // One shared copy for the whole page, so the coach panel, sparring and dashboard agree.
 import { useEffect, useState } from 'react'
 import { backend, isLive } from '../platform/backend.js'
 import { TermsLink } from '../ui/Terms.jsx'
 import { LEGAL } from '../content/terms.js'
 
-export const COACH_PRICE = '19.99' // € per month, shown on the page (Stripe holds the real price)
+export const COACH_PRICE = '21' // € per month, shown on the page (Stripe holds the real price)
 export const COACH_MONTHLY = 300 // messages a month (fair use), must match COACH_MONTHLY_LIMIT on the server
 
 let state = { loading: true, plan: null }

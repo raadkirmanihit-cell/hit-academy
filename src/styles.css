@@ -146,6 +146,9 @@ button { font: inherit; color: inherit; }
 .section { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .feature { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); padding: 1.25rem; display: grid; gap: .5rem; align-content: start; }
+.feature-cert { grid-column: 1 / -1; border-color: var(--orange); grid-template-columns: minmax(0, 1fr) minmax(0, 460px); gap: 2rem; align-items: center; }
+.cert-sample { width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 8px 24px rgba(11,26,68,.14); }
+@media (max-width: 720px) { .feature-cert { grid-template-columns: 1fr; } }
 .feature svg { width: 28px; height: 28px; color: var(--orange-ink); }
 .syllabus { display: grid; gap: .5rem; counter-reset: mod; }
 .syllabus li { list-style: none; display: grid; grid-template-columns: 3rem 1fr auto; gap: 1rem; align-items: center; padding: 1rem 1.1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); }
@@ -171,6 +174,17 @@ button { font: inherit; color: inherit; }
 }
 .field textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
 .field input:focus, .field textarea:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color: transparent; }
+.pass-wrap { position: relative; }
+.field .pass-wrap input { padding-right: 3rem; }
+.pass-wrap input::-ms-reveal { display: none; }
+.pass-eye {
+  position: absolute; top: 50%; right: .35rem; transform: translateY(-50%);
+  display: grid; place-items: center; width: 2.4rem; height: 2.4rem;
+  border: 0; border-radius: var(--r-s); background: transparent; color: var(--muted); cursor: pointer;
+}
+.pass-eye:hover { color: var(--navy); background: var(--surface-2); }
+.pass-eye:focus-visible { outline: 2px solid var(--orange); outline-offset: 0; color: var(--navy); }
+.pass-eye[aria-pressed="true"] { color: var(--orange-ink); }
 .error { color: var(--bad); font-size: .88rem; }
 .checkout-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1.5rem; width: 100%; max-width: 900px; }
 .order-line { display: flex; justify-content: space-between; gap: 1rem; padding-block: .6rem; border-bottom: 1px solid var(--line); }
@@ -1224,3 +1238,54 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .word-trail span.done { color: var(--ink-2); }
 .word-trail span.on { color: #1c0f00; background: var(--orange); border-radius: 4px; padding: 0 .15rem; }
 .contour-in { position: relative; }
+
+/* Trainer section on the landing page */
+.trainer { display: grid; grid-template-columns: 300px 1fr; gap: 2.5rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: clamp(1.25rem, 3vw, 2rem); }
+.trainer-photo { width: 100%; aspect-ratio: 4/5; object-fit: cover; object-position: 54% 30%; border-radius: var(--r-m); }
+.trainer h2 { margin: 0; }
+.trainer-role { margin: 0; font-weight: 600; color: var(--orange-ink); }
+.trainer .muted { max-width: 60ch; margin: 0; }
+@media (max-width: 720px) {
+  .trainer { grid-template-columns: 1fr; gap: 1.25rem; }
+  .trainer-photo { max-width: 260px; }
+}
+
+.hero-proof { display: inline-flex; align-items: center; gap: .5rem; align-self: flex-start; justify-self: start; width: fit-content; padding: .35rem .8rem; border-radius: 99px; background: rgba(255,255,255,.08); color: #fff; font-size: .92rem; font-weight: 600; text-decoration: none; }
+.hero-proof:hover { background: rgba(255,255,255,.14); }
+.hero-proof .stars { color: #fbbc04; letter-spacing: .08em; }
+.reviewer { display: flex; align-items: center; gap: .6rem; }
+.reviewer-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex: none; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 1rem; }
+.creds { list-style: none; margin: .5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.creds li { display: flex; align-items: center; gap: .7rem; padding: .75rem .9rem; border-radius: var(--r-m); background: var(--bg, #f4f5fa); border: 1px solid var(--line); }
+.cred-icon { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--navy, #0b1a44); color: var(--orange, #f7861b); box-shadow: inset 0 0 0 1px rgba(247,134,27,.35); }
+.creds li > span:last-child { display: grid; font-size: .9rem; color: var(--muted, #5d6888); line-height: 1.3; }
+.creds strong { color: var(--ink); font-size: 1rem; }
+@media (max-width: 900px) { .creds { grid-template-columns: 1fr; } }
+
+/* HIT Academy home: course catalogue */
+.hero-now { margin: 0; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; color: #fff; font-size: 1rem; }
+.course-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 1rem; align-items: stretch; }
+.course-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+.course-card > img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.course-card:not(.soon) { border-color: var(--orange); }
+.course-card.soon { border-style: dashed; border-color: var(--muted); }
+.soon-art { aspect-ratio: 16/9; display: grid; place-items: center; background: var(--navy); color: var(--orange); }
+.soon-art svg { width: 34px; height: 34px; opacity: .85; }
+@media (max-width: 980px) { .course-grid { grid-template-columns: 1fr 1fr; } .course-grid > :first-child { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .course-grid { grid-template-columns: 1fr; } .soon-art { aspect-ratio: 3/1; } }
+.hero-grid-video { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+.hero-video .promo-video { max-width: none; box-shadow: 0 0 0 1px rgba(255,255,255,.28), 0 0 34px 4px rgba(255,255,255,.16), 0 0 90px 18px rgba(201,208,230,.10), 0 24px 50px rgba(0,0,0,.45); }
+@media (max-width: 980px) { .hero-grid-video { grid-template-columns: 1fr; } }
+#courses, #course-details { scroll-margin-top: 80px; }
+@media (max-width: 640px) {
+  .topbar .nav-courses { padding: 0 .45rem; font-size: .85rem; }
+  .brand > span { min-width: 4.2rem; }
+  .brand-name { word-break: normal; }
+}
+@media (max-width: 420px) { .topbar-inner { gap: .4rem; } .topbar .btn-sm { padding: 0 .6rem; } }
+.hero-grid-video { padding-top: clamp(1.5rem, 3vw, 2.25rem); }
+/* Money-back guarantee badge in the hero */
+.guarantee { display: flex; align-items: center; gap: .85rem; align-self: flex-start; width: fit-content; max-width: 100%; padding: .75rem 1.1rem .75rem .8rem; border-radius: var(--r-m); background: rgba(247,134,27,.1); border: 1px solid rgba(247,134,27,.55); }
+.guarantee-icon { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--orange); color: var(--navy); }
+.guarantee > span:last-child { display: grid; gap: .1rem; color: #c9d0e6; font-size: .9rem; line-height: 1.35; }
+.guarantee strong { color: #fff; font-size: 1.02rem; }
