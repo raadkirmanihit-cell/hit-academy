@@ -1,6 +1,6 @@
 // Data for Raad's control board: students, progress, payments and messages. Admins only (ADMIN_EMAILS).
 import { requireUser, isAdmin, db, fail } from './_lib.js'
-import { moduleFromProduct } from '../src/content/pricing.js'
+import { moduleFromProduct, TOPUP_ID, TOPUP_MESSAGES } from '../src/content/pricing.js'
 
 // Short per-module summary from a student's saved progress.
 function moduleSummary(mods) {
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     ])
     for (const r of [profiles, purchases, progress]) if (r.error) throw r.error
     const people = new Map(profiles.data.map((p) => [p.id, p]))
-    const paid = new Map(purchases.data.filter((p) => p.status === 'paid').map((p) => [p.user_id, p]))
+    const paid = new Map(purchases.data.filter((p) => p.status === 'paid' && p.product_id !== TOPUP_ID).map((p) => [p.user_id, p]))
     const prog = new Map(progress.data.map((p) => [p.user_id, p]))
     // Practice studio scores need database update 6; until then the lists are empty.
     const tries = attempts.error ? [] : attempts.data
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     const payments = purchases.data.map((p) => ({
       id: p.id, sessionId: p.stripe_session_id, name: people.get(p.user_id)?.name || '', email: people.get(p.user_id)?.email || '',
       amount: p.amount, currency: p.currency, status: p.status, live: !!p.livemode, paidAt: p.created_at, refundedAt: p.refunded_at || null,
-      item: moduleFromProduct(p.product_id) ? `Module ${moduleFromProduct(p.product_id).slice(1)}` : 'Complete course',
+      item: p.product_id === TOPUP_ID ? `Practice messages (+${TOPUP_MESSAGES})` : moduleFromProduct(p.product_id) ? `Module ${moduleFromProduct(p.product_id).slice(1)}` : 'Complete course',
     }))
     // AI coach subscriptions need database update 4; until then these lists are empty.
     const who = (id) => ({ name: people.get(id)?.name || '', email: people.get(id)?.email || '' })

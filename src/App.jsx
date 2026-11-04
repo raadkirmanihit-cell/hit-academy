@@ -103,6 +103,22 @@ export default function App() {
       backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
       if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
+      // Back from buying extra practice messages: wait until the server has counted the new pack.
+      if (u && checkout === 'success' && item === 'practice') {
+        const had = Number(params.get('had') || 0)
+        let plan = null
+        for (let i = 0; i < 10 && !(plan?.topups > had); i++) {
+          plan = await backend.coachPlan().catch(() => null)
+          if (!(plan?.topups > had)) await new Promise((r) => setTimeout(r, 1500))
+        }
+        await enter(u)
+        await refreshCoachPlan()
+        go('practice', {}, { replace: true })
+        notify(plan?.topups > had ? 'Payment received. Your extra practice messages are ready.' : 'Payment received. Your messages appear in a minute: please reload this page shortly.', 6000)
+        off = backend.onRecovery(() => go('newpass')) || (() => {})
+        setBooted(true)
+        return
+      }
       if (u && checkout === 'success' && !unlocked(u, item)) {
         // Stripe confirms the payment to our server a few seconds after the redirect.
         for (let i = 0; i < 10 && !unlocked(u, item); i++) {

@@ -6,8 +6,10 @@
 //
 // Fill in the company details in LEGAL. Anything still in [square brackets] is a placeholder.
 
-export const TERMS_VERSION = '2026-11-01'
-export const TERMS_UPDATED = '29 October 2026'
+import { TOPUP_PRICE, TOPUP_MESSAGES } from './pricing.js'
+
+export const TERMS_VERSION = '2026-11-04'
+export const TERMS_UPDATED = '4 November 2026'
 
 export const LEGAL = {
   name: 'Human Interactions Translated',
@@ -52,7 +54,7 @@ export const TERMS = [
     body: [
       `The price is shown on the course page and at checkout, in euros. ${LEGAL.smallBusiness ? 'As a small business under § 19 of the German VAT Act (UStG), we do not charge VAT, so the price is the final price.' : 'It includes any VAT that applies.'} Payment is handled securely by our payment provider Stripe. We never see or store your card details.`,
       '**Free Module 1.** Module 1 and a small number of AI coach messages (currently 10) are free with every account. No payment details are needed for them.',
-      '**What you can buy.** You can buy the complete course (all seven modules, currently €196) or single modules 2 to 7 (currently €38 each). The complete course includes 150 AI role-play practice messages in the Practice studio (see section 10). If you already own single modules, you can upgrade to the complete course and pay only the difference: we credit €38 for each module you bought. The price that applies is the one shown at checkout.',
+      '**What you can buy.** You can buy the complete course (all seven modules, currently €196) or single modules 2 to 7 (currently €38 each). The complete course includes 150 AI role-play practice messages in the Practice studio, and you can buy extra practice messages (see section 10). If you already own single modules, you can upgrade to the complete course and pay only the difference: we credit €38 for each module you bought. The price that applies is the one shown at checkout.',
       '**Launch price.** For a limited time the complete course costs €126 instead of €196. The launch price applies to the first 100 students who buy the complete course, and ends earlier if we announce an end date on the course page. The checkout shows whether it still applies.',
       'Our online course page is an invitation for you to make an offer, not a binding offer. When you click the payment button, you make a binding offer to buy what you selected (the complete course or a single module). The contract is concluded when your payment is confirmed and we unlock your access. You receive a confirmation and an invoice by email.',
       'The contract language is English.',
@@ -139,7 +141,8 @@ export const TERMS = [
       'The AI coach answers questions and lets you practise conversations with AI counterparts. It is powered by an artificial-intelligence language model from a third-party provider (Anthropic).',
       '**Free taster.** Every account can try the AI coach with a small number of free messages (currently 10).',
       '**Included with the complete course.** When you buy the complete course, you get 150 AI role-play practice messages to use in the Practice studio, across any of its scenarios (each message you send, and each feedback report you ask for, counts as one). They do not expire. Nothing is charged and no subscription starts unless you choose to subscribe. If you have an active AI coach subscription, its monthly messages are used first and your practice messages are kept for later. If the complete course is refunded, unused practice messages end too. Students who bought the complete course before 1 November 2026 keep the AI coach months they were given.',
-      '**Subscription.** Apart from the free taster and the practice messages included with the complete course, the AI coach is available only with the AI coach subscription. The subscription is not part of the course price.',
+      `**Extra practice messages.** You can buy extra Practice studio messages at any time: ${TOPUP_MESSAGES} messages for **€${TOPUP_PRICE}**${LEGAL.smallBusiness ? ' (no VAT is charged under § 19 UStG)' : ''}, paid once through Stripe, with no subscription. They count in the same way, do not expire, and are added to any practice messages you already have. Because you can use them right away, you agree at checkout that they start immediately, and your legal right of withdrawal ends once you start using them. The 14-day money-back guarantee in section 5 applies to packs you have not started using. If a pack is refunded, its unused messages end.`,
+      '**Subscription.** Apart from the free taster and the practice messages included with the complete course or bought as extra packs, the AI coach is available only with the AI coach subscription. The subscription is not part of the course price.',
       `**Price and payment.** The AI coach subscription costs **€21 per month**${LEGAL.smallBusiness ? ' (no VAT is charged under § 19 UStG, so this is the final price)' : ', including any VAT that applies'}. It is paid in advance each month through Stripe, starting on the day you subscribe (or, for earlier buyers who still have included coach months, on the day those end). The contract is concluded when Stripe confirms your first payment and we switch on your subscription. You receive a confirmation and an invoice by email every month.`,
       '**Term and cancellation.** The subscription runs month by month and renews automatically until you cancel it. You can cancel at any time, with effect from the end of the month you have already paid for, using the **"Cancel subscription here"** button on your dashboard, or by email to us. You keep the AI coach until the end of that month and are not charged again. We may end the subscription with one month\'s notice by email. Our right to end it for good cause stays unaffected.',
       '**Fair use.** The subscription includes up to 300 AI coach messages per billing month, which you can use for coach chats and for Practice studio role-plays, and a daily limit, so that the service stays fast and affordable for everyone. Unused messages do not carry over. If a renewal payment fails, Stripe tries again for a short period; if it still fails, the subscription ends.',

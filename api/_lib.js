@@ -1,6 +1,6 @@
 // Shared helpers for the server functions in /api (files starting with _ are not routes).
 import { createClient } from '@supabase/supabase-js'
-import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS, BUNDLE_PRACTICE_MESSAGES, PAID_MODULES, moduleProductId } from '../src/content/pricing.js'
+import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS, BUNDLE_PRACTICE_MESSAGES, TOPUP_ID, TOPUP_MESSAGES, PAID_MODULES, moduleProductId } from '../src/content/pricing.js'
 
 export const PRODUCT_ID = BUNDLE_ID // the complete course (all 7 modules); single modules are hit-negotiation-m1…m7
 
@@ -197,13 +197,17 @@ export async function coachAccess(userId) {
   // Students who bought all seven modules one by one get the same pack, so everyone can earn the certificate.
   const { data: bought } = await db().from('purchases').select('product_id').eq('user_id', userId).eq('status', 'paid')
   const ids = new Set((bought || []).map((p) => p.product_id))
-  if (ids.has(BUNDLE_ID) || PAID_MODULES.every((m) => ids.has(moduleProductId(m)))) {
-    practiceLimit = BUNDLE_PRACTICE_MESSAGES
+  // Each extra pack bought adds TOPUP_MESSAGES more (refunded packs no longer count).
+  const topups = (bought || []).filter((p) => p.product_id === TOPUP_ID).length
+  if (ids.has(BUNDLE_ID) || PAID_MODULES.every((m) => ids.has(moduleProductId(m)))) practiceLimit = BUNDLE_PRACTICE_MESSAGES
+  practiceLimit += topups * TOPUP_MESSAGES
+  if (practiceLimit > 0) {
     const { data: pu, error: pe } = await db().rpc('practice_usage_total', { p_user: userId })
     practiceUsed = pe ? 0 : pu || 0 // before update 5 the counter is missing: count nothing
   }
   return {
     subscribed,
+    topups,
     practiceLimit,
     practiceUsed,
     practiceLeft: Math.max(0, practiceLimit - practiceUsed),
@@ -259,7 +263,7 @@ export async function chargeCoach(userId, { practice = false } = {}) {
   const access = await coachAccess(userId)
   const usedUp = () => access.subscribed
     ? { status: 429, body: { error: `You have used this month's ${access.limit} coach messages. ${access.periodEnd ? `They renew on ${new Date(access.periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.` : 'They renew with your next monthly payment.'}`, code: 'monthly_limit' } }
-    : { status: 402, body: { error: practice && access.practiceLimit ? `You have used the ${access.practiceLimit} practice messages that come with the course. Subscribe to the AI coach to keep practising.` : 'Your free coach messages are used up. Subscribe to keep coaching.', code: 'needs_subscription' } }
+    : { status: 402, body: { error: practice && access.practiceLimit ? `You have used the ${access.practiceLimit} practice messages that come with the course. Buy more practice messages or subscribe to the AI coach to keep practising.` : 'Your free coach messages are used up. Subscribe to keep coaching.', code: 'needs_subscription' } }
   let fromPack = false
   if (practice) {
     if (access.subscribed && access.left > 0) { /* monthly messages first */ }

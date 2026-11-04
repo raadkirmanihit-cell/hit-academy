@@ -11,7 +11,7 @@ import { useVoice } from './voice.js'
 import { practiceTurn, practiceScore } from './practiceApi.js'
 import { combineVoice, readings } from '../activities/speechMetrics.js'
 import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, MIN_TURNS, LEVELS, computeScore, practiceSummary } from './scoring.js'
-import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, CoachPaywall, PlanNote } from './plan.jsx'
+import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, CoachPaywall, PlanNote, PracticeCounter, TopUpCard } from './plan.jsx'
 
 const MicIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
 const SpeakerIcon = ({ off }) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" />{off ? <path d="M17 9l5 6M22 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}</svg>
@@ -363,7 +363,7 @@ export function Spar({ scenarioId, compact }) {
         </div>
       )}
       {history.length > 0 && <ScoreHistory attempts={history} />}
-      {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? <CoachPaywall compact={compact} practice /> : !turns ? (
+      {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? <div className="stack" style={{ gap: '1rem' }}>{isLive && <TopUpCard />}<CoachPaywall compact={compact} practice /></div> : !turns ? (
         <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={start}>Start the negotiation</button>
           <VoiceToggle voice={voice} />
@@ -580,19 +580,41 @@ export function PracticeStudio() {
   const active = view.scenarioId && scenarioById(view.scenarioId)
   const sum = practiceSummary(practice)
   const need = course.certificate.practiceLevels || []
+  const [buying, setBuying] = useState(false)
   return (
     <div className="wrap" style={{ paddingBottom: '4rem', maxWidth: 920 }}>
       <button className="btn btn-sm" onClick={() => (active ? go('practice') : go('dashboard'))} style={{ marginBottom: '1rem' }}>← {active ? 'All scenarios' : 'Dashboard'}</button>
       {active ? <Spar key={active.id} scenarioId={active.id} /> : (
         <div className="stack" style={{ gap: '1.2rem' }}>
-          <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
-          <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Practice studio</h1>
-          <p className="muted">Negotiate live with an AI counterpart who knows all seven modules and adapts to whatever you say, including ideas from your own experience. Type, speak, or go hands-free and talk it through like a phone call. Afterwards you get a score out of 100 on five skills and a feedback report that links back to the lessons.</p>
+          <div className="studio-head">
+            <div className="stack" style={{ gap: '.6rem' }}>
+              <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
+              <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Practice studio</h1>
+            </div>
+            <PracticeCounter onBuy={() => setBuying(true)} />
+          </div>
+          <p className="muted">Negotiate live with an AI counterpart who knows all seven modules and reacts to whatever you say, including ideas from your own experience.</p>
+          {buying && <TopUpCard onClose={() => setBuying(false)} />}
+          <div className="card practice-howto">
+            <h4>How it works</h4>
+            <ul className="small">
+              <li><strong>Pick a scenario</strong> below. Each one has a level: Beginner, Intermediate or Advanced.</li>
+              <li><strong>Type, speak or go hands-free.</strong> Hands-free works like a phone call: talk, pause, and the AI answers out loud.</li>
+              <li><strong>Each AI reply uses 1 message</strong>, and the feedback report at the end uses 1 more. A full role-play usually takes 10 to 20 messages.</li>
+              <li><strong>Stay with the conversation for a while.</strong> To pass you need at least {MIN_TURNS.Beginner} replies at Beginner, {MIN_TURNS.Intermediate} at Intermediate and {MIN_TURNS.Advanced} at Advanced.</li>
+              <li><strong>End the role-play to get your report:</strong> a score out of 100 on five skills, with your own words quoted as evidence and links back to the lessons.</li>
+              <li><strong>Speaking on a computer</strong> also gives you feedback on your pace, pauses and tone.</li>
+            </ul>
+          </div>
           {need.length > 0 && (
             <div className="card practice-goal">
               <div>
                 <h4>For your certificate</h4>
-                <p className="small muted">Pass one role-play at each level: a score of {PASS_SCORE} or more, with no skill below {PASS_MIN_SKILL}. You can try as often as you like.</p>
+                <ul className="small muted">
+                  <li>Pass one role-play at each level.</li>
+                  <li>A pass is a score of {PASS_SCORE} or more, with no skill below {PASS_MIN_SKILL}.</li>
+                  <li>You can try as often as you like. Your best result counts.</li>
+                </ul>
               </div>
               <div className="row" style={{ gap: '.5rem', flexWrap: 'wrap' }}>
                 {need.map((l) => <span key={l} className={'pill level-pill' + (sum.levels.has(l) ? ' done' : '')}>{sum.levels.has(l) ? '✓ ' : ''}{l}</span>)}
@@ -608,10 +630,12 @@ export function PracticeStudio() {
                   return (
                     <button key={s.id} className="card studio-card" onClick={() => go('practice', { scenarioId: s.id })}>
                       <img src={s.img} alt="" />
-                      <span className="eyebrow">{s.level}{r?.passed ? ' · Passed' : ''}</span>
-                      <h4>{s.title}</h4>
-                      <p className="small muted">Play {s.you}. Opposite you: {s.counterpart.name} ({s.counterpart.role}).</p>
-                      {r && <p className="small tnum"><strong>{r.best ?? '–'}</strong> best · <strong>{r.latest ?? '–'}</strong> latest</p>}
+                      <span className="studio-card-text">
+                        <span className="eyebrow">{s.level}{r?.passed ? ' · Passed' : ''}</span>
+                        <h4>{s.title}</h4>
+                        <span className="small muted">Play {s.you}. Opposite you: {s.counterpart.name} ({s.counterpart.role}).</span>
+                        {r && <span className="small tnum"><strong>{r.best ?? '–'}</strong> best · <strong>{r.latest ?? '–'}</strong> latest</span>}
+                      </span>
                     </button>
                   )
                 })}

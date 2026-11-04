@@ -1,9 +1,9 @@
 // GET: whether the launch price for the complete course is on (no sign-in needed).
 // POST: starts a Stripe Checkout payment for the signed-in student and returns the payment page URL.
 //   body.choice: 'bundle' (all 7 modules: €196, or €126 at launch, less €38 per module already bought)
-//   or a module id like 'm3' (€19). Module 1 is free.
+//   a module id like 'm3' (€38), or 'practice' (150 extra Practice studio messages, €12). Module 1 is free.
 import Stripe from 'stripe'
-import { env, requireUser, coursePurchases, readJson, siteUrl, fail, INVOICE_FOOTER, launchStatus } from './_lib.js'
+import { env, requireUser, coursePurchases, readJson, siteUrl, fail, INVOICE_FOOTER, launchStatus, coachAccess } from './_lib.js'
 import { quote } from '../src/content/pricing.js'
 
 export default async function handler(req, res) {
@@ -24,6 +24,9 @@ export default async function handler(req, res) {
     const base = siteUrl(req)
     // A fixed Stripe price can be used for the full package; upgrades and modules are priced here.
     const priceId = q.full ? process.env.STRIPE_PRICE_ID : null
+    const choice = body.choice || 'bundle'
+    // For a message top-up, the app waits on return until the pack count goes up from this number.
+    const had = choice === 'practice' ? (await coachAccess(user.id)).topups : 0
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [priceId
@@ -38,7 +41,7 @@ export default async function handler(req, res) {
       automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === 'true' },
       ...(process.env.STRIPE_AUTOMATIC_TAX === 'true' ? { billing_address_collection: 'required' } : {}),
       allow_promotion_codes: true,
-      success_url: `${base}/?checkout=success&item=${encodeURIComponent(body.choice || 'bundle')}`,
+      success_url: `${base}/?checkout=success&item=${encodeURIComponent(choice)}${choice === 'practice' ? `&had=${had}` : ''}`,
       cancel_url: `${base}/?checkout=cancel`,
     })
     res.status(200).json({ url: session.url })
