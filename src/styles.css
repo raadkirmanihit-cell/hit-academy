@@ -1316,3 +1316,8 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .practice-goal { padding: 1rem 1.2rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
 .practice-goal h4 { margin: 0 0 .2rem; }
 .hands-free-status { padding: .45rem .75rem; border-radius: var(--r-m); background: var(--info-soft); color: var(--ink-2); }
+
+.bubble .stage { display: block; font-style: italic; color: var(--muted); font-size: .9rem; }
+.report-progress { display: grid; gap: .4rem; padding: .8rem 1rem; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+.report-progress .bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.report-progress .bar i { display: block; height: 100%; background: var(--orange); border-radius: inherit; transition: width .5s linear; }

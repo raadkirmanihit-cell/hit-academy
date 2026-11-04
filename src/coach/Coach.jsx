@@ -375,6 +375,7 @@ export function Spar({ scenarioId, compact }) {
             {busy && <SparLine t={{ role: 'assistant', content: live }} sc={sc} typing={!live} />}
             <div ref={end} />
           </div>
+          {reporting && <ReportProgress />}
           {err && <p className="small coach-err" role="alert">{err}</p>}
           {voice.micNote && <p className="small muted">{voice.micNote}</p>}
           {handsFree && !ended && <p className="small hands-free-status" role="status">{voice.listening ? 'Listening… speak now. Your turn is sent after a 4-second pause, or tap the microphone to send it straight away.' : voice.speaking ? `${sc.counterpart.name} is speaking…` : busy ? `${sc.counterpart.name} is thinking…` : hint || 'Hands-free is on.'}</p>}
@@ -437,6 +438,36 @@ function ScoreHistory({ attempts }) {
   )
 }
 
+// The counterpart's reply: each *stage direction* on its own line, apart from what they say.
+function Spoken({ text }) {
+  const parts = []
+  let speech = '', last = 0
+  const flush = () => { if (speech.trim()) parts.push({ say: speech.trim() }); speech = '' }
+  for (const m of String(text).matchAll(/\*\*[^*]+\*\*|\*[^*\n]+\*/g)) {
+    speech += text.slice(last, m.index); last = m.index + m[0].length
+    if (m[0].startsWith('**')) { speech += m[0]; continue } // bold stays part of what they say
+    flush(); parts.push({ stage: m[0].slice(1, -1).trim() })
+  }
+  speech += text.slice(last); flush()
+  return parts.map((x, i) => x.stage ? <span key={i} className="stage">{x.stage}</span> : <div key={i}><Md text={x.say} /></div>)
+}
+
+// Creating the report takes a while and can't report its own progress, so this estimates it from the time
+// taken: it slows down as it gets closer, and never reaches 100% until the report is there.
+function ReportProgress() {
+  const [secs, setSecs] = useState(0)
+  useEffect(() => { const id = setInterval(() => setSecs((x) => x + 0.5), 500); return () => clearInterval(id) }, [])
+  const pct = Math.min(97, Math.round(100 * (1 - Math.exp(-secs / 25))))
+  const step = pct < 25 ? 'Reading your conversation' : pct < 55 ? 'Scoring the five skills with evidence' : pct < 85 ? 'Writing your feedback and next steps' : 'Almost done'
+  return (
+    <div className="report-progress" role="status" aria-live="polite">
+      <div className="row" style={{ justifyContent: 'space-between' }}><span className="small">{step}…</span><span className="small tnum">{pct}%</span></div>
+      <div className="bar" aria-hidden="true"><i style={{ width: pct + '%' }} /></div>
+      <span className="small muted">This usually takes 30 to 60 seconds. Please keep this page open.</span>
+    </div>
+  )
+}
+
 function SparLine({ t, sc, typing, voice }) {
   const me = t.role === 'user'
   return (
@@ -444,7 +475,7 @@ function SparLine({ t, sc, typing, voice }) {
       <span className="who" style={me ? { background: 'var(--orange)', color: '#1c0f00', fontSize: '.7rem' } : undefined}>{me ? 'YOU' : sc.counterpart.initials}</span>
       <div className="bubble">
         <span className="name">{me ? 'You' : `${sc.counterpart.name} · ${sc.counterpart.role}`}</span>
-        {typing ? <span className="muted coach-thinking">…</span> : <Md text={t.content} />}
+        {typing ? <span className="muted coach-thinking">…</span> : me ? <Md text={t.content} /> : <Spoken text={t.content} />}
         {!me && !typing && voice && <PlayButton voice={voice} text={t.content} />}
       </div>
     </div>
