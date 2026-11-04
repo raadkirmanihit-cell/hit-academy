@@ -171,9 +171,12 @@ async function score(req, res, user, body) {
   report.skills = SKILLS.map(({ id }) => {
     const s = given.get(id) || {}
     const n = Math.round(Number(s.score))
-    return { id, score: n >= 1 && n <= 5 ? n : null, evidence: String(s.evidence || '').slice(0, 400), reason: String(s.reason || '').slice(0, 400) }
+    const evidence = String(s.evidence || '').trim().slice(0, 400)
+    // No evidence, no score (the guide's evidence rule, enforced here too).
+    return { id, score: n >= 1 && n <= 5 && evidence ? n : null, evidence, reason: String(s.reason || '').slice(0, 400) }
   })
-  const result = computeScore(report.skills)
+  report.conduct = report.conduct === 'abusive' ? 'abusive' : 'ok'
+  const result = computeScore(report.skills, { turns: turns.filter((t) => t.role === 'user').length, level: sc.level, conduct: report.conduct })
   const attempt = {
     user_id: user.id, session_id: session.id, scenario_id: sc.id, level: sc.level,
     overall: result.overall, passed: result.passed, skills: report.skills, report,

@@ -9,7 +9,7 @@ import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
 import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
 import { practiceTurn, practiceScore } from './practiceApi.js'
-import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, LEVELS, computeScore, practiceSummary } from './scoring.js'
+import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, MIN_TURNS, LEVELS, computeScore, practiceSummary } from './scoring.js'
 import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, CoachPaywall, PlanNote } from './plan.jsx'
 
 const MicIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
@@ -324,7 +324,7 @@ export function Spar({ scenarioId, compact }) {
         const transcript = turns.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
         const excerpts = formatExcerpts(retrieve(kb, sc.query + ' ' + transcript, {}, 12))
         r = await sample.json(FEEDBACK_PROMPT(sc, transcript, excerpts, kb.library), { cache: false, purpose: 'practice' })
-        s = { ...computeScore(r?.skills), level: sc.level, saved: true, at: new Date().toISOString() }
+        s = { ...computeScore(r?.skills, { turns: turns.filter((t) => t.role === 'user').length, level: sc.level, conduct: r?.conduct }), level: sc.level, saved: true, at: new Date().toISOString() }
       }
       usedOnePractice()
       if (!r || typeof r !== 'object') { setErr('The feedback report could not be created. Please try again.'); return }
@@ -395,6 +395,7 @@ export function Spar({ scenarioId, compact }) {
             <VoiceToggle voice={voice} />
             {canHandsFree && !ended && <HandsFreeToggle on={handsFree} onClick={toggleHandsFree} />}
             {learnerTurns < 2 && !report && <span className="small muted">Feedback unlocks after two of your replies.</span>}
+            {learnerTurns >= 2 && learnerTurns < (MIN_TURNS[sc.level] || 0) && !report && !reporting && <span className="small muted">To pass, give at least {MIN_TURNS[sc.level]} replies before you end.</span>}
           </div>
           {report && <Report r={report} sc={sc} score={score} />}
         </>
@@ -496,7 +497,7 @@ function Report({ r, sc, score }) {
           <div className="score-num"><strong className="tnum">{score.overall}</strong><span>/100</span></div>
           <div>
             <h4>{score.label}{score.passed ? ' · Passed' : ' · Not passed yet'}</h4>
-            <p className="small muted">{score.passed ? `You passed this ${sc.level} scenario.` : `To pass: ${PASS_SCORE} or more, with no skill below ${PASS_MIN_SKILL}.`}{score.saved === false ? ' This score wasn\'t saved.' : ''}</p>
+            <p className="small muted">{score.passed ? `You passed this ${sc.level} scenario.` : score.blocked === 'conduct' ? 'This role-play can\'t pass because of the language used towards the other side. Keep it respectful, even under pressure.' : score.blocked === 'short' ? `This role-play was too short to pass: a ${sc.level} scenario needs at least ${score.minTurns} replies from you, so the pressure moments can come up.` : `To pass: ${PASS_SCORE} or more, with no skill below ${PASS_MIN_SKILL}.`}{score.saved === false ? ' This score wasn\'t saved.' : ''}</p>
           </div>
         </div>
       ) : hasSkills && <p className="small muted">This role-play was too short for an overall score: at least {MIN_SKILLS} of the 5 skills need to come up. Play it a little longer next time.</p>}
