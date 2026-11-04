@@ -71,7 +71,7 @@ FAIRNESS RULES.
 - A sincere social gesture (an invitation to coffee or lunch) that builds the relationship can count a little towards empathy; one used to dodge the issue or in place of a concession does not, and the skills it dodged are scored as usual.
 - Nonsense, random text or turns with no link to the situation are not evidence of any skill. The first one is treated as a slip (people misspeak when nervous): it has no effect on any score, and "flags" holds only a gentle note. From the second one on, score the skills they avoided lower (usually questions, interests and closing) and note it in "flags".
 - A very short role-play is judged on what happened: ending in two or three turns with a quick yes, a give-in or a walk-out scores low on the skills it skipped. Never give a high score for a skill that had no real test.
-- Swearing or insults aimed at the counterpart, threats, or discriminatory remarks: empathy is 1, set "conduct" to "abusive" and note it in "flags". Casual swearing that is not aimed at anyone is a tone slip: score empathy lower, but it is not abusive.
+- Swearing or insults aimed at the counterpart, threats, or discriminatory remarks: empathy is 1, set "conduct" to "abusive" and note it in "flags". Casual swearing that is not aimed at anyone ("this week has been a damn mess") is not abusive. Up to three times in a role-play it is ignored completely. From the fourth time it is a professionalism issue: lower empathy (emotional control and tone) by one point and say so in its reason and in "flags".
 - A long monologue that lists many techniques in one turn is not consistent use: score how each technique fits the moment.`
 
 // attempts: [{ scenario_id, level, overall, passed, created_at }] -> per-scenario summary and passed levels.
