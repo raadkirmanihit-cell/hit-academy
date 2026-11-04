@@ -661,7 +661,7 @@ export function PracticeStudio() {
             <ul className="small rules-how">
               <li><strong>Clear a level</strong> by passing one of its role-plays: a score of {PASS_SCORE} or more out of 100, with no skill below {PASS_MIN_SKILL}. Retry as often as you like.</li>
               <li><strong>Messages:</strong> each AI reply uses 1 message, and your feedback report uses 1 more.</li>
-              <li><strong>Give it room:</strong> we recommend at least 10 exchanges per role-play. That gives the conversation time to build and the pressure moments time to come up, so your practice and your score mean more.</li>
+              <li><strong>Aim for 10 exchanges or more.</strong> A real negotiation needs time to unfold: the other side opens up, pushes back and tests you. That's where the learning happens, and it gives your score a fair picture of your skills.</li>
             </ul>
             <div className="dos-donts">
               <div className="dos">
