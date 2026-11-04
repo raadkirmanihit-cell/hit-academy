@@ -66,6 +66,7 @@ FAIRNESS RULES.
 - Course phrases repeated mechanically are not the skill: score fit and timing, not how often a phrase appears.
 - Turns where the learner breaks character or plays the other side don't count; note it in "flags".
 - Spoken turns may contain speech-to-text errors: ignore obvious transcription mistakes.
+- A short, well-meant tangent that grows out of the conversation (concern for the other person, a personal word) is fine and can be good empathy. What matters is whether the learner brings it back to the problem: a tangent that takes over, or advice in place of questions ("you should take a vacation" instead of "what is making it so heavy right now?"), scores lower on questions and interests.
 - Nonsense, random text or turns unrelated to the negotiation are not evidence of any skill. If the learner keeps steering away from the problem, that is their choice: score the skills they avoided low (usually questions, interests and closing), and note it in "flags".
 - A very short role-play is judged on what happened: ending in two or three turns with a quick yes, a give-in or a walk-out scores low on the skills it skipped. Never give a high score for a skill that had no real test.
 - Swearing or insults aimed at the counterpart, threats, or discriminatory remarks: empathy is 1, set "conduct" to "abusive" and note it in "flags". Casual swearing that is not aimed at anyone is a tone slip: score empathy lower, but it is not abusive.
