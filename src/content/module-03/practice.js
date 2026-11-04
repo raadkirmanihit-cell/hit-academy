@@ -1,4 +1,4 @@
-// Extra practice for Module 3: quick checks, "your turn" scripts, a write-it exercise,
+// Extra practice for Module 3: quick checks, "your turn" scripts, say-it-out-loud and write-it practice,
 // the interactive planner and the confidence check. Illustrative scenarios written for the course.
 import { qc, scale, ta, tx, sel } from '../withPractice.js'
 
@@ -96,6 +96,22 @@ const yourTurnNo = {
   note: 'Her no was the start of the conversation, not the end. It told you exactly what the deal needed.',
 }
 
+const sayAskForNo = {
+  t: 'sayItAloud',
+  id: 'say-ask-no',
+  title: 'Say it out loud: invite a "no"',
+  situation: 'You want your manager to approve a two-day external course for you. She is busy and protective of the training budget. You catch her after a team meeting.',
+  task: 'Say your request out loud as a no-oriented question. Keep it relaxed and leave her a genuine choice. One or two sentences.',
+  criteria: [
+    'Frame the question so that "no" is the safe, easy answer.',
+    'Use disarming language ("Would it be ridiculous…?", "Is it out of the question…?").',
+    'Leave a genuine choice: no trap, no guilt.',
+    'Pause after the question and let her answer.',
+  ],
+  modelLine: 'Have I caught you at a bad time? … Would it be out of the question for me to take two days in May for the negotiation course I mentioned? I\'ve drafted how the team would be covered.',
+  modelNote: 'Notice the pause after the first question, and how covering her likely worry (the team) makes the no-question easy to answer honestly.',
+}
+
 const writeNoQuestions = {
   t: 'writeIt',
   id: 'wi-no-questions',
@@ -148,7 +164,7 @@ export const inserts = {
     { t: '"Don\'t you want your team to succeed?"', correct: true, fb: 'Right. It is phrased for a no, but nobody can say no without looking bad. People feel the pressure.' },
     { t: '"Is it out of the question to start in May?"', fb: 'A genuine choice, with disarming language that makes no feel safe.' },
   ])],
-  'l3-practice': [writeNoQuestions],
+  'l3-practice': [sayAskForNo, writeNoQuestions],
   'l3-handling': [
     qc('qc3-handling', 'You hear "no" to your proposal. What should you do first?', [
       { t: 'Explain your proposal again, more clearly.', fb: 'That is defending. You still don\'t know why they said no.' },
