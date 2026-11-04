@@ -289,7 +289,7 @@ export function Spar({ scenarioId, compact }) {
       let text
       if (isLive) {
         const r = await practiceTurn({ scenarioId: sc.id, sessionId: session.current, message: msg, delivery, turns: past, signal: ctl.current.signal, onText: (t) => setLive(t.replace('[END]', '')) })
-        if (r.saved) session.current = r.sessionId
+        session.current = r.sessionId // also when not saved: the server then scores what the browser sends
         text = r.text
       } else {
         // claude.ai preview: the conversation is built in the browser.
@@ -375,7 +375,7 @@ export function Spar({ scenarioId, compact }) {
           </div>
           {err && <p className="small coach-err" role="alert">{err}</p>}
           {voice.micNote && <p className="small muted">{voice.micNote}</p>}
-          {handsFree && !ended && <p className="small hands-free-status" role="status">{voice.listening ? 'Listening… speak now. Your turn is sent when you stop talking.' : voice.speaking ? `${sc.counterpart.name} is speaking…` : busy ? `${sc.counterpart.name} is thinking…` : hint || 'Hands-free is on.'}</p>}
+          {handsFree && !ended && <p className="small hands-free-status" role="status">{voice.listening ? 'Listening… speak now. Your turn is sent after a 4-second pause, or tap the microphone to send it straight away.' : voice.speaking ? `${sc.counterpart.name} is speaking…` : busy ? `${sc.counterpart.name} is thinking…` : hint || 'Hands-free is on.'}</p>}
           <PlanNote practice />
           {!ended && (
             <form className="coach-input" onSubmit={(e) => { e.preventDefault(); send(draft) }}>

@@ -126,7 +126,8 @@ async function turn(req, res, user, body) {
 // The feedback report and score for a finished role-play.
 async function score(req, res, user, body) {
   let session, saved = true
-  try { session = body.sessionId ? await loadSession(body.sessionId, user.id) : null } catch (e) {
+  // Without a saved id the lookup still runs, so a missing table (update 6 not run) leads to the fallback below.
+  try { session = await loadSession(String(body.sessionId || randomUUID()), user.id) } catch (e) {
     if (!missingTable(e)) return fail(res, e)
     // Database update 6 not run yet: score what the browser sends, but don't record it.
     saved = false

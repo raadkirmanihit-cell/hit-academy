@@ -29,6 +29,10 @@ const micAllowedByPage = () => {
   try { return document.featurePolicy?.allowsFeature ? document.featurePolicy.allowsFeature('microphone') : true } catch { return true }
 }
 
+// How long the learner can pause before their spoken turn is sent, and how long to wait for them to start.
+export const PAUSE_MS = 4000
+const NOTHING_MS = 12000
+
 export function useVoice({ alt = false } = {}) {
   const canSpeak = !!synth()
   const [canListen, setCanListen] = useState(() => !!Recognition() && micAllowedByPage())
@@ -58,17 +62,22 @@ export function useVoice({ alt = false } = {}) {
   }
   function stopSpeaking() { synth()?.cancel(); setSpeaking(false) }
 
-  // Listens once; streams the words into onText and calls onFinal with the full sentence and how long
+  // Listens for one turn; streams the words into onText and calls onFinal with the full text and how long
   // the learner spoke ({ secs }), measured from the first to the last word heard.
-  function listen(onText, onFinal, onNothing) {
+  // The turn ends after a silence of pauseMs (so a short, deliberate pause doesn't cut the learner off),
+  // or when the learner taps the microphone again.
+  function listen(onText, onFinal, onNothing, { pauseMs = PAUSE_MS } = {}) {
     const R = Recognition(); if (!R) return
     if (listening) { rec.current?.stop(); return }
     stopSpeaking()
     const r = new R()
-    r.lang = 'en-US'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1
-    let finalText = '', first = 0, last = 0
+    r.lang = 'en-US'; r.interimResults = true; r.continuous = true; r.maxAlternatives = 1
+    let finalText = '', first = 0, last = 0, timer = 0
+    const stopAfter = (ms) => { clearTimeout(timer); timer = setTimeout(() => { try { r.stop() } catch { /* already stopped */ } }, ms) }
+    stopAfter(NOTHING_MS) // give up if nothing is said at all
     r.onresult = (e) => {
       const now = performance.now(); if (!first) first = now; last = now
+      stopAfter(pauseMs)
       let interim = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) finalText += e.results[i][0].transcript
@@ -83,6 +92,7 @@ export function useVoice({ alt = false } = {}) {
       }
     }
     r.onend = () => {
+      clearTimeout(timer)
       setListening(false)
       // The first result arrives about half a second after speech starts.
       if (finalText.trim()) onFinal(finalText.trim(), { secs: first ? Math.max(0.5, (last - first) / 1000 + 0.5) : 0 })
