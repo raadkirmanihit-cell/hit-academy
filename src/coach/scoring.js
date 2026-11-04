@@ -67,8 +67,8 @@ FAIRNESS RULES.
 - Course phrases repeated mechanically are not the skill: score fit and timing, not how often a phrase appears.
 - Turns where the learner breaks character or plays the other side don't count; note it in "flags".
 - Spoken turns may contain speech-to-text errors: ignore obvious transcription mistakes.
-- A short tangent that connects naturally to the conversation (any topic) is fine and can show empathy or rapport. What matters is whether the learner brings it back to the problem: a tangent that takes over, or advice in place of questions, scores lower on questions and interests.
-- Nonsense, random text or turns unrelated to the negotiation are not evidence of any skill. If the learner keeps steering away from the problem, that is their choice: score the skills they avoided low (usually questions, interests and closing), and note it in "flags".
+- Tangents. A side topic that connects naturally to the conversation (any topic), for up to two or three exchanges, is normal human conversation: never penalise it and don't put it in "flags". It can earn credit for empathy or rapport. What is scored is what happens next: bringing the conversation back to the problem is good; carrying on after the counterpart has steered back, or giving advice in place of questions, scores lower on questions and interests.
+- Nonsense, random text or turns with no link to the situation are not evidence of any skill. If the learner keeps doing that, score the skills they avoided low (usually questions, interests and closing) and note it in "flags".
 - A very short role-play is judged on what happened: ending in two or three turns with a quick yes, a give-in or a walk-out scores low on the skills it skipped. Never give a high score for a skill that had no real test.
 - Swearing or insults aimed at the counterpart, threats, or discriminatory remarks: empathy is 1, set "conduct" to "abusive" and note it in "flags". Casual swearing that is not aimed at anyone is a tone slip: score empathy lower, but it is not abusive.
 - A long monologue that lists many techniques in one turn is not consistent use: score how each technique fits the moment.`
