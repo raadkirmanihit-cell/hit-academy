@@ -45,7 +45,7 @@ export function useVoice({ alt = false } = {}) {
   useEffect(() => {
     const s = synth(); if (!s) return
     s.getVoices() // some browsers load the voice list lazily
-    return () => { s.cancel(); rec.current?.abort?.() }
+    return () => { s.cancel(); const r = rec.current; rec.current = null; r?.abort?.() }
   }, [])
 
   // onEnd runs when the reply has been spoken (used by hands-free mode to open the microphone).
@@ -68,7 +68,7 @@ export function useVoice({ alt = false } = {}) {
   // or when the learner taps the microphone again.
   function listen(onText, onFinal, onNothing, { pauseMs = PAUSE_MS } = {}) {
     const R = Recognition(); if (!R) return
-    if (listening) { rec.current?.stop(); return }
+    if (listening || rec.current) { rec.current?.stop(); return } // a second tap ends the turn
     stopSpeaking()
     const r = new R()
     r.lang = 'en-US'; r.interimResults = true; r.continuous = true; r.maxAlternatives = 1
@@ -93,13 +93,15 @@ export function useVoice({ alt = false } = {}) {
     }
     r.onend = () => {
       clearTimeout(timer)
+      if (rec.current !== r) return // only one ending per turn
+      rec.current = null
       setListening(false)
       // The first result arrives about half a second after speech starts.
       if (finalText.trim()) onFinal(finalText.trim(), { secs: first ? Math.max(0.5, (last - first) / 1000 + 0.5) : 0 })
       else onNothing?.()
     }
     rec.current = r
-    try { r.start(); setListening(true); setMicNote('') } catch { setListening(false) }
+    try { r.start(); setListening(true); setMicNote('') } catch { rec.current = null; setListening(false) }
   }
 
   // Where the page can't use the microphone itself, the device's own dictation still works in the text box.

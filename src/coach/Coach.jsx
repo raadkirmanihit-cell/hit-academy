@@ -246,6 +246,7 @@ export function Spar({ scenarioId, compact }) {
   const voiceOn = useRef(false); voiceOn.current = voice.voiceOn
   const hf = useRef(false); hf.current = handsFree
   const sendRef = useRef(null)
+  const sending = useRef(false) // blocks a second send before the first has finished (state updates arrive too late)
   const endedRef = useRef(false); endedRef.current = ended
   useEffect(() => { if (turns) end.current?.scrollIntoView({ block: 'nearest' }) }, [turns, live])
   useEffect(() => () => ctl.current?.abort(), [])
@@ -279,7 +280,8 @@ export function Spar({ scenarioId, compact }) {
 
   async function send(msg, delivery) {
     msg = msg.trim()
-    if (!msg || busy || ended || !sample) return
+    if (!msg || busy || sending.current || ended || !sample) return
+    sending.current = true
     setErr(''); setDraft(''); setHint('')
     const past = turns
     const history = [...past, { role: 'user', content: msg }]
@@ -306,7 +308,7 @@ export function Spar({ scenarioId, compact }) {
     } catch (e) {
       noteError(e)
       if (e?.code !== 'cancelled') { setErr(errorText(e)); setTurns(past) }
-    } finally { setBusy(false); setLive('') }
+    } finally { sending.current = false; setBusy(false); setLive('') }
   }
   sendRef.current = send
 
