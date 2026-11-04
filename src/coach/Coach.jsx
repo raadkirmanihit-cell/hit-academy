@@ -340,6 +340,7 @@ export function Spar({ scenarioId, compact }) {
   }
 
   const learnerTurns = turns ? turns.filter((t) => t.role === 'user').length : 0
+  const [early, setEarly] = useState(false) // asking: end before the minimum replies?
   const canHandsFree = voice.canListen && voice.canSpeak
   return (
     <div className={'activity spar' + (compact ? ' compact' : '')}>
@@ -391,13 +392,21 @@ export function Spar({ scenarioId, compact }) {
                 : <button className="btn btn-primary btn-sm" disabled={!draft.trim()}>Send</button>}
             </form>
           )}
+          {early && !report && !reporting && (
+            <div className="early-end" role="alertdialog" aria-label="End the role-play early?">
+              <p className="small"><strong>You've given {learnerTurns} {learnerTurns === 1 ? 'reply' : 'replies'}.</strong> A {sc.level} role-play needs at least {MIN_TURNS[sc.level]} to pass, so this one can't clear the level. The report still uses 1 message.</p>
+              <div className="row" style={{ gap: '.5rem' }}>
+                <button className="btn btn-primary btn-sm" onClick={() => setEarly(false)}>Keep negotiating</button>
+                <button className="btn btn-sm" onClick={() => { setEarly(false); feedback() }}>End anyway</button>
+              </div>
+            </div>
+          )}
           <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
-            {!report && <button className="btn btn-dark" onClick={feedback} disabled={reporting || busy || learnerTurns < 2}>{reporting ? 'Writing your feedback and score…' : ended ? 'Get my feedback and score' : 'End and get feedback'}</button>}
+            {!report && <button className="btn btn-dark" onClick={() => (!ended && learnerTurns < (MIN_TURNS[sc.level] || 0) ? setEarly(true) : feedback())} disabled={reporting || busy || learnerTurns < 2}>{reporting ? 'Writing your feedback and score…' : ended ? 'Get my feedback and score' : 'End and get feedback'}</button>}
             <button className="btn" onClick={start} disabled={busy || reporting}>Start again</button>
             <VoiceToggle voice={voice} />
             {canHandsFree && !ended && <HandsFreeToggle on={handsFree} onClick={toggleHandsFree} />}
             {learnerTurns < 2 && !report && <span className="small muted">Feedback unlocks after two of your replies.</span>}
-            {learnerTurns >= 2 && learnerTurns < (MIN_TURNS[sc.level] || 0) && !report && !reporting && <span className="small muted">To pass, give at least {MIN_TURNS[sc.level]} replies before you end.</span>}
           </div>
           {report && <Report r={report} sc={sc} score={score} turns={turns} />}
         </>
@@ -659,32 +668,33 @@ export function PracticeStudio() {
           <div className="card practice-rules">
             <h4>Rules of the game</h4>
             <ul className="small rules-how">
-              <li><strong>Clear a level</strong> by passing one of its role-plays: a score of {PASS_SCORE} or more out of 100, with no skill below {PASS_MIN_SKILL}. Retry as often as you like.</li>
-              <li><strong>Messages:</strong> each AI reply uses 1 message, and your feedback report uses 1 more.</li>
-              <li><strong>Aim for 10 exchanges or more.</strong> A real negotiation needs time to unfold: the other side opens up, pushes back and tests you. That's where the learning happens, and it gives your score a fair picture of your skills.</li>
+              <li><strong>Clear a level</strong> by passing one of its role-plays: {PASS_SCORE} or more out of 100, with no skill below {PASS_MIN_SKILL}. Retry as often as you like.</li>
+              <li><strong>Aim for 10 exchanges or more.</strong> A real negotiation needs time to unfold: the other side opens up, pushes back and tests you.</li>
+              <li><strong>Messages:</strong> each AI reply uses 1, and your feedback report uses 1.</li>
             </ul>
-            <div className="dos-donts">
-              <div className="dos">
-                <h5><Icon.check /> Do</h5>
-                <ul className="small">
-                  <li>Treat it like a real meeting and stay in your role.</li>
-                  <li>Ask questions, listen, and use what the course teaches.</li>
-                  <li>Say your full point in one message. It saves messages and reads better.</li>
-                  <li>Take your time. Pauses are fine: hands-free waits for 4 seconds of silence.</li>
-                  <li>Keep going for at least {MIN_TURNS.Beginner} replies at Beginner, {MIN_TURNS.Intermediate} at Intermediate and {MIN_TURNS.Advanced} at Advanced, or you can't pass.</li>
-                </ul>
+            <details className="full-rules">
+              <summary>Full rules: do's and don'ts</summary>
+              <div className="dos-donts">
+                <div className="dos">
+                  <h5><Icon.check /> Do</h5>
+                  <ul className="small">
+                    <li>Treat it like a real meeting and stay in your role.</li>
+                    <li>Ask questions, listen, and use what the course teaches.</li>
+                    <li>Say your full point in one message.</li>
+                    <li>Take your time. Pauses are fine: hands-free waits for 4 seconds of silence.</li>
+                  </ul>
+                </div>
+                <div className="donts">
+                  <h5><Icon.close width="18" height="18" /> Don't</h5>
+                  <ul className="small">
+                    <li>Insult or swear at the other side: they end the meeting and it can't pass.</li>
+                    <li>Use strong swear words. One slip is forgiven; after that your score drops.</li>
+                    <li>Send test messages or random text: each uses a message and repeats lower your score.</li>
+                    <li>Drift off topic for long. A little small talk is fine.</li>
+                  </ul>
+                </div>
               </div>
-              <div className="donts">
-                <h5><Icon.close width="18" height="18" /> Don't</h5>
-                <ul className="small">
-                  <li>Insult or swear at the other side. They end the meeting and the role-play can't pass.</li>
-                  <li>Use strong swear words. One slip is forgiven; after that your score drops.</li>
-                  <li>Send test messages or random text. Each one uses a message and, if repeated, lowers your score.</li>
-                  <li>Drift off topic for long. A little small talk is fine; they will steer you back.</li>
-                  <li>Ask for the report after two lines. It still uses a message and can't pass.</li>
-                </ul>
-              </div>
-            </div>
+            </details>
           </div>
 
           {LEVELS.map((level, i) => {

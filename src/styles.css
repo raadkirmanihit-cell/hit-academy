@@ -1381,3 +1381,8 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .report-progress { display: grid; gap: .4rem; padding: .8rem 1rem; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
 .report-progress .bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
 .report-progress .bar i { display: block; height: 100%; background: var(--orange); border-radius: inherit; transition: width .5s linear; }
+
+.full-rules summary { cursor: pointer; font-weight: 600; font-size: .9rem; color: var(--orange-ink); }
+.full-rules[open] summary { margin-bottom: .8rem; }
+.early-end { display: grid; gap: .6rem; padding: .8rem 1rem; border-radius: 12px; border: 1px solid var(--orange); background: color-mix(in srgb, var(--orange) 8%, transparent); }
+.early-end p { margin: 0; }
