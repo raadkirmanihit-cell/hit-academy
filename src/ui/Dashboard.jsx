@@ -69,7 +69,10 @@ export default function Dashboard() {
         {buying && <TopUpCard onClose={() => setBuying(false)} />}
 
         <div className="stack">
-          <h3>Course modules</h3>
+          <div className="stack" style={{ gap: '.2rem' }}>
+            <span className="eyebrow">Course modules</span>
+            <h3>Conflict Resolution &amp; Negotiation</h3>
+          </div>
           {o.bundle && (
             <div className="card upgrade-card">
               <div>
