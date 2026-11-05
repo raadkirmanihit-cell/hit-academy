@@ -25,6 +25,12 @@ export const BUNDLE_PRACTICE_MESSAGES = 150 // Arena tokens included with the co
 export const TOPUP_ID = 'hit-practice-topup'
 export const TOPUP_PRICE = 12
 export const TOPUP_MESSAGES = 150
+// The Arena (AI role-plays with a score) is a paid product of its own: included with the complete
+// course, or bought separately for ARENA_PRICE. Either way it comes with ARENA_TOKENS tokens (valid 12 months).
+// Students who own all seven modules one by one also get it. Extra token packs are for Arena owners only.
+export const ARENA_ID = 'hit-arena'
+export const ARENA_PRICE = 38
+export const ARENA_TOKENS = 150
 export const BUNDLE_COACH_MONTHS = 3 // only for students who bought before 1 November 2026: the coach months they were given
 
 export const moduleProductId = (moduleId) => `hit-negotiation-${moduleId}`
@@ -34,6 +40,11 @@ export const COURSE_PRODUCT_IDS = [BUNDLE_ID, ...PAID_MODULES.map(moduleProductI
 
 const paidOf = (purchases) => (purchases || []).filter((p) => p.status === 'paid')
 export const hasBundle = (purchases) => paidOf(purchases).some((p) => p.productId === BUNDLE_ID)
+// Whether the student may use the Arena: complete course, the Arena on its own, or all seven modules one by one.
+export function hasArena(purchases) {
+  const ids = new Set(paidOf(purchases).map((p) => p.productId))
+  return ids.has(BUNDLE_ID) || ids.has(ARENA_ID) || PAID_MODULES.every((m) => ids.has(moduleProductId(m)))
+}
 
 // purchases: [{ productId, status }] -> which modules the student may open (Module 1 always).
 export function ownedModules(purchases) {
@@ -47,16 +58,19 @@ export function offers(purchases, { launch = false } = {}) {
   const owned = ownedModules(purchases)
   const remaining = PAID_MODULES.filter((m) => !owned.has(m))
   const bought = PAID_MODULES.filter((m) => owned.has(m)).length
+  const arena = hasArena(purchases)
+  // The Arena bought on its own counts towards the complete course, like a module.
+  const arenaCredit = !hasBundle(purchases) && paidOf(purchases).some((p) => p.productId === ARENA_ID) ? ARENA_PRICE : 0
   const c = (eur) => Math.round(eur * 100)
   const e = (cents) => cents / 100
   const full = launch ? LAUNCH_PRICE : BUNDLE_PRICE
-  const credit = c(bought * MODULE_PRICE)
+  const credit = c(bought * MODULE_PRICE + arenaCredit)
   const price = c(full) - credit
   const separately = remaining.length * c(MODULE_PRICE)
   const bundle = remaining.length && price > 0 && price < separately
     ? { price: e(price), full, regular: BUNDLE_PRICE, launch, credit: e(credit), separately: e(separately), saving: e(separately - price) }
     : null
-  return { bundle, modulePrice: MODULE_PRICE, owned, remaining, bought }
+  return { bundle, modulePrice: MODULE_PRICE, owned, remaining, bought, arena, arenaCredit }
 }
 
 // The server's price for a checkout request: 'bundle', a module id like 'm3', or 'practice' (message top-up).
@@ -69,11 +83,16 @@ export function quote(choice, purchases, opts) {
       productId: BUNDLE_ID,
       cents: Math.round(o.bundle.price * 100),
       name: o.bundle.credit
-        ? `Negotiation & Conflict Resolution: complete course (upgrade, €${o.bundle.credit} credit for modules you own)`
+        ? `Negotiation & Conflict Resolution: complete course (upgrade, €${o.bundle.credit} credit for what you own)`
         : 'Negotiation & Conflict Resolution: complete course, all 7 modules',
       full: !o.bundle.credit && !o.bundle.launch,
     }
   }
+  if (choice === 'arena') {
+    if (o.arena) return { error: 'You already have the Arena.' }
+    return { productId: ARENA_ID, cents: Math.round(ARENA_PRICE * 100), name: `The Arena: AI role-plays with ${ARENA_TOKENS} Arena tokens (valid 12 months)` }
+  }
+  if (choice === 'practice' && !o.arena) return { error: 'Unlock the Arena first: it comes with the complete course, or on its own.' }
   if (choice === 'practice') return { productId: TOPUP_ID, cents: Math.round(TOPUP_PRICE * 100), name: `The Arena: ${TOPUP_MESSAGES} Arena tokens (valid 12 months)` }
   if (FREE_MODULES.includes(choice)) return { error: 'This module is free: just open it.' }
   if (!PAID_MODULES.includes(choice)) return { error: 'Please choose a module or the complete course.' }

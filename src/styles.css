@@ -1595,3 +1595,7 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 @media (max-width: 640px) { .course-banner { grid-template-columns: 1fr; padding: 1.4rem 1.2rem; } .course-banner-ring { width: 96px; height: 96px; } .course-banner-ring > div { width: 74px; height: 74px; } }
 .course-banner-ring { background: conic-gradient(var(--orange) calc(var(--p) * 1%), rgba(255, 255, 255, .14) 0); }
 @media (max-width: 640px) { .course-banner-ring { display: none; } }
+.arena-unlock { padding: 1.4rem 1.5rem; display: grid; gap: .7rem; border-top: 4px solid var(--orange); }
+.arena-unlock h4 { margin: .2rem 0 0; }
+.arena-unlock ul { margin: 0; padding-left: 1.1rem; }
+.arena-unlock p { margin: 0; }

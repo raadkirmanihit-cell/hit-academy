@@ -6,7 +6,8 @@ import { useEffect, useState } from 'react'
 import { backend, isLive } from '../platform/backend.js'
 import { TermsLink } from '../ui/Terms.jsx'
 import { LEGAL } from '../content/terms.js'
-import { TOPUP_PRICE, TOPUP_MESSAGES } from '../content/pricing.js'
+import { TOPUP_PRICE, TOPUP_MESSAGES, ARENA_PRICE, ARENA_TOKENS, hasArena, offers } from '../content/pricing.js'
+import { useApp } from '../App.jsx'
 
 export const COACH_PRICE = '21' // € per month, shown on the page (Stripe holds the real price)
 export const COACH_MONTHLY = 300 // messages a month (fair use), must match COACH_MONTHLY_LIMIT on the server
@@ -178,10 +179,58 @@ export function CoachTile() {
   )
 }
 
+// Whether the student owns the Arena (complete course, the Arena on its own, or all seven modules).
+export function useArenaAccess() {
+  const { user } = useApp()
+  return hasArena(user?.purchases)
+}
+
+// Unlock the Arena: on its own for €38, or with the complete course.
+export function ArenaUnlockCard({ compact }) {
+  const { go, user, launch, purchase } = useApp()
+  const [consent, setConsent] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const o = offers(user?.purchases, { launch: launch?.launch })
+  return (
+    <div className={'card arena-unlock' + (compact ? ' compact' : '')}>
+      <div className="row" style={{ justifyContent: 'space-between', alignItems: 'start', gap: '1rem' }}>
+        <div>
+          <span className="eyebrow">Unlock the Arena</span>
+          <h4>Put your skills to the test with AI role-plays</h4>
+        </div>
+        <p className="coach-price"><strong className="tnum">€{ARENA_PRICE}</strong> <span className="muted">one payment</span></p>
+      </div>
+      <ul className="small">
+        <li>Live role-plays with AI counterparts at three levels, scored on five skills</li>
+        <li>{ARENA_TOKENS} Arena tokens included (about 9 full role-plays), valid for 12 months</li>
+        <li>Earn the three badges you need for your certificate</li>
+      </ul>
+      {o.bundle && <p className="small muted">Or get the complete course for {euro(o.bundle.price)}: all 7 modules with the Arena included. <button type="button" className="linklike" onClick={() => go('checkout', { choice: 'bundle' })}>See the complete course</button></p>}
+      {LEGAL.smallBusiness && <p className="small muted">No VAT is charged: small business under § 19 UStG.</p>}
+      <label className="waiver">
+        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+        <span>I want the Arena right away, before the 14-day withdrawal period ends. I understand that I lose my right of withdrawal once I start using it.</span>
+      </label>
+      <p className="small muted">Subject to our <TermsLink />, sections 5 and 10.</p>
+      {err && <p className="error" role="alert">{err}</p>}
+      <div className="row" style={{ gap: '.5rem' }}>
+        <button className="btn btn-primary" disabled={busy || !consent} onClick={async () => {
+          setBusy(true); setErr('')
+          try { await purchase('arena', { waiver: consent }); setBusy(false) } catch (x) { setErr(x.message); setBusy(false) }
+        }}>{busy ? 'Opening secure payment…' : `Unlock the Arena · €${ARENA_PRICE}`}</button>
+      </div>
+    </div>
+  )
+}
+
+const euro = (n) => `€${Number.isInteger(n) ? n : n.toFixed(2)}`
+
 // Dashboard tile: the Arena and its tokens.
 export function ArenaTile({ onOpen, onBuy }) {
   const { plan } = useCoachPlan()
-  const live = isLive && plan && !plan.preview && Number.isFinite(plan.arenaLeft)
+  const access = useArenaAccess()
+  const live = access && isLive && plan && !plan.preview && Number.isFinite(plan.arenaLeft)
   return (
     <div className="card premium-tile tile-arena">
       <div className="tile-top">
@@ -191,15 +240,18 @@ export function ArenaTile({ onOpen, onBuy }) {
       <h4>The Arena</h4>
       <p className="small muted">Put your skills to the test in live AI role-plays, get scored and earn your badges.</p>
       <div className="tile-meter">
-        {live ? <>
+        {!access ? <>
+          <strong>€{ARENA_PRICE} · or included in the complete course</strong>
+          <span className="small muted">Comes with {ARENA_TOKENS} Arena tokens, valid for 12 months.</span>
+        </> : live ? <>
           <strong>{plural(plan.arenaLeft, 'token')} left</strong>
           <Meter left={plan.arenaLeft} total={plan.arenaTokens} tone="good" />
           <span className="small muted">{plan.arenaLeft > 0 && plan.arenaExpires ? (plan.arenaExpiresLeft < plan.arenaLeft ? `${plan.arenaExpiresLeft} run out on ${day(plan.arenaExpires)}` : `Valid until ${day(plan.arenaExpires)}`) : `${TOPUP_MESSAGES} tokens for €${TOPUP_PRICE}, valid for 12 months.`}</span>
         </> : <span className="small muted">1 token = 1 AI reply. A full role-play with its report uses about 16.</span>}
       </div>
       <div className="tile-actions">
-        <button className="btn btn-primary btn-sm" onClick={onOpen}>Enter the Arena</button>
-        {isLive && <button className="btn btn-sm" onClick={onBuy}>Buy tokens</button>}
+        <button className="btn btn-primary btn-sm" onClick={onOpen}>{access ? 'Enter the Arena' : 'Look inside'}</button>
+        {access ? isLive && <button className="btn btn-sm" onClick={onBuy}>Buy tokens</button> : <button className="btn btn-sm" onClick={onOpen}>Unlock · €{ARENA_PRICE}</button>}
       </div>
     </div>
   )
@@ -214,8 +266,9 @@ export function practiceMessagesLeft(plan) {
 // Top right of the Arena: how many Arena tokens are left, and a button to buy more.
 export function PracticeCounter({ onBuy }) {
   const { plan } = useCoachPlan()
+  const access = useArenaAccess()
   const left = practiceMessagesLeft(plan)
-  if (!isLive || left == null) return null
+  if (!isLive || left == null || !access) return null
   return (
     <div className={'practice-counter' + (left <= 20 ? ' low' : '')} title={plan.arenaExpires ? arenaNote(plan) : undefined}>
       <span className="practice-counter-icon" aria-hidden="true">

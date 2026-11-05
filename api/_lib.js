@@ -1,6 +1,6 @@
 // Shared helpers for the server functions in /api (files starting with _ are not routes).
 import { createClient } from '@supabase/supabase-js'
-import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS, BUNDLE_PRACTICE_MESSAGES, TOPUP_ID, TOPUP_MESSAGES, PAID_MODULES, moduleProductId } from '../src/content/pricing.js'
+import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS, BUNDLE_PRACTICE_MESSAGES, TOPUP_ID, TOPUP_MESSAGES, PAID_MODULES, moduleProductId, ARENA_ID, ARENA_TOKENS } from '../src/content/pricing.js'
 
 export const PRODUCT_ID = BUNDLE_ID // the complete course (all 7 modules); single modules are hit-negotiation-m1…m7
 
@@ -45,14 +45,15 @@ export async function requireUser(req) {
 
 // The student's paid course purchases, as [{ productId, status }] (the shape pricing.js expects).
 export async function coursePurchases(userId) {
-  const { data, error } = await db().from('purchases').select('product_id, status').eq('user_id', userId).eq('status', 'paid').in('product_id', COURSE_PRODUCT_IDS)
+  // The Arena is included too: it counts towards the complete-course upgrade price.
+  const { data, error } = await db().from('purchases').select('product_id, status').eq('user_id', userId).eq('status', 'paid').in('product_id', [...COURSE_PRODUCT_IDS, ARENA_ID])
   if (error) throw error
   return (data || []).map((p) => ({ productId: p.product_id, status: p.status }))
 }
 
 // Bought the complete course or at least one module.
 export async function hasPaid(userId) {
-  return (await coursePurchases(userId)).length > 0
+  return (await coursePurchases(userId)).some((p) => p.productId !== ARENA_ID)
 }
 
 export function isAdmin(user) {
@@ -166,7 +167,7 @@ export async function requireAdmin(req) {
 
 export const COACH_PRICE_CENTS = 2100 // €21 a month (used when STRIPE_COACH_PRICE_ID isn't set)
 export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free coach messages for every account (coach only)
-export const ARENA_FREE_TOKENS = Number(process.env.ARENA_FREE_TOKENS || 10) // free Arena tokens for every account (Arena only)
+export const ARENA_FREE_TOKENS = Number(process.env.ARENA_FREE_TOKENS || 0) // free Arena tokens for every account (off: the Arena is paid)
 export const COACH_MONTHLY_LIMIT = Number(process.env.COACH_MONTHLY_LIMIT || 300) // fair use per month
 // past_due: Stripe is still retrying a failed renewal, so access stays on until it gives up.
 // included: the coach months that come with the complete course (no Stripe subscription).
@@ -238,6 +239,10 @@ export async function coachAccess(user) {
   const allSingles = singles.every(Boolean) ? singles.sort().at(-1) : null
   const coursePack = bundle || allSingles
   if (coursePack) batches.push({ kind: 'course', tokens: BUNDLE_PRACTICE_MESSAGES, at: coursePack })
+  // The Arena bought on its own (not again if the complete course already gave the tokens).
+  const arenaBuy = rows.filter((p) => p.product_id === ARENA_ID).map((p) => p.created_at).sort()[0]
+  if (arenaBuy && !coursePack) batches.push({ kind: 'arena', tokens: ARENA_TOKENS, at: arenaBuy })
+  const arenaAccess = !!(coursePack || arenaBuy)
   const topupRows = rows.filter((p) => p.product_id === TOPUP_ID)
   for (const p of topupRows) batches.push({ kind: 'pack', tokens: TOPUP_MESSAGES, at: p.created_at })
   const { data: usage, error: ue } = await db().from('practice_usage').select('day, count').eq('user_id', userId)
@@ -246,7 +251,8 @@ export async function coachAccess(user) {
   return {
     subscribed,
     topups: topupRows.length,
-    // Arena tokens
+    // Arena: access (bought or included) and tokens
+    arenaAccess,
     arenaTokens: arena.total,
     arenaUsed: arena.used,
     arenaLeft: arena.left,
@@ -306,6 +312,7 @@ export async function chargeCoach(user, { practice = false } = {}) {
   const access = await coachAccess(user)
   let count, error
   if (practice) {
+    if (!access.arenaAccess) return { status: 402, body: { error: 'The Arena comes with the complete course, or you can unlock it on its own.', code: 'needs_arena' } }
     if (access.arenaLeft <= 0) return { status: 402, body: { error: `You have no Arena tokens left. Buy ${TOPUP_MESSAGES} more to keep practising.`, code: 'needs_tokens' } }
     ;({ data: count, error } = await db().rpc('bump_practice_usage', { p_user: userId }))
   } else {

@@ -49,8 +49,8 @@ export default function Checkout({ choice }) {
                 <span className="buy-main">
                   <strong>Complete course: all 7 modules</strong>
                   <span className="small muted">
-                    {o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the module${o.bought > 1 ? 's' : ''} you bought. ` : ''}
-                    Save {euro(o.bundle.saving)} compared with buying the remaining modules one by one ({euro(o.bundle.separately)}). Includes {BUNDLE_PRACTICE_MESSAGES} Arena tokens for AI role-plays (valid for a year) and the certificate.
+                    {o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for what you already bought. ` : ''}
+                    Save {euro(o.bundle.saving)} compared with buying the remaining modules one by one ({euro(o.bundle.separately)}). Includes the Arena for AI role-plays ({BUNDLE_PRACTICE_MESSAGES} tokens, valid for a year) and the certificate.
                   </span>
                   {o.bundle.launch && <span className="small" style={{ color: 'var(--orange-ink)', fontWeight: 600 }}>Launch price: {euro(o.bundle.full)} instead of {euro(o.bundle.regular)}{launch.left ? ` for the first 100 students (${launch.left} places left)` : ''}{launch.until ? `, until ${new Date(launch.until).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}` : ''}.</span>}
                 </span>
