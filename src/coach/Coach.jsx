@@ -688,7 +688,7 @@ export function PracticeStudio() {
                   <h5><Icon.close width="18" height="18" /> Don't</h5>
                   <ul className="small">
                     <li>Insult or swear at the other side: they end the meeting and it can't pass.</li>
-                    <li>Use strong swear words. One slip is forgiven; after that your score drops.</li>
+                    <li>Use strong swear words casually. One slip is forgiven; after that your score drops.</li>
                     <li>Send test messages or random text: each uses a message and repeats lower your score.</li>
                   </ul>
                 </div>
