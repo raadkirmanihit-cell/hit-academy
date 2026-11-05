@@ -68,11 +68,14 @@ export default function Dashboard() {
         </div>
         {buying && <TopUpCard onClose={() => setBuying(false)} />}
 
+        {/* My courses: one block per course (banner, then its modules), so a second course simply adds another block. */}
+        <div className="dash-section-title">
+          <h2>My courses</h2>
+        </div>
+
         <div className="stack">
-          <div className="stack" style={{ gap: '.2rem' }}>
-            <span className="eyebrow">Course modules</span>
-            <h3>Conflict Resolution &amp; Negotiation</h3>
-          </div>
+          <CourseBanner course={course} stats={stats} owned={owned} />
+          <div className="modules-label"><span>Course modules</span></div>
           {o.bundle && (
             <div className="card upgrade-card">
               <div>
@@ -207,6 +210,31 @@ function ModulePitch({ mod, onUnlock }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// The course's own banner on the dashboard: name, tagline and progress.
+function CourseBanner({ course, stats, owned }) {
+  const name = course.displayName || course.title
+  const [first, ...rest] = name.split(' & ')
+  const total = course.modules.length
+  const unlocked = course.modules.filter((m) => owned.has(m.id)).length
+  return (
+    <div className="course-banner">
+      <div className="course-banner-text">
+        <span className="course-banner-eyebrow">Course · Self-paced · {total} modules</span>
+        <h2>{rest.length ? <>{first} <span className="amp">&amp;</span> {rest.join(' & ')}</> : name}</h2>
+        <p>{course.tagline}</p>
+        <div className="course-banner-stats">
+          <span><strong className="tnum">{stats.completeCount}</strong> of {total} modules complete</span>
+          <span><strong className="tnum">{unlocked}</strong> unlocked</span>
+          <span>Certificate of completion</span>
+        </div>
+      </div>
+      <div className="ring course-banner-ring" style={{ '--p': stats.pctAll }} aria-label={`${name}: ${stats.pctAll}% complete`}>
+        <div><span><strong className="tnum">{stats.pctAll}%</strong><br /><span className="small">done</span></span></div>
+      </div>
     </div>
   )
 }

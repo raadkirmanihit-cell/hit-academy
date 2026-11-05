@@ -3,6 +3,7 @@
 export const course = {
   id: 'hit-negotiation',
   title: 'Negotiation & Conflict Resolution',
+  displayName: 'Conflict Resolution & Negotiation', // the name shown on the student dashboard
   tagline: 'Master difficult conversations when the stakes are high',
   author: 'Raad Kirmani',
   org: 'Human Interactions Translated',
