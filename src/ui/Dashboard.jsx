@@ -95,6 +95,24 @@ export default function Dashboard() {
                 </div>
               )
             })}
+            {stats.practiceLevels.length > 0 && (() => {
+              const n = stats.practicePassed.length, total = stats.practiceLevels.length, done = n >= total
+              return (
+                <div className={'module-row practice-row' + (done ? ' done' : '')}>
+                  <span className="num">{done ? <Icon.check /> : <Icon.chat width="18" height="18" />}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <span className="practice-row-step">Final step before your certificate</span>
+                    <h4>Practice studio</h4>
+                    <p className="small muted">Put the course into action: pass one AI role-play at each level ({stats.practiceLevels.join(', ')}).</p>
+                    <div className="row small muted" style={{ marginTop: '.35rem' }}>
+                      <div className="bar" style={{ width: 140 }}><span style={{ width: Math.round((n / total) * 100) + '%' }} /></div>
+                      <span className="tnum">{n} of {total} levels</span>
+                    </div>
+                  </div>
+                  <button className={'btn btn-sm' + (done ? '' : ' btn-primary')} onClick={() => go('practice')}>{done ? 'Review' : n > 0 ? 'Continue' : 'Start'}</button>
+                </div>
+              )
+            })()}
           </div>
         </div>
 
