@@ -3,9 +3,11 @@
 // and post. Free accounts get { locked: true }. Posting also needs a display name and the community rules.
 // Raad (ADMIN_EMAILS) moderates: remove posts, pin and lock threads, block members, resolve reports.
 // Removals and blocks send the member a statement of reasons, as the EU Digital Services Act asks.
-import { requireUser, isAdmin, db, readJson, notifyOwner, sendEmail, siteUrl, hasPaid, coachAccess, fail } from './_lib.js'
+import { requireUser, isAdmin, db, readJson, notifyOwner, sendEmail, siteUrl, fail } from './_lib.js'
+import { COURSE_PRODUCT_IDS } from '../src/content/pricing.js'
 import { CATEGORIES, categoryOf, checkText, LIMITS, reportReason, removalReason, REPORT_REASONS, REMOVAL_REASONS } from '../src/content/forum.js'
 
+const COACH_ACTIVE = new Set(['active', 'trialing', 'past_due', 'included'])
 const bad = (msg, status = 400) => Object.assign(new Error(msg), { status })
 const notReady = (e) => /relation|schema cache|does not exist/i.test(e?.message || '')
 const uuid = (s) => /^[0-9a-f-]{36}$/i.test(String(s || ''))
@@ -20,10 +22,19 @@ function query(req) {
 // Who is asking, and what they may do.
 async function whoAmI(user) {
   const admin = isAdmin(user)
-  const prof = await db().from('forum_members').select('*').eq('user_id', user.id).maybeSingle()
+  // Three small lookups at once (one after the other made every click slow).
+  const [prof, bought, coach] = await Promise.all([
+    db().from('forum_members').select('*').eq('user_id', user.id).maybeSingle(),
+    db().from('purchases').select('product_id').eq('user_id', user.id).eq('status', 'paid').in('product_id', COURSE_PRODUCT_IDS).limit(1),
+    db().from('coach_subscriptions').select('status, current_period_end').eq('user_id', user.id).maybeSingle(),
+  ])
   if (prof.error) throw prof.error
   const p = prof.data
-  const member = admin || (await hasPaid(user.id)) || (await coachAccess(user.id).then((a) => a.subscribed, () => false))
+  // Same rule as coachAccess() in _lib.js: an active subscription, with 3 days' grace on paid renewals.
+  const c = coach.error ? null : coach.data
+  const grace = c?.status === 'included' ? 0 : 3 * 864e5
+  const subscribed = !!c && COACH_ACTIVE.has(c.status) && (!c.current_period_end || new Date(c.current_period_end) > Date.now() - grace)
+  const member = admin || (bought.data || []).length > 0 || subscribed
   const blocked = !!p?.blocked_at && !admin
   return {
     admin, member, blocked,
@@ -55,14 +66,11 @@ const authorOf = (map, id) => {
   return { name: a.name || 'Member', trainer: a.trainer }
 }
 
-async function listThreads(user, me, category) {
-  let q = db().from('forum_threads').select('*').is('removed_at', null).order('pinned', { ascending: false }).order('last_post_at', { ascending: false }).limit(200)
-  if (category && categoryOf(category)) q = q.eq('category', category)
-  const threads = must(await q)
+// All conversations in one go: the browser filters by category itself, so switching is instant.
+async function listThreads(user, me) {
+  const threads = must(await db().from('forum_threads').select('*').is('removed_at', null).order('pinned', { ascending: false }).order('last_post_at', { ascending: false }).limit(500))
   const who = await authors(threads.map((t) => t.user_id))
-  // Counts per category, for the sidebar.
-  const all = must(await db().from('forum_threads').select('category').is('removed_at', null).limit(5000))
-  const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, all.filter((t) => t.category === c.id).length]))
+  const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, threads.filter((t) => t.category === c.id).length]))
   return {
     me, counts,
     threads: threads.map((t) => ({
@@ -74,15 +82,18 @@ async function listThreads(user, me, category) {
 
 async function readThread(user, me, id) {
   if (!uuid(id)) throw bad('This conversation does not exist.', 404)
-  const t = must(await db().from('forum_threads').select('*').eq('id', id).maybeSingle())
+  const [tr, pr] = await Promise.all([
+    db().from('forum_threads').select('*').eq('id', id).maybeSingle(),
+    db().from('forum_posts').select('*').eq('thread_id', id).order('created_at').limit(1000),
+  ])
+  const t = must(tr), posts = must(pr)
   if (!t || (t.removed_at && !me.admin && t.user_id !== user.id)) throw bad('This conversation was removed or does not exist.', 404)
-  const posts = must(await db().from('forum_posts').select('*').eq('thread_id', id).order('created_at').limit(1000))
-  const who = await authors([t.user_id, ...posts.map((p) => p.user_id)])
-  let open = new Map()
-  if (me.admin && posts.length) {
-    const reps = must(await db().from('forum_reports').select('post_id').is('resolved_at', null).in('post_id', posts.map((p) => p.id)))
-    for (const r of reps) open.set(r.post_id, (open.get(r.post_id) || 0) + 1)
-  }
+  const [who, reps] = await Promise.all([
+    authors([t.user_id, ...posts.map((p) => p.user_id)]),
+    me.admin && posts.length ? db().from('forum_reports').select('post_id').is('resolved_at', null).in('post_id', posts.map((p) => p.id)).then(must) : [],
+  ])
+  const open = new Map()
+  for (const r of reps) open.set(r.post_id, (open.get(r.post_id) || 0) + 1)
   return {
     me,
     thread: { id: t.id, category: t.category, title: t.title, pinned: t.pinned, locked: t.locked, removed: !!t.removed_at, mine: t.user_id === user.id, createdAt: t.created_at },
@@ -362,6 +373,6 @@ export default async function handler(req, res) {
       return res.status(200).json(await adminView())
     }
     if (q.thread) return res.status(200).json(await readThread(user, me, q.thread))
-    res.status(200).json(await listThreads(user, me, q.category))
+    res.status(200).json(await listThreads(user, me))
   } catch (e) { fail(res, e) }
 }

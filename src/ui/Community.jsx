@@ -27,17 +27,20 @@ function Author({ name, trainer }) {
   )
 }
 
+// What was last loaded, so going back and forth shows the page at once and refreshes it quietly.
+const cache = new Map()
+let lastCategory = ''
+
 // The members' community: a list of conversations, or one conversation (threadId).
 export default function Community({ threadId }) {
   const { notify } = useApp()
-  const [category, setCategory] = useState('')
-  const [data, setData] = useState(null)
+  const key = threadId || 'list'
+  const [data, setData] = useState(() => cache.get(key) || null)
   const [err, setErr] = useState('')
   const load = useCallback(() => {
-    setErr('')
-    return backend.forum(threadId ? { thread: threadId } : { category }).then(setData, (e) => setErr(e.message))
-  }, [threadId, category])
-  useEffect(() => { setData(null); load() }, [load])
+    return backend.forum(threadId ? { thread: threadId } : {}).then((d) => { cache.set(key, d); setData(d); setErr('') }, (e) => setErr(e.message))
+  }, [threadId, key])
+  useEffect(() => { load() }, [load])
 
   async function act(action, payload, done) {
     try {
@@ -47,11 +50,11 @@ export default function Community({ threadId }) {
     } catch (e) { notify(e.message, 6000); throw e }
   }
 
-  if (err) return <div className="wrap cm-page"><Head /><div className="notice">{err}</div></div>
+  if (err && !data?.posts && !data?.threads) return <div className="wrap cm-page"><Head /><div className="notice">{err}</div></div>
   if (!data) return <div className="boot"><span className="boot-dot" /></div>
   if (data.locked) return <Locked />
-  if (threadId) return <ThreadView data={data} act={act} reload={load} />
-  return <ThreadList data={data} category={category} setCategory={setCategory} act={act} reload={load} />
+  if (threadId) return <ThreadView data={data} act={act} reload={load} setData={setData} />
+  return <ThreadList data={data} act={act} reload={load} />
 }
 
 function Head({ children }) {
@@ -124,9 +127,17 @@ function Blocked({ me }) {
   return <div className="notice">You can read the community, but you can no longer post.{me.blockedReason ? ` Reason: ${me.blockedReason}.` : ''} If you think this is a mistake, use "Message Raad" in your account menu.</div>
 }
 
-function ThreadList({ data, category, setCategory, act, reload }) {
+function ThreadList({ data, act, reload }) {
   const { go } = useApp()
-  const { me, threads, counts } = data
+  const [category, setCat] = useState(lastCategory)
+  const setCategory = (c) => { lastCategory = c; setCat(c) }
+  const { me, counts } = data
+  const threads = category ? data.threads.filter((t) => t.category === category) : data.threads
+  // Opening a conversation shows its title straight away while the posts load.
+  const open = (t) => {
+    if (!cache.has(t.id)) cache.set(t.id, { me, thread: { id: t.id, category: t.category, title: t.title, pinned: t.pinned, locked: t.locked, mine: t.mine }, posts: null })
+    go('community', { threadId: t.id })
+  }
   const [composing, setComposing] = useState(false)
   const total = Object.values(counts || {}).reduce((a, b) => a + b, 0)
   const cat = categoryOf(category)
@@ -162,7 +173,7 @@ function ThreadList({ data, category, setCategory, act, reload }) {
             </div>
           )}
           {threads.map((t) => (
-            <button key={t.id} className="card cm-thread" onClick={() => go('community', { threadId: t.id })}>
+            <button key={t.id} className="card cm-thread" onClick={() => open(t)}>
               <div className="cm-thread-main">
                 <div className="row" style={{ gap: '.4rem' }}>
                   {t.pinned && <span className="pill orange"><Pin /> Pinned</span>}
@@ -214,9 +225,11 @@ function NewThread({ categories, initial, act, onCancel, onDone }) {
   )
 }
 
-function ThreadView({ data, act, reload }) {
+function ThreadView({ data, act, reload, setData }) {
   const { go } = useApp()
-  const { me, thread, posts } = data
+  const { me, thread } = data
+  const posts = data.posts || []
+  const loading = !data.posts
   const [reply, setReply] = useState('')
   const [busy, setBusy] = useState(false)
   const [setup, setSetup] = useState(false)
@@ -243,8 +256,10 @@ function ThreadView({ data, act, reload }) {
       </div>
 
       <div className="stack" style={{ gap: '.75rem' }}>
+        {loading && <div className="card cm-post cm-loading" aria-busy="true"><span /><span /><span /></div>}
         {posts.map((p) => <Post key={p.id} post={p} me={me} thread={thread} act={act} reload={reload} />)}
       </div>
+      {!loading && <>
 
       <h3 style={{ marginTop: '.5rem' }}>{replies.length ? `${replies.filter((r) => r.status === 'ok').length} ${replies.length === 1 ? 'reply' : 'replies'}` : 'No replies yet'}</h3>
       {me.blocked ? <Blocked me={me} />
@@ -255,13 +270,19 @@ function ThreadView({ data, act, reload }) {
         : (
           <form className="card cm-setup stack" onSubmit={async (e) => {
             e.preventDefault(); setBusy(true)
-            try { await act('reply', { threadId: thread.id, body: reply }); setReply(''); await reload() } catch { /* shown */ } finally { setBusy(false) }
+            try {
+              await act('reply', { threadId: thread.id, body: reply })
+              // Show the reply at once; the quiet refresh then brings in anything new from others.
+              setData((d) => ({ ...d, posts: [...(d.posts || []), { id: 'new-' + Date.now(), first: false, name: me.name, trainer: me.admin, mine: true, status: 'ok', body: reply.trim(), createdAt: new Date().toISOString() }] }))
+              setReply(''); reload()
+            } catch { /* shown */ } finally { setBusy(false) }
           }}>
             <div className="field"><label htmlFor="cm-reply">Your reply</label>
               <textarea id="cm-reply" value={reply} rows={4} maxLength={LIMITS.body[1]} onChange={(e) => setReply(e.target.value)} placeholder={`Reply as ${me.name}`} /></div>
             <div><button className="btn btn-primary" disabled={busy || reply.trim().length < LIMITS.body[0]}>{busy ? 'Posting…' : 'Post reply'}</button></div>
           </form>
         )}
+      </>}
     </div>
   )
 }
@@ -335,7 +356,7 @@ function Post({ post, me, thread, act, reload }) {
         </form>
       )}
 
-      {!mode && post.status === 'ok' && (
+      {!mode && post.status === 'ok' && !String(post.id).startsWith('new-') && (
         <footer className="row cm-actions">
           {post.mine && <button className="btn btn-ghost btn-sm" onClick={() => { setText(post.body); setMode('edit') }}>Edit</button>}
           {post.mine && <button className="btn btn-ghost btn-sm" onClick={() => {

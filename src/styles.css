@@ -1498,3 +1498,9 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
   .cm-thread-meta { display: flex; gap: 1rem; text-align: left; }
   .cm-locked { padding: 1.6rem 1.2rem; }
 }
+.cm-loading { gap: .6rem; }
+.cm-loading span { display: block; height: .8rem; border-radius: 99px; background: var(--surface-2); animation: cm-pulse 1.2s ease-in-out infinite; }
+.cm-loading span:nth-child(1) { width: 30%; }
+.cm-loading span:nth-child(3) { width: 70%; }
+@keyframes cm-pulse { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .cm-loading span { animation: none; } }
