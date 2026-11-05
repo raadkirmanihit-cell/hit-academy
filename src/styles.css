@@ -1403,3 +1403,9 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .full-rules[open] summary { margin-bottom: .8rem; }
 .early-end { display: grid; gap: .6rem; padding: .8rem 1rem; border-radius: 12px; border: 1px solid var(--orange); background: color-mix(in srgb, var(--orange) 8%, transparent); }
 .early-end p { margin: 0; }
+
+.level-badge { position: relative; display: inline-grid; place-items: center; flex: none; }
+.level-badge:not(.earned) svg { opacity: .85; }
+.level-badge-tick { position: absolute; right: -4px; bottom: -2px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--good); color: #fff; border: 2px solid var(--surface); }
+.earned-tag { color: var(--good); font-weight: 600; }
+.quest-step.done .quest-dot { background: var(--good); border-color: var(--good); }

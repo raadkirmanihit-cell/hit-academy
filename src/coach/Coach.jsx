@@ -517,16 +517,35 @@ function VoiceReport({ turns }) {
   )
 }
 
-// Shown in the report when a role-play passes: the rank earned and what it unlocks.
+// A unique badge for each level: shield in the level's colour with its own emblem.
+// Earned badges are in full colour with a green tick; the others are greyed out.
+const BADGE_COLORS = ['#5b8def', '#2f5bd3', '#16275e']
+function LevelBadge({ level, earned, size = 44 }) {
+  const i = LEVELS.indexOf(level)
+  const fill = earned ? BADGE_COLORS[i] : '#a9b1c7'
+  return (
+    <span className={'level-badge' + (earned ? ' earned' : '')} style={{ width: size, height: size }}>
+      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true">
+        <path d="M24 3 L42 9 V23 C42 34 34 41 24 45 C14 41 6 34 6 23 V9 Z" fill={fill} stroke="#f7861b" strokeWidth={earned ? 2 : 0} />
+        {i === 0 && <path d="M15 15h18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-9l-5 4v-4h-4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z" fill="#fff" />}
+        {i === 1 && <g fill="none" stroke="#fff" strokeWidth="2.4"><circle cx="24" cy="23" r="9" /><circle cx="24" cy="23" r="4.5" /><circle cx="24" cy="23" r="1" fill="#fff" /></g>}
+        {i === 2 && <polygon points="24.0,13.5 26.6,19.9 33.5,20.4 28.2,24.9 29.9,31.6 24.0,27.9 18.1,31.6 19.8,24.9 14.5,20.4 21.4,19.9" fill="#f7861b" />}
+      </svg>
+      {earned && <span className="level-badge-tick"><Icon.check width="12" height="12" /></span>}
+    </span>
+  )
+}
+
+// Shown in the report when a role-play passes: the badge earned and what it unlocks.
 function LevelUp({ level }) {
   const next = LEVELS[LEVELS.indexOf(level) + 1]
   return (
     <div className="level-up">
-      <span className="level-up-badge" aria-hidden="true"><Icon.award width="40" height="40" /></span>
+      <LevelBadge level={level} earned size={52} />
       <div>
-        <span className="eyebrow">{level} level cleared</span>
-        <h4>You are now a {RANKS[level].title}</h4>
-        <p className="small">{next ? `The ${next} level is now unlocked.` : 'You have cleared every level: the practice part of your certificate is done.'}</p>
+        <span className="eyebrow">{level} badge earned</span>
+        <h4>You earned the {RANKS[level].title} badge</h4>
+        <p className="small">{next ? `The ${next} level is now unlocked.` : 'You have earned every badge: the practice part of your certificate is done.'}</p>
       </div>
     </div>
   )
@@ -636,14 +655,14 @@ export function PracticeStudio() {
             </div>
             <PracticeCounter onBuy={() => setBuying(true)} />
           </div>
-          <p className="muted">Negotiate live with AI counterparts who react to whatever you say. Clear three levels to earn your ranks{needCert ? ' and unlock your certificate' : ''}.</p>
+          <p className="muted">Negotiate live with AI counterparts who react to whatever you say. Clear three levels to earn your badges{needCert ? ' and unlock your certificate' : ''}.</p>
           {buying && <TopUpCard onClose={() => setBuying(false)} />}
 
           <div className="quest">
             <div className="quest-rank">
-              <span className="eyebrow">Your rank</span>
-              <strong>{rank ? RANKS[rank].title : 'Newcomer'}</strong>
-              <span className="small">{rank ? RANKS[rank].line : 'Clear the Beginner level to earn your first rank.'}</span>
+              <span className="eyebrow">Your latest badge</span>
+              <strong>{rank ? RANKS[rank].title : 'No badge yet'}</strong>
+              <span className="small">{rank ? RANKS[rank].line : 'Clear the Beginner level to earn your first badge.'}</span>
             </div>
             <ol className="quest-path">
               {LEVELS.map((l, i) => {
@@ -651,8 +670,8 @@ export function PracticeStudio() {
                 const state = done ? 'done' : levelOpen(l, sum.levels) ? 'open' : 'locked'
                 return (
                   <li key={l} className={'quest-step ' + state}>
-                    <span className="quest-dot" aria-hidden="true">{done ? <Icon.check /> : state === 'locked' ? <Icon.lock /> : i + 1}</span>
-                    <span className="quest-label"><strong>{l}</strong><span className="small">{RANKS[l].title}</span><span className="small quest-state">{done ? 'Cleared' : state === 'open' ? 'Play now' : 'Locked'}</span></span>
+                    <LevelBadge level={l} earned={done} size={42} />
+                    <span className="quest-label"><strong>{l}</strong><span className="small">{RANKS[l].title}</span><span className="small quest-state">{done ? 'Earned' : state === 'open' ? 'Play now' : 'Locked'}</span></span>
                   </li>
                 )
               })}
@@ -704,12 +723,12 @@ export function PracticeStudio() {
             return (
               <section key={level} className={'level-band band-' + (i + 1) + (unlocked ? '' : ' locked')}>
                 <div className="level-band-head">
-                  <span className="level-band-num" aria-hidden="true">{cleared ? <Icon.check /> : unlocked ? i + 1 : <Icon.lock width="16" height="16" />}</span>
+                  <LevelBadge level={level} earned={cleared} />
                   <div>
                     <h3>Level {i + 1} · {level}</h3>
-                    <span className="level-band-rank">Rank: {RANKS[level].title}</span>
+                    <span className="level-band-rank">Badge: {RANKS[level].title}</span>
                   </div>
-                  <span className="level-tag">{cleared ? '✓ Cleared' : unlocked ? (level === nextLevel ? 'Your next level' : 'Open') : admin ? <><Icon.lock width="14" height="14" /> Locked for students · you can test it</> : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
+                  <span className="level-tag">{cleared ? <span className="earned-tag">✓ Badge earned</span> : unlocked ? (level === nextLevel ? 'Your next level' : 'Open') : admin ? <><Icon.lock width="14" height="14" /> Locked for students · you can test it</> : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
                 </div>
                 <div className="studio-grid">
                   {scenarios.filter((s) => s.level === level).map((s) => {
