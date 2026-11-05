@@ -1387,7 +1387,7 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .guarantee > span:last-child { display: grid; gap: .1rem; color: #c9d0e6; font-size: .9rem; line-height: 1.35; }
 .guarantee strong { color: #fff; font-size: 1.02rem; }
 
-/* Practice studio scores */
+/* Negotiation Arena scores */
 .score-head { display: flex; gap: 1rem; align-items: center; padding: .8rem 1rem; border-radius: var(--r-m); background: var(--surface-2); }
 .score-head.pass { background: var(--good-soft); }
 .score-head h4 { margin: 0; }

@@ -619,7 +619,7 @@ function Report({ r, sc, score, turns = [] }) {
   )
 }
 
-// ---- Practice studio (dashboard page) --------------------------------------
+// ---- Negotiation Arena (dashboard page) --------------------------------------
 
 export function PracticeStudio() {
   const { go, view, practice, course, admin } = useApp()
@@ -652,7 +652,7 @@ export function PracticeStudio() {
           <div className="studio-head">
             <div className="stack" style={{ gap: '.6rem' }}>
               <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
-              <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Practice studio</h1>
+              <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Negotiation Arena</h1>
             </div>
             <PracticeCounter onBuy={() => setBuying(true)} />
           </div>
@@ -776,7 +776,7 @@ export function CoachTeaser() {
       </div>
       <div className="row" style={{ gap: '.5rem' }}>
         <button className="btn" onClick={() => window.dispatchEvent(new Event('open-coach'))}>Ask the coach</button>
-        <button className="btn btn-primary" onClick={() => go('practice')}>Practice studio</button>
+        <button className="btn btn-primary" onClick={() => go('practice')}>Negotiation Arena</button>
       </div>
     </div>
   )

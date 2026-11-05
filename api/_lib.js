@@ -257,7 +257,7 @@ export const COACH_DAILY_LIMIT = Number(process.env.COACH_DAILY_LIMIT || 80)
 
 // Counts one AI message against the right allowance. Returns null when it may go ahead,
 // or { status, body } to send back when the student has no messages left.
-// practice: a Practice studio role-play turn or report. Those use the subscription's monthly messages
+// practice: a Negotiation Arena role-play turn or report. Those use the subscription's monthly messages
 // first (they expire), then the practice pack (no expiry), then the free taster.
 export async function chargeCoach(userId, { practice = false } = {}) {
   const access = await coachAccess(userId)

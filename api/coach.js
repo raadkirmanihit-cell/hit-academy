@@ -1,6 +1,6 @@
 // The AI coach on the live site: streams Claude's reply as plain text.
 // Every account gets a few free messages; after that it needs the monthly coach subscription.
-// Complete-course buyers also get a practice pack for the Practice studio role-plays.
+// Complete-course buyers also get a practice pack for the Negotiation Arena role-plays.
 // Subscribers have a monthly fair-use cap, and everyone has a daily limit.
 import Anthropic from '@anthropic-ai/sdk'
 import { env, requireUser, readJson, fail, chargeCoach } from './_lib.js'
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   try {
     const body = await readJson(req)
     tier = body.modelTier === 'quick' ? 'quick' : 'default'
-    practice = body.purpose === 'practice' // a Practice studio role-play (or its feedback report)
+    practice = body.purpose === 'practice' // a Negotiation Arena role-play (or its feedback report)
     messages = (Array.isArray(body.messages) ? body.messages : [{ role: 'user', content: String(body.messages || '') }])
       .filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
       .map((m) => ({ role: m.role, content: m.content }))

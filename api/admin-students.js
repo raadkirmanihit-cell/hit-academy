@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     const people = new Map(profiles.data.map((p) => [p.id, p]))
     const paid = new Map(purchases.data.filter((p) => p.status === 'paid' && p.product_id !== TOPUP_ID).map((p) => [p.user_id, p]))
     const prog = new Map(progress.data.map((p) => [p.user_id, p]))
-    // Practice studio scores need database update 6; until then the lists are empty.
+    // Negotiation Arena scores need database update 6; until then the lists are empty.
     const tries = attempts.error ? [] : attempts.data
     const triesOf = new Map()
     for (const a of tries) (triesOf.get(a.user_id) || triesOf.set(a.user_id, []).get(a.user_id)).push(a)
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
         ...who(c.user_id), amount: c.amount, currency: c.currency, status: c.status, live: !!c.livemode, paidAt: c.paid_at, refundedAt: c.refunded_at,
       })),
     }
-    // Practice studio scores need database update 6; until then the list is empty.
+    // Negotiation Arena scores need database update 6; until then the list is empty.
     const practice = {
       ready: !attempts.error,
       attempts: tries.map((a) => ({ ...who(a.user_id), scenario: a.scenario_id, level: a.level, overall: a.overall, passed: a.passed, skills: a.skills, turns: a.learner_turns, at: a.created_at })),

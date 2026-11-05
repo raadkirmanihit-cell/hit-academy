@@ -58,7 +58,7 @@ export default function Dashboard() {
             <div className="card upgrade-card">
               <div>
                 <strong>Unlock all 7 modules for {euro(o.bundle.price)}{o.bundle.launch && !o.bundle.credit ? ` (launch price, normally ${euro(o.bundle.regular)})` : ''}</strong>
-                <p className="small muted">{o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the modules you bought. ` : ''}Save {euro(o.bundle.saving)} compared with buying them one by one. Includes {BUNDLE_PRACTICE_MESSAGES} AI role-play practice messages in the Practice studio and the certificate.</p>
+                <p className="small muted">{o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the modules you bought. ` : ''}Save {euro(o.bundle.saving)} compared with buying them one by one. Includes {BUNDLE_PRACTICE_MESSAGES} AI role-play practice messages in the Negotiation Arena and the certificate.</p>
               </div>
               <button className="btn btn-primary btn-sm" onClick={() => go('checkout', { choice: 'bundle' })}>Unlock all</button>
             </div>
@@ -102,7 +102,7 @@ export default function Dashboard() {
                   <span className="num">{done ? <Icon.check /> : <Icon.chat width="18" height="18" />}</span>
                   <div style={{ minWidth: 0 }}>
                     <span className="practice-row-step">Final step before your certificate</span>
-                    <h4>Practice studio</h4>
+                    <h4>Negotiation Arena</h4>
                     <p className="small muted">Put the course into action: pass one AI role-play at each level ({stats.practiceLevels.join(', ')}).</p>
                     <div className="row small muted" style={{ marginTop: '.35rem' }}>
                       <div className="bar" style={{ width: 140 }}><span style={{ width: Math.round((n / total) * 100) + '%' }} /></div>
@@ -125,7 +125,7 @@ export default function Dashboard() {
                 {course.certificate.requires === 'all'
                   ? `Complete all ${course.modules.length} modules and pass each quiz (${stats.completeCount} of ${stats.required} done)`
                   : `Complete every released module and pass each quiz (${stats.completeCount} of ${stats.required} done)`}
-                {stats.practiceLevels.length > 0 && `, and pass one Practice studio role-play at each level: ${stats.practiceLevels.join(', ')} (${stats.practicePassed.length} of ${stats.practiceLevels.length} done)`}.
+                {stats.practiceLevels.length > 0 && `, and pass one Negotiation Arena role-play at each level: ${stats.practiceLevels.join(', ')} (${stats.practicePassed.length} of ${stats.practiceLevels.length} done)`}.
               </>}
             </p>
           </div>

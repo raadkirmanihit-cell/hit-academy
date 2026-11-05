@@ -1,4 +1,4 @@
-// Practice studio role-plays on the live site.
+// Negotiation Arena role-plays on the live site.
 // The server keeps the conversation, plays the counterpart, writes the feedback report and records
 // the score, so a role-play's transcript and score can't be changed in the browser.
 //   POST { action: 'turn', scenarioId, sessionId?, message, delivery? }  -> streams the counterpart's reply

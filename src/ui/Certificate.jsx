@@ -113,7 +113,7 @@ export default function CertificatePage() {
         <div className="stack" style={{ gap: '.4rem' }}>
           <span className="eyebrow">Certificate</span>
           <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>{stats.eligible ? 'Congratulations, ' + user.name.split(' ')[0] : 'Your certificate'}</h1>
-          <p className="muted">{stats.eligible ? `Verified completion · ID ${id}` : `To unlock it: complete ${course.certificate.requires === 'all' ? 'all modules' : 'every released module'} and pass each quiz (${stats.completeCount} of ${stats.required} done)${stats.practiceLevels.length ? `, and pass one Practice studio role-play at each level (${stats.practicePassed.length} of ${stats.practiceLevels.length} done)` : ''}.`}</p>
+          <p className="muted">{stats.eligible ? `Verified completion · ID ${id}` : `To unlock it: complete ${course.certificate.requires === 'all' ? 'all modules' : 'every released module'} and pass each quiz (${stats.completeCount} of ${stats.required} done)${stats.practiceLevels.length ? `, and pass one Negotiation Arena role-play at each level (${stats.practicePassed.length} of ${stats.practiceLevels.length} done)` : ''}.`}</p>
         </div>
         <div className="row">
           <button className="btn" onClick={() => go('dashboard')}><Icon.arrowL /> Dashboard</button>

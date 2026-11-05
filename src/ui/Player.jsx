@@ -115,7 +115,7 @@ function Finished({ module }) {
       <p className="muted" style={{ maxWidth: '52ch' }}>Quiz score: <strong className="tnum">{Math.round((ms.quiz?.best || 0) * 100)}%</strong>. Download the worksheet and use it to plan your next real negotiation.</p>
       <div className="row" style={{ justifyContent: 'center' }}>
         {eligible && <button className="btn btn-primary" onClick={() => go('certificate')}>View certificate</button>}
-        {!eligible && !unfinished && cs.modulesOk && !cs.practiceOk && <button className="btn btn-primary" onClick={() => go('practice')}>Practice studio: pass one role-play per level for your certificate</button>}
+        {!eligible && !unfinished && cs.modulesOk && !cs.practiceOk && <button className="btn btn-primary" onClick={() => go('practice')}>Negotiation Arena: pass one role-play per level for your certificate</button>}
         {!eligible && unfinished && <button className="btn btn-primary" onClick={() => go('module', { moduleId: unfinished.id })}>Go to Module {unfinished.number}: {unfinished.title}</button>}
         <button className="btn" onClick={() => go('dashboard')}>Back to dashboard</button>
       </div>
