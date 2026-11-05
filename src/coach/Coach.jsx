@@ -520,13 +520,14 @@ function VoiceReport({ turns }) {
 // A unique badge for each level: shield in the level's colour with its own emblem.
 // Earned badges are in full colour with a green tick; the others are greyed out.
 const BADGE_COLORS = ['#5b8def', '#2f5bd3', '#16275e']
-function LevelBadge({ level, earned, size = 44 }) {
+function LevelBadge({ level, earned, size = 44, hero = false }) {
   const i = LEVELS.indexOf(level)
   const fill = earned ? BADGE_COLORS[i] : '#a9b1c7'
   return (
-    <span className={'level-badge' + (earned ? ' earned' : '')} style={{ width: size, height: size }}>
-      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true">
-        <path d="M24 3 L42 9 V23 C42 34 34 41 24 45 C14 41 6 34 6 23 V9 Z" fill={fill} stroke="#f7861b" strokeWidth={earned ? 2 : 0} />
+    <span className={'level-badge' + (earned ? ' earned' : '') + (hero ? ' hero' : '')} style={{ width: size, height: size }}>
+      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true" shapeRendering="geometricPrecision">
+        <path d="M24 3 L42 9 V23 C42 34 34 41 24 45 C14 41 6 34 6 23 V9 Z" fill={fill} stroke="#f7861b" strokeWidth={earned ? 2 : 0} strokeLinejoin="round" />
+        {hero && <path d="M24 6.6 L39 11.6 V23 C39 32.4 32.4 38.3 24 41.8 C15.6 38.3 9 32.4 9 23 V11.6 Z" fill="none" stroke="#fff" strokeOpacity=".35" strokeWidth=".8" strokeLinejoin="round" />}
         {i === 0 && <path d="M15 15h18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-9l-5 4v-4h-4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z" fill="#fff" />}
         {i === 1 && <g fill="none" stroke="#fff" strokeWidth="2.4"><circle cx="24" cy="23" r="9" /><circle cx="24" cy="23" r="4.5" /><circle cx="24" cy="23" r="1" fill="#fff" /></g>}
         {i === 2 && <polygon points="24.0,13.5 26.6,19.9 33.5,20.4 28.2,24.9 29.9,31.6 24.0,27.9 18.1,31.6 19.8,24.9 14.5,20.4 21.4,19.9" fill="#f7861b" />}
@@ -618,7 +619,7 @@ function Report({ r, sc, score, turns = [] }) {
   )
 }
 
-// ---- Practice studio (dashboard page) --------------------------------------
+// ---- The Arena (dashboard page) --------------------------------------
 
 export function PracticeStudio() {
   const { go, view, practice, course, admin } = useApp()
@@ -651,7 +652,8 @@ export function PracticeStudio() {
           <div className="studio-head">
             <div className="stack" style={{ gap: '.6rem' }}>
               <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
-              <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>Practice studio</h1>
+              <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>The Arena</h1>
+              <p className="arena-tagline">Put your skills to the test</p>
             </div>
             <PracticeCounter onBuy={() => setBuying(true)} />
           </div>
@@ -660,9 +662,12 @@ export function PracticeStudio() {
 
           <div className="quest">
             <div className="quest-rank">
-              <span className="eyebrow">Your latest badge</span>
-              <strong>{rank ? RANKS[rank].title : 'No badge yet'}</strong>
-              <span className="small">{rank ? RANKS[rank].line : 'Clear the Beginner level to earn your first badge.'}</span>
+              <LevelBadge level={rank || LEVELS[0]} earned={!!rank} size={84} hero />
+              <div className="quest-rank-text">
+                <span className="eyebrow">Your latest badge</span>
+                <strong>{rank ? RANKS[rank].title : 'No badge yet'}</strong>
+                <span className="small">{rank ? RANKS[rank].line : 'Clear the Beginner level to earn your first badge.'}</span>
+              </div>
             </div>
             <ol className="quest-path">
               {LEVELS.map((l, i) => {
@@ -671,7 +676,7 @@ export function PracticeStudio() {
                 return (
                   <li key={l} className={'quest-step ' + state}>
                     <LevelBadge level={l} earned={done} size={42} />
-                    <span className="quest-label"><strong>{l}</strong><span className="small">{RANKS[l].title}</span><span className="small quest-state">{done ? 'Earned' : state === 'open' ? 'Play now' : 'Locked'}</span></span>
+                    <span className="quest-label"><strong>{l}</strong><span className="small quest-name">{RANKS[l].title.split(' ').map((w, j) => <span key={j}>{w}</span>)}</span><span className="small quest-state">{done ? 'Earned' : state === 'open' ? 'Play now' : 'Locked'}</span></span>
                   </li>
                 )
               })}
@@ -685,14 +690,14 @@ export function PracticeStudio() {
           </div>
 
           <div className="card practice-rules">
-            <h4>Rules of the game</h4>
+            <h4 className="rules-title"><span>Rules of the game</span></h4>
             <ul className="small rules-how">
               <li><strong>Clear a level</strong> by passing one of its role-plays: score {PASS_SCORE} points or more out of 100, with no skill rated below {PASS_MIN_SKILL} out of 5. Retry as often as you like.</li>
               <li><strong>Aim for 10 exchanges or more.</strong> A real negotiation needs time to unfold: the other side opens up, pushes back and tests you.</li>
               <li><strong>AI Messages:</strong> each AI reply uses 1, and your feedback report uses 1.</li>
             </ul>
             <details className="full-rules">
-              <summary>Full rules: do's and don'ts</summary>
+              <summary>Do's and don'ts</summary>
               <div className="dos-donts">
                 <div className="dos">
                   <h5><Icon.check /> Do</h5>
@@ -772,7 +777,7 @@ export function CoachTeaser() {
       </div>
       <div className="row" style={{ gap: '.5rem' }}>
         <button className="btn" onClick={() => window.dispatchEvent(new Event('open-coach'))}>Ask the coach</button>
-        <button className="btn btn-primary" onClick={() => go('practice')}>Practice studio</button>
+        <button className="btn btn-primary" onClick={() => go('practice')}>The Arena</button>
       </div>
     </div>
   )

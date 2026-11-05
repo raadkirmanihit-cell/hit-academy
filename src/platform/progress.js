@@ -23,7 +23,7 @@ export function moduleStats(module, progress) {
   return { total: steps.length, done, pct: steps.length ? Math.round((done / steps.length) * 100) : 0, quizPassed, complete, best: ms.quiz?.best ?? null }
 }
 
-// practice: the student's scored Practice studio role-plays (see coach/scoring.js).
+// practice: the student's scored Arena role-plays (see coach/scoring.js).
 export function courseStats(course, modules, progress, practice = []) {
   const published = course.modules.filter((m) => modules[m.id])
   const stats = published.map((m) => moduleStats(modules[m.id], progress))

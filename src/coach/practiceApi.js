@@ -1,4 +1,4 @@
-// Practice studio calls to our server (live site only). See api/practice.js.
+// The Arena calls to our server (live site only). See api/practice.js.
 import { backend } from '../platform/backend.js'
 
 const err = (code, message) => Object.assign(new Error(message), { code })
