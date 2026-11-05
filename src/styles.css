@@ -191,6 +191,11 @@ button { font: inherit; color: inherit; }
 .notice { background: var(--info-soft); border-radius: var(--r-m); padding: .9rem 1rem; font-size: .9rem; color: var(--ink-2); }
 
 /* dashboard */
+.dash { padding-bottom: 4rem; }
+.dash-hello { gap: .5rem; }
+.dash-hello h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); }
+.dash-stack { gap: 2rem; }
+.resume-body h2 { font-size: 1.6rem; }
 .dash-head { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end; padding-block: 2.5rem 1.5rem; }
 .ring { --p: 0; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center;
   background: conic-gradient(var(--orange) calc(var(--p) * 1%), var(--surface-2) 0); }
@@ -1599,3 +1604,36 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .arena-unlock h4 { margin: .2rem 0 0; }
 .arena-unlock ul { margin: 0; padding-left: 1.1rem; }
 .arena-unlock p { margin: 0; }
+
+/* Dashboard on phones: tighter spacing, progress ring beside the welcome, shorter module photo. */
+@media (max-width: 640px) {
+  .dash { padding-bottom: 2.5rem; }
+  .dash-head { grid-template-columns: 1fr auto; gap: .9rem; align-items: center; padding-block: 1.1rem .9rem; }
+  .dash-hello { gap: .3rem; }
+  .dash-hello h1 { font-size: 1.55rem; line-height: 1.15; }
+  .dash-hello p { font-size: .85rem; line-height: 1.4; }
+  .dash-head .ring { width: 72px; height: 72px; }
+  .dash-head .ring > div { width: 56px; height: 56px; }
+  .dash-head .ring strong { font-size: 1.05rem; }
+  .dash-head .ring .small { font-size: .68rem; }
+  .dash-stack { gap: 1.1rem; }
+  .resume-card img { aspect-ratio: 2.4 / 1; object-position: center 30%; }
+  .resume-body { padding: .95rem 1rem 1.05rem; gap: .5rem; }
+  .resume-body h2 { font-size: 1.3rem; }
+  .resume-body .eyebrow { font-size: .66rem; }
+  .premium-tiles { gap: .75rem; }
+  .premium-tile { padding: .95rem 1rem; gap: .4rem; }
+  .tile-meter { padding-top: .35rem; }
+  .dash-section-title { margin-top: .4rem; }
+  .course-banner { padding: 1.1rem 1rem; gap: .9rem; }
+  .course-banner-text { gap: .4rem; }
+  .modules-label { margin-top: .2rem; }
+  .module-row { grid-template-columns: 38px 1fr; padding: .8rem .85rem; gap: .5rem .8rem; }
+  .module-row .num { width: 38px; height: 38px; border-radius: 10px; font-size: 1rem; }
+  .module-row .pitch { gap: .75rem; padding-top: .8rem; }
+  .module-row .pitch-identity { font-size: 1.02rem; }
+  .module-row .pitch-grid { gap: .8rem; }
+  .cert-teaser { padding: 1rem; gap: .75rem 1rem; }
+  .cert-teaser svg { width: 40px; height: 40px; }
+  .upgrade-card { padding: .85rem 1rem; gap: .7rem; }
+}

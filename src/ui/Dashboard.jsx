@@ -21,11 +21,11 @@ export default function Dashboard() {
   const [buying, setBuying] = useState(false)
 
   return (
-    <div className="wrap" style={{ paddingBottom: '4rem' }}>
+    <div className="wrap dash">
       <div className="dash-head">
-        <div className="stack" style={{ gap: '.5rem' }}>
+        <div className="stack dash-hello">
           <span className="eyebrow">My learning</span>
-          <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)' }}>{view.welcome ? `Welcome aboard, ${first}` : last ? `Welcome back, ${first}` : `Let's begin, ${first}`}</h1>
+          <h1>{view.welcome ? `Welcome aboard, ${first}` : last ? `Welcome back, ${first}` : `Let's begin, ${first}`}</h1>
           <p className="muted">
             {stats.doneSteps} of {stats.totalSteps} sections completed · {stats.completeCount} of {course.modules.length} modules complete
           </p>
@@ -35,12 +35,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="stack" style={{ gap: '2rem' }}>
+      <div className="stack dash-stack">
         <div className="card resume-card">
           <img src={resumeModule.cover} alt="" />
           <div className="resume-body">
             <span className="eyebrow">{rs.complete ? 'Completed' : last ? 'Continue where you left off' : 'Start here'} · Module {resumeModule.number}</span>
-            <h2 style={{ fontSize: '1.6rem' }}>{resumeModule.title}</h2>
+            <h2>{resumeModule.title}</h2>
             <p className="muted">{rs.complete ? 'Module complete. Review any section, or retake the quiz to improve your score.' : last ? <>Next up: <strong style={{ color: 'var(--ink)' }}>{resumeStep.title}</strong></> : resumeModule.subtitle}</p>
             <div className="row">
               <div className="bar" style={{ flex: 1, minWidth: 140 }}><span style={{ width: rs.pct + '%' }} /></div>
