@@ -30,16 +30,20 @@ function Author({ name, trainer }) {
 // What was last loaded, so going back and forth shows the page at once and refreshes it quietly.
 const cache = new Map()
 let lastCategory = ''
+let cameFromList = false
 
 // The members' community: a list of conversations, or one conversation (threadId).
 export default function Community({ threadId }) {
   const { notify } = useApp()
-  const key = threadId || 'list'
+  // #/community/new is the list with the "Start a conversation" form open, so Back closes the form.
+  const composing = threadId === 'new'
+  const thread = composing ? null : threadId
+  const key = thread || 'list'
   const [data, setData] = useState(() => cache.get(key) || null)
   const [err, setErr] = useState('')
   const load = useCallback(() => {
-    return backend.forum(threadId ? { thread: threadId } : {}).then((d) => { cache.set(key, d); setData(d); setErr('') }, (e) => setErr(e.message))
-  }, [threadId, key])
+    return backend.forum(thread ? { thread } : {}).then((d) => { cache.set(key, d); setData(d); setErr('') }, (e) => setErr(e.message))
+  }, [thread, key])
   useEffect(() => { load() }, [load])
 
   async function act(action, payload, done) {
@@ -53,8 +57,8 @@ export default function Community({ threadId }) {
   if (err && !data?.posts && !data?.threads) return <div className="wrap cm-page"><Head /><div className="notice">{err}</div></div>
   if (!data) return <div className="boot"><span className="boot-dot" /></div>
   if (data.locked) return <Locked />
-  if (threadId) return <ThreadView data={data} act={act} reload={load} setData={setData} />
-  return <ThreadList data={data} act={act} reload={load} />
+  if (thread) return <ThreadView data={data} act={act} reload={load} setData={setData} />
+  return <ThreadList data={data} act={act} reload={load} composing={composing} />
 }
 
 function Head({ children }) {
@@ -127,8 +131,13 @@ function Blocked({ me }) {
   return <div className="notice">You can read the community, but you can no longer post.{me.blockedReason ? ` Reason: ${me.blockedReason}.` : ''} If you think this is a mistake, use "Message Raad" in your account menu.</div>
 }
 
-function ThreadList({ data, act, reload }) {
+function ThreadList({ data, act, reload, composing }) {
   const { go } = useApp()
+  // Open the form as its own address; closing it steps back, so the browser's Back button does the same.
+  const startComposing = () => { cameFromList = true; go('community', { threadId: 'new' }) }
+  const stopComposing = () => {
+    if (cameFromList) { cameFromList = false; window.history.back() } else go('community', {}, { replace: true })
+  }
   const [category, setCat] = useState(lastCategory)
   const setCategory = (c) => { lastCategory = c; setCat(c) }
   const { me, counts } = data
@@ -138,21 +147,21 @@ function ThreadList({ data, act, reload }) {
     if (!cache.has(t.id)) cache.set(t.id, { me, thread: { id: t.id, category: t.category, title: t.title, pinned: t.pinned, locked: t.locked, mine: t.mine }, posts: null })
     go('community', { threadId: t.id })
   }
-  const [composing, setComposing] = useState(false)
   const total = Object.values(counts || {}).reduce((a, b) => a + b, 0)
   const cat = categoryOf(category)
   const startable = CATEGORIES.filter((c) => !c.adminOnly || me.admin)
 
   return (
     <div className="wrap cm-page">
+      <button className="btn btn-ghost btn-sm" style={{ justifySelf: 'start', marginBottom: '-.75rem' }} onClick={() => go('dashboard')}>← My dashboard</button>
       <Head>
-        {!me.blocked && !composing && <button className="btn btn-primary" onClick={() => setComposing(true)}><Chat /> Start a conversation</button>}
+        {!me.blocked && !composing && <button className="btn btn-primary" onClick={startComposing}><Chat /> Start a conversation</button>}
       </Head>
       {me.blocked && <Blocked me={me} />}
       {composing && (!me.canPost
-        ? <Setup me={me} act={act} onDone={reload} onCancel={() => setComposing(false)} />
+        ? <Setup me={me} act={act} onDone={reload} onCancel={stopComposing} />
         : <NewThread categories={startable} initial={cat && (!cat.adminOnly || me.admin) ? cat.id : startable.find((c) => !c.adminOnly)?.id} act={act}
-            onCancel={() => setComposing(false)} onDone={(id) => go('community', { threadId: id })} />)}
+            onCancel={stopComposing} onDone={(id) => { cameFromList = false; go('community', { threadId: id }, { replace: true }) }} />)}
 
       <div className="cm-layout">
         <nav className="cm-cats" aria-label="Categories">
