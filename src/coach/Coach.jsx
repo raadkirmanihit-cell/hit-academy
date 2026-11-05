@@ -632,7 +632,7 @@ export function PracticeStudio() {
   if (active && !open(active.level)) {
     const need = LEVELS.find((l) => !sum.levels.has(l))
     return (
-      <div className="wrap" style={{ paddingBottom: '4rem', maxWidth: 920 }}>
+      <div className="wrap" style={{ paddingTop: '1.5rem', paddingBottom: '4rem', maxWidth: 920 }}>
         <button className="btn btn-sm" onClick={() => go('practice')} style={{ marginBottom: '1rem' }}>← All scenarios</button>
         <div className="card" style={{ padding: '1.5rem', display: 'grid', gap: '.6rem' }}>
           <span className="eyebrow">Locked</span>
@@ -644,7 +644,7 @@ export function PracticeStudio() {
     )
   }
   return (
-    <div className="wrap" style={{ paddingBottom: '4rem', maxWidth: 920 }}>
+    <div className="wrap" style={{ paddingTop: '1.5rem', paddingBottom: '4rem', maxWidth: 920 }}>
       <button className="btn btn-sm" onClick={() => (active ? go('practice') : go('dashboard'))} style={{ marginBottom: '1rem' }}>← {active ? 'All scenarios' : 'Dashboard'}</button>
       {active ? <Spar key={active.id} scenarioId={active.id} /> : (
         <div className="stack" style={{ gap: '.9rem' }}>
