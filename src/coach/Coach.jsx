@@ -721,7 +721,7 @@ export function PracticeStudio() {
             const canPlay = admin || unlocked
             const cleared = sum.levels.has(level)
             return (
-              <section key={level} className={'level-band band-' + (i + 1) + (unlocked ? '' : ' locked')}>
+              <section key={level} className={'level-band band-' + (i + 1) + (cleared ? ' done' : '') + (unlocked ? '' : ' locked')}>
                 <div className="level-band-head">
                   <div className="level-band-title">
                     <h3>Level {i + 1} · {level}</h3>
