@@ -1461,9 +1461,6 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .se-scale li { font-size: .82rem; padding: .3rem .65rem; border-radius: 99px; background: rgb(255 255 255 / 9%); }
 .se-scale b { font-family: var(--f-mono); color: var(--orange); margin-right: .2rem; }
 .se-area { padding: 1.25rem; display: grid; gap: .5rem; }
-.se-area-head { display: flex; align-items: center; gap: .7rem; margin-bottom: .2rem; }
-.se-area-head h3 { font-size: 1.1rem; }
-.se-area-num { width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: var(--orange); display: grid; place-items: center; font: 700 .85rem/1 var(--f-mono); flex-shrink: 0; border: 1px solid var(--line); }
 .se-q { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .6rem .8rem; border: 1px solid var(--line); border-radius: var(--r-m); }
 .se-q > span { line-height: 1.4; }
 .se-qn { font-family: var(--f-mono); color: var(--muted); font-size: .85em; }

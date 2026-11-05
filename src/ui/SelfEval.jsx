@@ -97,13 +97,9 @@ function Survey({ phase, gate }) {
         <ol className="se-scale" aria-label="Rating scale">{[1, 2, 3, 4, 5].map((v) => <li key={v}><b>{v}</b> {SCALE[v]}</li>)}</ol>
       </div>
 
-      {AREAS.map((a, ai) => (
-        <section key={a.id} className="card se-area" aria-labelledby={`se-${a.id}`}>
-          <div className="se-area-head">
-            <span className="se-area-num">{ai + 1}</span>
-            <h3 id={`se-${a.id}`}>{a.title}</h3>
-          </div>
-          {QUESTIONS.filter((q) => q.area === a.id).map((q) => {
+      {[QUESTIONS.slice(0, 10), QUESTIONS.slice(10)].map((group, gi) => (
+        <section key={gi} className="card se-area" aria-label={`Statements ${gi * 10 + 1} to ${gi * 10 + group.length}`}>
+          {group.map((q) => {
             n += 1
             return (
               <div key={q.id} className="se-q">
