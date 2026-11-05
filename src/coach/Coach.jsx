@@ -394,7 +394,7 @@ export function Spar({ scenarioId, compact }) {
           )}
           {early && !report && !reporting && (
             <div className="early-end" role="alertdialog" aria-label="End the role-play early?">
-              <p className="small"><strong>You've given {learnerTurns} {learnerTurns === 1 ? 'reply' : 'replies'}.</strong> A {sc.level} role-play needs at least {MIN_TURNS[sc.level]} to pass, so this one can't clear the level. The report still uses 1 message.</p>
+              <p className="small"><strong>You've given {learnerTurns} {learnerTurns === 1 ? 'reply' : 'replies'}.</strong> A {sc.level} role-play needs at least {MIN_TURNS[sc.level]} to qualify for passing, so this one can't clear the level. The report still uses 1 message.</p>
               <div className="row" style={{ gap: '.5rem' }}>
                 <button className="btn btn-primary btn-sm" onClick={() => setEarly(false)}>Keep negotiating</button>
                 <button className="btn btn-sm" onClick={() => { setEarly(false); feedback() }}>End anyway</button>
