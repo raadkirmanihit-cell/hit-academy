@@ -723,15 +723,17 @@ export function PracticeStudio() {
             return (
               <section key={level} className={'level-band band-' + (i + 1) + (unlocked ? '' : ' locked')}>
                 <div className="level-band-head">
-                  <div>
+                  <div className="level-band-title">
                     <h3>Level {i + 1} · {level}</h3>
+                    <span className="level-tag">{cleared ? <span className="earned-tag">✓ Completed</span> : unlocked ? (level === nextLevel ? 'Your next level' : 'Open') : admin ? <><Icon.lock width="14" height="14" /> Locked for students · you can test it</> : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
+                  </div>
+                  <div className="level-band-badge">
                     <div className={'badge-title' + (cleared ? ' earned' : '')}>
                       <span className="badge-title-label">{cleared ? '★ Badge earned' : 'Badge to earn'}</span>
                       <strong>{RANKS[level].title}</strong>
                     </div>
+                    <LevelBadge level={level} earned={cleared} size={76} />
                   </div>
-                  <span className="level-tag">{cleared ? <span className="earned-tag">✓ Completed</span> : unlocked ? (level === nextLevel ? 'Your next level' : 'Open') : admin ? <><Icon.lock width="14" height="14" /> Locked for students · you can test it</> : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
-                  <LevelBadge level={level} earned={cleared} size={52} />
                 </div>
                 <div className="studio-grid">
                   {scenarios.filter((s) => s.level === level).map((s) => {
