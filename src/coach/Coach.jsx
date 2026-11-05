@@ -648,7 +648,7 @@ export function PracticeStudio() {
             <ol className="quest-path">
               {LEVELS.map((l, i) => {
                 const done = sum.levels.has(l)
-                const state = done ? 'done' : open(l) ? 'open' : 'locked'
+                const state = done ? 'done' : levelOpen(l, sum.levels) ? 'open' : 'locked'
                 return (
                   <li key={l} className={'quest-step ' + state}>
                     <span className="quest-dot" aria-hidden="true">{done ? <Icon.check /> : state === 'locked' ? <Icon.lock /> : i + 1}</span>
@@ -697,19 +697,26 @@ export function PracticeStudio() {
           </div>
 
           {LEVELS.map((level, i) => {
-            const isOpen = open(level)
+            // Locked for the student until the level before is cleared (admins can still open it to test).
+            const unlocked = levelOpen(level, sum.levels)
+            const canPlay = admin || unlocked
+            const cleared = sum.levels.has(level)
             return (
-              <div key={level} className={'stack level-block' + (isOpen ? '' : ' locked')} style={{ gap: '.6rem' }}>
-                <h3 style={{ fontSize: '1.1rem' }}>
-                  Level {i + 1} · {level}
-                  <span className="level-tag">{sum.levels.has(level) ? <>✓ Cleared · {RANKS[level].title}</> : isOpen ? (level === nextLevel ? 'Your next level' : 'Open') : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
-                </h3>
+              <section key={level} className={'level-band band-' + (i + 1) + (unlocked ? '' : ' locked')}>
+                <div className="level-band-head">
+                  <span className="level-band-num" aria-hidden="true">{cleared ? <Icon.check /> : unlocked ? i + 1 : <Icon.lock width="16" height="16" />}</span>
+                  <div>
+                    <h3>Level {i + 1} · {level}</h3>
+                    <span className="level-band-rank">Rank: {RANKS[level].title}</span>
+                  </div>
+                  <span className="level-tag">{cleared ? '✓ Cleared' : unlocked ? (level === nextLevel ? 'Your next level' : 'Open') : admin ? <><Icon.lock width="14" height="14" /> Locked for students · you can test it</> : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
+                </div>
                 <div className="studio-grid">
                   {scenarios.filter((s) => s.level === level).map((s) => {
                     const r = sum.byScenario[s.id]
                     return (
-                      <button key={s.id} className="card studio-card" disabled={!isOpen} onClick={() => go('practice', { scenarioId: s.id })}>
-                        <span className="studio-img"><img src={s.img} alt="" />{!isOpen && <span className="studio-lock"><Icon.lock width="28" height="28" /></span>}</span>
+                      <button key={s.id} className="card studio-card" disabled={!canPlay} onClick={() => go('practice', { scenarioId: s.id })}>
+                        <span className="studio-img"><img src={s.img} alt="" />{!unlocked && <span className="studio-lock"><Icon.lock width="28" height="28" /></span>}</span>
                         <span className="studio-card-text">
                           <span className="eyebrow">{s.level}{r?.passed ? ' · Passed' : ''}</span>
                           <h4>{s.title}</h4>
@@ -720,7 +727,7 @@ export function PracticeStudio() {
                     )
                   })}
                 </div>
-              </div>
+              </section>
             )
           })}
         </div>
