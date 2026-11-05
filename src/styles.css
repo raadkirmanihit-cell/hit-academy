@@ -1412,12 +1412,7 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 
 /* The badge name under each level title: big enough to feel like an achievement. */
 .level-band-head > div:first-child { display: grid; gap: .5rem; }
-.badge-title { display: inline-grid; gap: .15rem; justify-self: start; padding: .55rem .9rem .6rem; border-radius: 12px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--band) 40%, transparent); box-shadow: 0 2px 10px color-mix(in srgb, var(--band) 15%, transparent); }
-.badge-title-label { font: 500 .68rem/1.2 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--band); }
-.badge-title strong { font-size: clamp(1.25rem, 2.6vw, 1.55rem); line-height: 1.15; color: var(--band); letter-spacing: -.01em; }
-.badge-title-line { font-size: .85rem; color: var(--muted); font-style: italic; }
-.badge-title.earned { background: linear-gradient(135deg, #0b1a44 0%, #1b2c66 100%); border-color: var(--orange); box-shadow: 0 4px 18px rgba(247, 134, 27, .28); }
+.badge-title { display: grid; gap: .1rem; justify-self: start; }
+.badge-title-label { font: 500 .68rem/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.badge-title strong { font-size: 1.15rem; line-height: 1.2; color: var(--band); }
 .badge-title.earned .badge-title-label { color: var(--orange); }
-.badge-title.earned strong { background: linear-gradient(90deg, #ffb35c, #f7861b); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.badge-title.earned .badge-title-line { color: #c9d0e6; }
-.level-band.locked .badge-title { box-shadow: none; }

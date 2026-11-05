@@ -728,7 +728,6 @@ export function PracticeStudio() {
                     <div className={'badge-title' + (cleared ? ' earned' : '')}>
                       <span className="badge-title-label">{cleared ? '★ Badge earned' : 'Badge to earn'}</span>
                       <strong>{RANKS[level].title}</strong>
-                      <span className="badge-title-line">{RANKS[level].line}</span>
                     </div>
                   </div>
                   <span className="level-tag">{cleared ? <span className="earned-tag">✓ Completed</span> : unlocked ? (level === nextLevel ? 'Your next level' : 'Open') : admin ? <><Icon.lock width="14" height="14" /> Locked for students · you can test it</> : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
