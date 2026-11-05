@@ -723,12 +723,12 @@ export function PracticeStudio() {
             return (
               <section key={level} className={'level-band band-' + (i + 1) + (unlocked ? '' : ' locked')}>
                 <div className="level-band-head">
-                  <LevelBadge level={level} earned={cleared} />
                   <div>
                     <h3>Level {i + 1} · {level}</h3>
                     <span className="level-band-rank">Badge: {RANKS[level].title}</span>
                   </div>
                   <span className="level-tag">{cleared ? <span className="earned-tag">✓ Badge earned</span> : unlocked ? (level === nextLevel ? 'Your next level' : 'Open') : admin ? <><Icon.lock width="14" height="14" /> Locked for students · you can test it</> : <><Icon.lock width="14" height="14" /> Clear {LEVELS[i - 1]} to unlock</>}</span>
+                  <LevelBadge level={level} earned={cleared} size={52} />
                 </div>
                 <div className="studio-grid">
                   {scenarios.filter((s) => s.level === level).map((s) => {
