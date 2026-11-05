@@ -3,6 +3,7 @@ import { useApp } from '../App.jsx'
 import { courseStats } from '../platform/progress.js'
 import { Icon } from './icons.jsx'
 import { saveFile } from '../platform/files.js'
+import { EvalChart, selfEvalOf } from './SelfEval.jsx'
 
 const W = 1600, H = 1131 // A4 landscape ratio
 
@@ -121,6 +122,23 @@ export default function CertificatePage() {
         </div>
       </div>
       <div className="cert-frame"><canvas ref={ref} style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 8 }} aria-label={`Certificate of completion for ${user.name}`} /></div>
+      {stats.modulesOk && (() => {
+        const se = selfEvalOf(progress)
+        return (
+          <div className="stack" style={{ marginTop: '2rem' }}>
+            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'end' }}>
+              <div className="stack" style={{ gap: '.3rem' }}>
+                <span className="eyebrow">Final evaluation</span>
+                <h2 style={{ fontSize: '1.5rem' }}>Your before and after</h2>
+              </div>
+              {se.after ? <button className="btn btn-sm" onClick={() => go('selfeval', { phase: 'results' })}>See all answers</button>
+                : <button className="btn btn-primary btn-sm" onClick={() => go('selfeval', { phase: 'after' })}>Rate your skills again</button>}
+            </div>
+            {se.after ? <EvalChart before={se.before?.answers} after={se.after.answers} />
+              : <p className="muted">Answer the same 20 statements you rated {se.before ? 'at the start' : 'about your skills'} and see the change here.</p>}
+          </div>
+        )
+      })()}
     </div>
   )
 }
