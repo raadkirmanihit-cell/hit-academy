@@ -675,7 +675,7 @@ export function PracticeStudio() {
                 return (
                   <li key={l} className={'quest-step ' + state}>
                     <LevelBadge level={l} earned={done} size={42} />
-                    <span className="quest-label"><strong>{l}</strong><span className="small">{RANKS[l].title}</span><span className="small quest-state">{done ? 'Earned' : state === 'open' ? 'Play now' : 'Locked'}</span></span>
+                    <span className="quest-label"><strong>{l}</strong><span className="small quest-name">{RANKS[l].title.split(' ').map((w, j) => <span key={j}>{w}</span>)}</span><span className="small quest-state">{done ? 'Earned' : state === 'open' ? 'Play now' : 'Locked'}</span></span>
                   </li>
                 )
               })}
