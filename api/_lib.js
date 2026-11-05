@@ -80,10 +80,9 @@ export function fail(res, err) {
   res.status(status).json({ error: status >= 500 ? 'Something went wrong on our side. Please try again.' : err.message })
 }
 
-// Sends an email to Raad through Resend, if it is set up. Never blocks the main action.
-export async function notifyOwner(subject, lines, { replyTo } = {}) {
+// Sends an email through Resend, if it is set up. Never blocks the main action.
+export async function sendEmail(to, subject, lines, { replyTo } = {}) {
   const key = process.env.RESEND_API_KEY
-  const to = process.env.NOTIFY_EMAIL
   if (!key || !to) return
   try {
     const r = await fetch('https://api.resend.com/emails', {
@@ -91,14 +90,19 @@ export async function notifyOwner(subject, lines, { replyTo } = {}) {
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: process.env.NOTIFY_FROM || 'H.I.T. Academy <onboarding@resend.dev>',
-        to: to.split(',').map((s) => s.trim()),
+        to: (Array.isArray(to) ? to : String(to).split(',')).map((s) => s.trim()).filter(Boolean),
         subject,
         text: lines.join('\n'),
         ...(replyTo ? { reply_to: replyTo } : {}),
       }),
     })
-    if (!r.ok) console.error('Notification email failed', r.status, await r.text())
-  } catch (e) { console.error('Notification email failed', e) }
+    if (!r.ok) console.error('Email failed', r.status, await r.text())
+  } catch (e) { console.error('Email failed', e) }
+}
+
+// Sends an email to Raad (NOTIFY_EMAIL).
+export async function notifyOwner(subject, lines, opts) {
+  return sendEmail(process.env.NOTIFY_EMAIL, subject, lines, opts)
 }
 
 // The AI coach months that used to come with the complete course (purchases before 1 November 2026;

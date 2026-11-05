@@ -4,6 +4,7 @@
 import { quote, CURRENCY } from '../content/pricing.js'
 import { readJSON, writeJSON, remove } from './storage.js'
 import { TERMS_VERSION } from '../content/terms.js'
+import { previewForum } from './forum.preview.js'
 
 const K = { session: 'hit.session', users: 'hit.users', progress: (id) => `hit.progress.${id}` }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -71,6 +72,9 @@ export const previewBackend = {
   async adminData() { return { students: [], payments: [], messages: [], messagesReady: true } },
   async adminAction() { await wait(300); return { ok: true } },
   async sendMessage() { await wait(500); return { ok: true } },
+  // Community forum, kept in this browser (members = anyone who bought something in the preview).
+  async forum(params) { await wait(150); return previewForum.read(current(), params) },
+  async forumAction(action, payload) { await wait(200); return previewForum.act(current(), action, payload) },
   // The preview has no payments: the coach is simply open.
   async launchStatus() { return { launch: true, left: 100, until: null } },
   async coachPlan() { return { paid: true, subscribed: true, preview: true, left: Infinity } },

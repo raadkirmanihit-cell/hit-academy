@@ -8,8 +8,8 @@
 
 import { TOPUP_PRICE, TOPUP_MESSAGES } from './pricing.js'
 
-export const TERMS_VERSION = '2026-11-04'
-export const TERMS_UPDATED = '4 November 2026'
+export const TERMS_VERSION = '2026-11-05'
+export const TERMS_UPDATED = '5 November 2026'
 
 export const LEGAL = {
   name: 'Human Interactions Translated',
@@ -33,7 +33,7 @@ export const TERMS = [
     title: '1. Who we are and what these terms cover',
     body: [
       `These Terms and Conditions ("Terms") apply to every account and every purchase on H.I.T. Academy, the online learning platform of **${LEGAL.entity}**, ${LEGAL.address} ("${LEGAL.short}", "we", "us"). Contact: ${LEGAL.email}.${LEGAL.vatId ? ` VAT ID: ${LEGAL.vatId}.` : ''}`,
-      'They cover the self-paced course "Negotiation & Conflict Resolution" and everything that comes with it: lessons, videos, audio, images, illustrations, activities, role-plays, quizzes, worksheets, the certificate of completion and the AI coach (together, the "Course Materials"). They also cover the optional monthly AI coach subscription (section 10).',
+      'They cover the self-paced course "Negotiation & Conflict Resolution" and everything that comes with it: lessons, videos, audio, images, illustrations, activities, role-plays, quizzes, worksheets, the certificate of completion and the AI coach (together, the "Course Materials"). They also cover the optional monthly AI coach subscription (section 10) and the members\' community (section 12).',
       'You must accept these Terms when you create an account. By ticking the box at sign-up, you confirm that you have read them and agree to them. Terms that differ from these, including your own terms of business, do not apply unless we agree to them in writing.',
       'You can view, save and print these Terms at any time from the link at the bottom of every page.',
     ],
@@ -97,7 +97,7 @@ export const TERMS = [
         'copy, reverse-engineer or interfere with the platform, its software or its security.',
       ] },
       'Short quotations with clear credit to "Human Interactions Translated" are allowed where the law permits them.',
-      'If you break this section, we may suspend or close your account without refund (see section 12) and take legal action, including claims for injunctive relief and damages.',
+      'If you break this section, we may suspend or close your account without refund (see section 13) and take legal action, including claims for injunctive relief and damages.',
       'Sources and research referred to in the course remain the property of their authors and publishers and are cited for teaching purposes.',
     ],
   },
@@ -161,17 +161,37 @@ export const TERMS = [
     ],
   },
   {
+    id: 'community',
+    title: '12. The members\' community',
+    body: [
+      'The community is a discussion area inside H.I.T. Academy where members can talk to each other. It is open to members who have bought at least one module or the complete course, or who have an active AI coach subscription. It is a free extra: it is not part of what you pay for, and we may change it or close it at any time. If we close it, we will tell members at least 4 weeks before, where reasonable.',
+      'Before your first post you choose a display name and agree to these community rules. Your display name and everything you post can be read by all other members. Your email address is never shown.',
+      '**Community rules.** When you post, you agree to:',
+      { list: [
+        'be respectful: disagree with ideas, never attack people; no insults, harassment, threats, or discrimination of any kind;',
+        'keep it professional: no strong swearing, no sexual or violent content, and nothing that is unlawful;',
+        'protect confidential information: do not share trade secrets, confidential details of your employer, clients or colleagues, or other people\'s personal data. Change names and leave out details that identify someone;',
+        'not advertise, sell, recruit, or post links to paid offers, and not copy course materials into the community;',
+        'share experience, not professional advice. Posts by other members are their personal opinions. They are not checked by us and are not legal, financial, psychological or medical advice (see section 8).',
+      ] },
+      'You remain responsible for what you post, and you confirm that you have the right to share it. You allow us to show your posts to other members for as long as the community exists. You can edit or delete your own posts at any time.',
+      `**Reporting.** Every post has a "Report" button. You can also report content by email to ${LEGAL.email} (our contact point for the community, including for authorities). Please say which post you mean and why you think it breaks the rules or the law. We review every report, act quickly on content that is clearly illegal, and tell you the outcome.`,
+      '**Moderation.** We do not check posts before they appear. We may remove a post, close a conversation for replies, or stop a member from posting, if a post breaks these rules or the law. A post with certain strong swear words is held back automatically, and you are asked to rephrase it; all other decisions are made by a person. When we remove your post or stop you from posting, we tell you which rule it broke and why. If you disagree, reply to that message: we will look at the decision again. You can also use an out-of-court dispute settlement body certified under the EU Digital Services Act, or go to court.',
+      'Stopping you from posting does not affect your access to the course. For a serious or repeated breach, section 13 applies.',
+    ],
+  },
+  {
     id: 'termination',
-    title: '12. Suspension and ending your account',
+    title: '13. Suspension and ending your account',
     body: [
       'You can ask us to close your account at any time by writing to us. Closing your account ends your access. The purchase price is not refunded, except where the law requires it.',
-      'We may suspend or close your account if you seriously break these Terms, in particular sections 2 (account sharing), 6 (copyright) or 11 (fair use), or if you do not pay. Where reasonable, we will warn you first and give you a chance to fix the problem. If we close your account for a serious breach, you are not entitled to a refund.',
+      'We may suspend or close your account if you seriously break these Terms, in particular sections 2 (account sharing), 6 (copyright), 11 (fair use) or 12 (community rules), or if you do not pay. Where reasonable, we will warn you first and give you a chance to fix the problem. If we close your account for a serious breach, you are not entitled to a refund.',
       'Your statutory rights, including the right to terminate for good cause, are not affected.',
     ],
   },
   {
     id: 'liability',
-    title: '13. Our liability',
+    title: '14. Our liability',
     body: [
       'We are liable without limitation for damage caused intentionally or through gross negligence, for injury to life, body or health, under the German Product Liability Act (Produkthaftungsgesetz), and where we have given a guarantee.',
       'For slight negligence we are only liable if we breach an essential contractual obligation, meaning an obligation that makes proper performance of the contract possible in the first place and on which you may regularly rely. In that case our liability is limited to the damage that is typical and foreseeable for this kind of contract.',
@@ -182,15 +202,15 @@ export const TERMS = [
   },
   {
     id: 'privacy',
-    title: '14. Your personal data',
+    title: '15. Your personal data',
     body: [
-      `We process your personal data (name, email, payment confirmation, course progress, quiz results, messages to us and AI coach conversations) to provide the course, in line with the EU General Data Protection Regulation (GDPR). Details, including your rights and the service providers we use (such as Supabase for accounts, Stripe for payments, Vercel for hosting and Anthropic for the AI coach), are in our **Privacy Policy**, linked at the bottom of every page.`,
+      `We process your personal data (name, email, payment confirmation, course progress, quiz results, messages to us, AI coach conversations, and your community display name and posts) to provide the course, in line with the EU General Data Protection Regulation (GDPR). Details, including your rights and the service providers we use (such as Supabase for accounts, Stripe for payments, Vercel for hosting and Anthropic for the AI coach), are in our **Privacy Policy**, linked at the bottom of every page.`,
       'We record when you accepted these Terms, and which version you accepted, so that we can show that you agreed to them.',
     ],
   },
   {
     id: 'changes',
-    title: '15. Changes to these Terms',
+    title: '16. Changes to these Terms',
     body: [
       'We may change these Terms for good reason, for example because of new laws or court decisions, new features, or changes to the platform. We will tell you about any change by email or on the platform at least 4 weeks before it takes effect.',
       'If you do not agree, you can object or close your account. Changes do not affect the main things you paid for (the course content and your access) without your agreement. If you keep using the platform after the change takes effect without objecting, the new Terms apply. We will remind you of this in our notice.',
@@ -198,7 +218,7 @@ export const TERMS = [
   },
   {
     id: 'law',
-    title: '16. Governing law, disputes and final provisions',
+    title: '17. Governing law, disputes and final provisions',
     body: [
       'German law applies, excluding the UN Convention on Contracts for the International Sale of Goods (CISG). If you are a consumer living in another country, you also keep the protection of the mandatory consumer laws of that country.',
       `If you are a merchant (Kaufmann), a legal entity under public law, or have no general place of jurisdiction in Germany, the exclusive place of jurisdiction is ${LEGAL.court}, Germany.`,

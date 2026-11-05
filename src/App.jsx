@@ -15,6 +15,7 @@ import { CoachLauncher, PracticeStudio } from './coach/Coach.jsx'
 import { refreshCoachPlan } from './coach/plan.jsx'
 import AdminPage from './ui/Admin.jsx'
 import ContactPage from './ui/Contact.jsx'
+import Community from './ui/Community.jsx'
 import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
 import { TERMS_VERSION } from './content/terms.js'
 import { ownedModules } from './content/pricing.js'
@@ -169,7 +170,7 @@ export default function App() {
     return () => clearTimeout(saveTimer.current)
   }, [progress, user])
 
-  useEffect(() => { window.scrollTo({ top: 0 }) }, [view.name, view.moduleId])
+  useEffect(() => { window.scrollTo({ top: 0 }) }, [view.name, view.moduleId, view.threadId])
 
   const practice = isLive ? practiceLive : (progress.practice || [])
   const api = useMemo(() => ({
@@ -249,6 +250,7 @@ export default function App() {
   else if (user && user.termsVersion !== TERMS_VERSION) screen = <AcceptTerms />
   else if (!user && !['landing', 'signup', 'signin', 'reset'].includes(view.name)) screen = <Landing />
   else if (view.name === 'contact' && user) screen = <ContactPage />
+  else if (view.name === 'community' && user) screen = <Community key={view.threadId || 'list'} threadId={view.threadId} />
   else if (user && !paid && !['checkout', 'landing'].includes(view.name)) screen = <Checkout />
   else if (view.name === 'landing') screen = <Landing />
   else if (['signup', 'signin', 'reset'].includes(view.name)) screen = <AuthScreen mode={view.name} />

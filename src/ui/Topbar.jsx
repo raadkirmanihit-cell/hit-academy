@@ -40,6 +40,7 @@ export default function Topbar() {
           </button>
           <div className="spacer" />
           <button className="btn btn-ghost btn-sm nav-courses" onClick={showCourses}>Courses</button>
+          {user && <button className="btn btn-ghost btn-sm nav-courses hide-phone" aria-current={view.name === 'community' ? 'page' : undefined} onClick={() => go('community')}>Community</button>}
           {stats && view.name !== 'dashboard' && (
             <button className={'btn btn-ghost btn-sm' + (user ? '' : ' hide-phone')} onClick={() => go('dashboard')}>
               <span className="hide-phone">Dashboard</span> <span className="pill orange tnum">{stats.pctAll}%</span>
@@ -64,6 +65,7 @@ export default function Topbar() {
                   </div>
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('dashboard') }}>My dashboard</button>}
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('certificate') }}>My certificate</button>}
+                  <button role="menuitem" onClick={() => { setOpen(false); go('community') }}>Community</button>
                   <button role="menuitem" onClick={() => { setOpen(false); go('contact') }}>Message Raad</button>
                   {admin && <button role="menuitem" onClick={() => { setOpen(false); go('admin') }}>Control board (admin)</button>}
                   <button role="menuitem" onClick={() => setAuthorMode(!authorMode)}>
