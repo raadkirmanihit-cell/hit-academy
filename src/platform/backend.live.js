@@ -148,6 +148,12 @@ export const liveBackend = {
   async adminData() { return api('/api/admin-students') },
   async adminAction(action, payload = {}) { return api('/api/admin-action', { action, ...payload }) },
   async sendMessage({ subject, body }) { return api('/api/message', { subject, body }) },
+  // Community forum: { thread } reads one conversation, { category } a list, { admin: true } the moderation view.
+  async forum({ thread, category, admin } = {}) {
+    const q = admin ? '?admin=1' : thread ? `?thread=${encodeURIComponent(thread)}` : category ? `?category=${encodeURIComponent(category)}` : ''
+    return api('/api/forum' + q)
+  },
+  async forumAction(action, payload = {}) { return api('/api/forum', { action, ...payload }) },
   // AI coach subscription: status, Stripe Checkout to subscribe, Stripe's page to cancel or change the card.
   async coachPlan() { return api('/api/coach-plan') },
   // Whether the €126 launch price for the complete course is still on.

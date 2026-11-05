@@ -2,9 +2,9 @@
 // Screens live in the hash (#/module/m2/intro) so the static host needs no server rewrites.
 // Hashes from sign-in emails (#access_token=...) do not start with "#/" and are left alone.
 
-const NAMES = ['landing', 'signup', 'signin', 'reset', 'checkout', 'dashboard', 'module', 'practice', 'certificate', 'contact', 'admin', 'legal']
+const NAMES = ['landing', 'signup', 'signin', 'reset', 'checkout', 'dashboard', 'module', 'practice', 'certificate', 'contact', 'admin', 'legal', 'community']
 // The extra value each screen carries in its address, in order.
-const PARTS = { module: ['moduleId', 'stepId'], practice: ['scenarioId'], checkout: ['choice'], legal: ['page'] }
+const PARTS = { module: ['moduleId', 'stepId'], practice: ['scenarioId'], checkout: ['choice'], legal: ['page'], community: ['threadId'] }
 
 // Screen -> address. Returns null for screens that should not get their own address.
 export function toHash(view) {

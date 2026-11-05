@@ -1445,3 +1445,56 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .practice-row .num { background: var(--navy); color: var(--orange); }
 .practice-row.done .num { background: var(--good); color: #fff; }
 .practice-row-step { display: block; font: 500 .66rem/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--orange-ink); margin-bottom: .15rem; }
+
+/* ---- Community forum ---- */
+.cm-teaser { border-top-color: var(--navy-2); }
+.cm-dot { display: grid; place-items: center; background: var(--navy); color: var(--orange); }
+.cm-page { display: grid; gap: 1.5rem; padding-block: 2rem 4rem; }
+.cm-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; }
+.cm-head p { margin: 0; max-width: 60ch; }
+.cm-layout { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; align-items: start; }
+.cm-cats { display: grid; gap: .25rem; position: sticky; top: 84px; }
+.cm-cat { display: flex; justify-content: space-between; gap: .5rem; text-align: left; padding: .6rem .8rem; border-radius: var(--r-s); border: 0; background: transparent; color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.cm-cat:hover { background: var(--surface-2); }
+.cm-cat.on { background: var(--navy); color: var(--on-navy); }
+.cm-cat.on .muted { color: var(--on-navy); opacity: .75; }
+.cm-thread { display: flex; justify-content: space-between; gap: 1rem; align-items: center; text-align: left; padding: 1rem 1.2rem; font: inherit; color: inherit; cursor: pointer; width: 100%; }
+.cm-thread:hover { border-color: var(--orange); }
+.cm-thread-main { display: grid; gap: .4rem; min-width: 0; }
+.cm-thread-main h3 { font-size: 1.1rem; overflow-wrap: anywhere; }
+.cm-thread-meta { display: grid; gap: .2rem; text-align: right; flex: 0 0 auto; }
+.cm-author { display: inline-flex; align-items: center; gap: .4rem; vertical-align: middle; color: var(--ink); }
+.cm-avatar { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--surface-2); color: var(--ink-2); font: 600 .7rem/1 var(--f-body); flex: 0 0 auto; }
+.cm-avatar.trainer { background: var(--navy); color: var(--orange); }
+.cm-empty { display: grid; justify-items: center; text-align: center; gap: .5rem; padding: 2.5rem 1.5rem; color: var(--muted); }
+.cm-empty h3 { color: var(--ink); }
+.cm-empty p { margin: 0; max-width: 46ch; }
+.cm-setup { padding: 1.25rem 1.4rem; }
+.cm-rules { margin: 0; padding-left: 1.3rem; display: grid; gap: .35rem; color: var(--ink-2); }
+.cm-check { display: flex; gap: .6rem; align-items: flex-start; font-size: .92rem; }
+.cm-check input { margin-top: .2rem; width: 18px; height: 18px; accent-color: var(--orange); flex: 0 0 auto; }
+.cm-thread-page { max-width: 860px; }
+.cm-title { font-size: clamp(1.6rem, 3.6vw, 2.4rem); overflow-wrap: anywhere; }
+.cm-post { display: grid; gap: .7rem; padding: 1.1rem 1.3rem; }
+.cm-post.first { border-left: 4px solid var(--orange); }
+.cm-post.removed { opacity: .85; border-style: dashed; }
+.cm-post.gone { padding: .8rem 1.2rem; border: 1px dashed var(--line); border-radius: var(--r-m); }
+.cm-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.cm-actions { gap: .2rem; margin-left: -.6rem; }
+.cm-actions .btn { color: var(--muted); }
+.cm-actions .cm-mod { color: var(--bad); }
+.cm-sub { background: var(--surface-2); border-radius: var(--r-m); padding: 1rem; }
+.cm-removed { background: var(--bad-soft); }
+.cm-locked { max-width: 680px; margin: 2rem auto 0; padding: 2.2rem 2rem; display: grid; gap: .8rem; justify-items: center; text-align: center; }
+.cm-locked p { margin: 0; max-width: 54ch; }
+.cm-locked-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: var(--orange); }
+.cm-locked-list { text-align: left; margin: .4rem 0; padding-left: 1.2rem; display: grid; gap: .45rem; color: var(--ink-2); }
+.topbar .nav-courses[aria-current="page"] { background: var(--surface-2); }
+@media (max-width: 760px) {
+  .cm-layout { grid-template-columns: 1fr; }
+  .cm-cats { position: static; display: flex; gap: .35rem; overflow-x: auto; padding-bottom: .25rem; }
+  .cm-cat { white-space: nowrap; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 99px; padding: .45rem .8rem; }
+  .cm-thread { flex-direction: column; align-items: stretch; }
+  .cm-thread-meta { display: flex; gap: 1rem; text-align: left; }
+  .cm-locked { padding: 1.6rem 1.2rem; }
+}
