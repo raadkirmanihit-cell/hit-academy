@@ -337,7 +337,7 @@ const m1 = {
           id: 'l6-roleplay', title: 'Role-play: your salary review',
           blocks: [
             { t: 'activity', ...act.salaryRolePlay },
-            { t: 'callout', tone: 'tip', title: 'Practise it live with the AI', text: 'Want to try this against a tough counterpart who answers back? The **Negotiation Arena** on your dashboard has live AI role-plays, including Dana, a finance director who changes behaviour mid-conversation.' },
+            { t: 'callout', tone: 'tip', title: 'Practise it live with the AI', text: 'Want to try this against a tough counterpart who answers back? **The Arena** on your dashboard has live AI role-plays, including Dana, a finance director who changes behaviour mid-conversation.' },
             { t: 'reflect', id: 'r-l6', prompt: 'For your next negotiation, write your plan as one line: "I will use a ____ strategy, delivered with ____ behaviour, because ____." Then write the first sentence you will say.' },
           ],
         },

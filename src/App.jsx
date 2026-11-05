@@ -40,7 +40,7 @@ export default function App() {
   const [launch, setLaunch] = useState({ launch: false }) // launch price for the complete course
   const [authorMode, setAuthorMode] = useState(false)
   const [admin, setAdmin] = useState(false)
-  // Negotiation Arena scores. Live site: the server's record (loaded on sign-in). Preview: kept with progress.
+  // The Arena scores. Live site: the server's record (loaded on sign-in). Preview: kept with progress.
   const [practiceLive, setPracticeLive] = useState([])
   const toastTimer = useRef()
   const loaded = useRef(false) // progress is only saved after it has been loaded

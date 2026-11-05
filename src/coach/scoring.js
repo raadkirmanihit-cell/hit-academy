@@ -1,4 +1,4 @@
-// How Negotiation Arena role-plays are scored (Raad's scoring guide, November 2026).
+// How The Arena role-plays are scored (Raad's scoring guide, November 2026).
 // Shared by the server (which scores and records every attempt) and the app (which shows the results).
 
 export const SKILLS = [

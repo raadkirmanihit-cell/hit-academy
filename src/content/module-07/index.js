@@ -466,7 +466,7 @@ const m7 = {
           blocks: [
             { t: 'lead', text: 'Real negotiations rarely use one tactic at a time. In this role-play, a vendor uses several. Spot each one, and choose your counter.' },
             { t: 'activity', ...act.vendorRoleplay },
-            { t: 'callout', tone: 'tip', title: 'Practise it live with the AI', text: 'Want to face these tactics live? The **Negotiation Arena** on your dashboard has an AI role-play of this fleet-management deal, with a feedback report at the end.' },
+            { t: 'callout', tone: 'tip', title: 'Practise it live with the AI', text: 'Want to face these tactics live? **The Arena** on your dashboard has an AI role-play of this fleet-management deal, with a feedback report at the end.' },
             { t: 'reflect', id: 'r-tactics', prompt: 'Think about your next important negotiation. Which two tactics are you most likely to face? Write the warning sign you will watch for, and the exact sentence you will use to counter each one.' },
           ],
         },

@@ -25,7 +25,7 @@ export function refreshCoachPlan() {
 export function usedOneMessage() {
   if (state.plan && Number.isFinite(state.plan.left)) set({ plan: { ...state.plan, left: Math.max(0, state.plan.left - 1), used: (state.plan.used || 0) + 1 } })
 }
-// The same for a Negotiation Arena role-play message: the subscription's monthly messages go first,
+// The same for an Arena role-play message: the subscription's monthly messages go first,
 // then the practice pack that comes with the complete course, then the free taster (as on the server).
 export function usedOnePractice() {
   const p = state.plan
@@ -50,7 +50,7 @@ export function useCoachPlan() {
     plan,
     // Live site without a subscription and no free messages left: show the subscribe card.
     locked: isLive && !!plan && !plan.subscribed && plan.left <= 0,
-    // The Negotiation Arena also opens with the practice pack from the complete course.
+    // The The Arena also opens with the practice pack from the complete course.
     practiceLocked: isLive && !!plan && !plan.subscribed && plan.left <= 0 && !(plan.practiceLeft > 0),
     refresh: refreshCoachPlan,
   }
@@ -136,7 +136,7 @@ export function CoachPlanCard() {
         ) : (
           <>
             <h4>{plan.left > 0 ? `${plan.left} free coach message${plan.left === 1 ? '' : 's'} left` : plan.included ? 'Your included coach months have ended' : 'Free coach messages used up'}</h4>
-            <p className="small muted">Subscribe for €{COACH_PRICE} a month to keep using the AI coach and the Negotiation Arena. Cancel any time.</p>
+            <p className="small muted">Subscribe for €{COACH_PRICE} a month to keep using the AI coach and the Arena. Cancel any time.</p>
           </>
         )}
         {err && <p className="error small" role="alert">{err}</p>}
@@ -159,14 +159,14 @@ export function CoachPlanCard() {
   )
 }
 
-// AI messages the student can still use in the Negotiation Arena: the coach messages
+// AI messages the student can still use in the Arena: the coach messages
 // (monthly or free taster) plus any practice packs.
 export function practiceMessagesLeft(plan) {
   if (!plan || plan.preview || !Number.isFinite(plan.left)) return null
   return Math.max(0, plan.left) + Math.max(0, plan.practiceLeft || 0)
 }
 
-// Top right of the Negotiation Arena: how many AI messages are left, and a button to buy more.
+// Top right of the Arena: how many AI messages are left, and a button to buy more.
 export function PracticeCounter({ onBuy }) {
   const { plan } = useCoachPlan()
   const left = practiceMessagesLeft(plan)
@@ -185,7 +185,7 @@ export function PracticeCounter({ onBuy }) {
   )
 }
 
-// Buy 150 more Negotiation Arena messages for €12 (one payment, no subscription).
+// Buy 150 more The Arena messages for €12 (one payment, no subscription).
 export function TopUpCard({ onClose }) {
   const [consent, setConsent] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -195,7 +195,7 @@ export function TopUpCard({ onClose }) {
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'start', gap: '1rem' }}>
         <div>
           <span className="eyebrow">Extra practice messages</span>
-          <h4>{TOPUP_MESSAGES} more AI messages for the Negotiation Arena</h4>
+          <h4>{TOPUP_MESSAGES} more AI messages for the Arena</h4>
         </div>
         <p className="coach-price"><strong className="tnum">€{TOPUP_PRICE}</strong> <span className="muted">one payment</span></p>
       </div>

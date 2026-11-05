@@ -46,7 +46,7 @@ export default function AdminPage() {
         <button className="btn btn-ghost btn-sm" onClick={() => { setData(null); load() }}>Refresh</button>
       </div>
       <div className="tabs" role="tablist">
-        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'Negotiation Arena'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
+        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'The Arena'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
           <button key={id} className="tab" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -175,7 +175,7 @@ function Students({ data, act }) {
                           })}
                         </tbody>
                       </table>
-                      <p className="small muted">Negotiation Arena: {r.practice?.attempts ? <>{r.practice.attempts} scored role-play{r.practice.attempts === 1 ? '' : 's'}, best score {r.practice.best ?? '–'}/100, levels passed: {r.practice.levelsPassed.length ? LEVELS.filter((l) => r.practice.levelsPassed.includes(l)).join(', ') : 'none yet'}. See the Negotiation Arena tab for each attempt.</> : 'no scored role-plays yet'}</p>
+                      <p className="small muted">The Arena: {r.practice?.attempts ? <>{r.practice.attempts} scored role-play{r.practice.attempts === 1 ? '' : 's'}, best score {r.practice.best ?? '–'}/100, levels passed: {r.practice.levelsPassed.length ? LEVELS.filter((l) => r.practice.levelsPassed.includes(l)).join(', ') : 'none yet'}. See the Arena tab for each attempt.</> : 'no scored role-plays yet'}</p>
                       <div className="row" style={{ gap: '.5rem' }}>
                         <a className="btn btn-ghost btn-sm" href={`mailto:${r.email}`}>Email {r.name.split(' ')[0] || 'student'}</a>
                         <button className="btn btn-ghost btn-sm" onClick={() => {
@@ -337,7 +337,7 @@ function Practice({ data }) {
   }), [attempts])
   const rows = attempts.filter((a) => !q || `${a.name} ${a.email}`.toLowerCase().includes(q.toLowerCase()))
 
-  if (!ready) return <p className="muted">Run database update 6 (supabase/update-6-practice-scores.sql) in Supabase to record and see Negotiation Arena scores here.</p>
+  if (!ready) return <p className="muted">Run database update 6 (supabase/update-6-practice-scores.sql) in Supabase to record and see Arena scores here.</p>
   return (
     <div className="stack" style={{ gap: '1.5rem' }}>
       <div className="admin-stats">
