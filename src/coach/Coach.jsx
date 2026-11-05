@@ -668,7 +668,7 @@ export function PracticeStudio() {
           <div className="card practice-rules">
             <h4>Rules of the game</h4>
             <ul className="small rules-how">
-              <li><strong>Clear a level</strong> by passing one of its role-plays: score {PASS_SCORE} points or more out of 100, with each of the five skills rated at least {PASS_MIN_SKILL} out of 5. Retry as often as you like.</li>
+              <li><strong>Clear a level</strong> by passing one of its role-plays: score {PASS_SCORE} points or more out of 100, with no skill rated below {PASS_MIN_SKILL} out of 5. Retry as often as you like.</li>
               <li><strong>Aim for 10 exchanges or more.</strong> A real negotiation needs time to unfold: the other side opens up, pushes back and tests you.</li>
               <li><strong>Messages:</strong> each AI reply uses 1, and your feedback report uses 1.</li>
             </ul>
