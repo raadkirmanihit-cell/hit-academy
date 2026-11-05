@@ -690,7 +690,6 @@ export function PracticeStudio() {
                     <li>Insult or swear at the other side: they end the meeting and it can't pass.</li>
                     <li>Use strong swear words. One slip is forgiven; after that your score drops.</li>
                     <li>Send test messages or random text: each uses a message and repeats lower your score.</li>
-                    <li>Drift off topic for long. A little small talk is fine.</li>
                   </ul>
                 </div>
               </div>
