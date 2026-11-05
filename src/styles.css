@@ -1150,9 +1150,14 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .studio-card h4 { margin: 0; }
 @media (max-width: 420px) { .studio-card { grid-template-columns: 110px minmax(0, 1fr); gap: .8rem; } }
 .studio-head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: start; justify-content: space-between; }
-.practice-counter { display: grid; grid-template-columns: auto auto; column-gap: .5rem; align-items: baseline; padding: .6rem .9rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-.practice-counter-n { font-weight: 700; font-size: 1.5rem; color: var(--ink); }
-.practice-counter .linklike { grid-column: 1 / -1; justify-self: start; }
+.practice-counter { display: flex; align-items: center; gap: .75rem; padding: .5rem .55rem .5rem .6rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); box-shadow: 0 2px 10px rgba(11, 26, 68, .06); }
+.practice-counter-icon { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: var(--orange); flex: none; }
+.practice-counter-text { display: grid; line-height: 1.1; }
+.practice-counter-n { font-weight: 700; font-size: 1.25rem; color: var(--ink); }
+.practice-counter-label { font: 500 .66rem/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.practice-counter-buy { border: 0; border-radius: 999px; padding: .5rem .95rem; background: var(--orange); color: #fff; font-family: inherit; font-weight: 600; font-size: .85rem; line-height: 1; cursor: pointer; white-space: nowrap; transition: background .15s; }
+.practice-counter-buy:hover { background: var(--orange-ink); }
+.practice-counter.low { border-color: var(--orange); }
 .practice-counter.low .practice-counter-n { color: var(--orange-ink); }
 .practice-howto { padding: 1rem 1.2rem; }
 .practice-howto h4 { margin: 0 0 .4rem; }

@@ -173,9 +173,14 @@ export function PracticeCounter({ onBuy }) {
   if (!isLive || left == null) return null
   return (
     <div className={'practice-counter' + (left <= 20 ? ' low' : '')}>
-      <span className="practice-counter-n tnum">{left}</span>
-      <span className="small">AI message{left === 1 ? '' : 's'} left</span>
-      <button type="button" className="linklike small" onClick={onBuy}>Buy more</button>
+      <span className="practice-counter-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /><path d="M8.5 12h.01M12 12h.01M15.5 12h.01" /></svg>
+      </span>
+      <span className="practice-counter-text">
+        <span className="practice-counter-n tnum">{left}</span>
+        <span className="practice-counter-label">AI message{left === 1 ? '' : 's'} left</span>
+      </span>
+      <button type="button" className="practice-counter-buy" onClick={onBuy}>+ Buy more</button>
     </div>
   )
 }
