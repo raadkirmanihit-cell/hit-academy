@@ -18,7 +18,7 @@ import ContactPage from './ui/Contact.jsx'
 import Community from './ui/Community.jsx'
 import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
 import { TERMS_VERSION } from './content/terms.js'
-import { ownedModules } from './content/pricing.js'
+import { ownedModules, hasArena } from './content/pricing.js'
 import { practiceHistory } from './coach/practiceApi.js'
 import { fromHash, writeHash } from './platform/route.js'
 
@@ -26,7 +26,7 @@ import { fromHash, writeHash } from './platform/route.js'
 const ownedOf = (u) => ownedModules(u?.purchases)
 const hasAny = (u) => ownedOf(u).size > 0
 // After a Stripe payment: is the thing they just bought unlocked yet?
-const unlocked = (u, item) => (item && item !== 'bundle' ? ownedOf(u).has(item) : ownedOf(u).size === 7)
+const unlocked = (u, item) => (item === 'arena' ? hasArena(u?.purchases) : item && item !== 'bundle' ? ownedOf(u).has(item) : ownedOf(u).size === 7)
 
 const Ctx = createContext(null)
 export const useApp = () => useContext(Ctx)
@@ -105,7 +105,7 @@ export default function App() {
       backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
       if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
-      // Back from buying extra practice messages: wait until the server has counted the new pack.
+      // Back from buying Arena tokens: wait until the server has counted the new pack.
       if (u && checkout === 'success' && item === 'practice') {
         const had = Number(params.get('had') || 0)
         let plan = null
@@ -116,7 +116,7 @@ export default function App() {
         await enter(u)
         await refreshCoachPlan()
         go('practice', {}, { replace: true })
-        notify(plan?.topups > had ? 'Payment received. Your extra practice messages are ready.' : 'Payment received. Your messages appear in a minute: please reload this page shortly.', 6000)
+        notify(plan?.topups > had ? 'Payment received. Your new Arena tokens are ready.' : 'Payment received. Your tokens appear in a minute: please reload this page shortly.', 6000)
         off = backend.onRecovery(() => go('newpass')) || (() => {})
         setBooted(true)
         return
@@ -129,7 +129,8 @@ export default function App() {
         }
       }
       if (u) await enter(u, { welcome: checkout === 'success' && unlocked(u, item) })
-      if (u && checkout === 'success' && item && item !== 'bundle' && unlocked(u, item)) go('module', { moduleId: item }, { replace: true })
+      if (u && checkout === 'success' && item === 'arena' && unlocked(u, item)) { await refreshCoachPlan(); go('practice', {}, { replace: true }) }
+      else if (u && checkout === 'success' && item && item !== 'bundle' && unlocked(u, item)) go('module', { moduleId: item }, { replace: true })
       if (LEGAL_PAGES[params.get('page')]) go('legal', { page: params.get('page') }, { replace: true })
       else if (startView && startView.name !== 'landing' && !checkout && !coach) {
         // Reopen the screen they were on. Sign-in forms make no sense once signed in.
@@ -204,7 +205,7 @@ export default function App() {
     async purchase(choice, opts) {
       const u = await backend.startCheckout(user, choice, opts)
       setUser(u)
-      if (choice !== 'bundle') go('module', { moduleId: choice }); else go('dashboard', { welcome: true })
+      if (choice === 'arena') { await refreshCoachPlan(); go('practice') } else if (choice !== 'bundle') go('module', { moduleId: choice }); else go('dashboard', { welcome: true })
     },
     async resetProgress() {
       if (user) await backend.resetProgress(user.id)

@@ -2,7 +2,7 @@
 // and keeps the AI coach subscription in sync: new, renewed, failed, cancelled, refunded.
 import Stripe from 'stripe'
 import { env, db, notifyOwner, markRefunded, saveSubscription, PRODUCT_ID, INVOICE_FOOTER } from './_lib.js'
-import { moduleFromProduct, TOPUP_ID, TOPUP_MESSAGES } from '../src/content/pricing.js'
+import { moduleFromProduct, TOPUP_ID, TOPUP_MESSAGES, ARENA_ID } from '../src/content/pricing.js'
 
 // Stripe signs the exact bytes it sent, so read the raw body.
 async function rawBody(req) {
@@ -42,10 +42,10 @@ export default async function handler(req, res) {
         // Before database update 2 is run, the extra columns don't exist yet: save the purchase without them.
         if (error && /column|schema cache/i.test(error.message || '')) ({ error } = await db().from('purchases').upsert(row, { onConflict: 'stripe_session_id' }))
         if (error) throw error
-        // The complete course comes with the AI role-play practice pack, counted in api/_lib.js (coachAccess).
+        // The complete course comes with a pack of Arena tokens, counted in api/_lib.js (coachAccess).
         const { data: p } = await db().from('profiles').select('name, email').eq('id', userId).maybeSingle()
         const mod = moduleFromProduct(row.product_id)
-        const what = row.product_id === TOPUP_ID ? `${TOPUP_MESSAGES} extra practice messages` : mod ? `Module ${mod.slice(1)}` : 'the complete course'
+        const what = row.product_id === TOPUP_ID ? `${TOPUP_MESSAGES} Arena tokens` : row.product_id === ARENA_ID ? 'the Arena' : mod ? `Module ${mod.slice(1)}` : 'the complete course'
         await notifyOwner(`New purchase (${what}): ${p?.name || s.customer_details?.name || 'a student'}`, [
           `${p?.name || ''} <${p?.email || s.customer_details?.email || ''}> just bought ${what}.`,
           `Amount: ${(s.amount_total / 100).toFixed(2)} ${String(s.currency).toUpperCase()}`,

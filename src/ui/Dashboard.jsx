@@ -1,8 +1,7 @@
 import { useApp } from '../App.jsx'
 import { courseStats, flatSteps, moduleStats } from '../platform/progress.js'
 import { Icon } from './icons.jsx'
-import { CoachTeaser } from '../coach/Coach.jsx'
-import { CoachPlanCard } from '../coach/plan.jsx'
+import { CoachTile, ArenaTile, TopUpCard } from '../coach/plan.jsx'
 import { offers, MODULE_PRICE, BUNDLE_PRACTICE_MESSAGES, FREE_MODULES, euro } from '../content/pricing.js'
 import { useState } from 'react'
 import { pitch, moduleInside, previewBlock } from '../content/module-pitch.js'
@@ -19,6 +18,7 @@ export default function Dashboard() {
   const resumeStep = resumeSteps.find((s) => s.id === last?.stepId) || resumeSteps[0]
   const rs = moduleStats(resumeModule, progress)
   const first = user.name.split(' ')[0]
+  const [buying, setBuying] = useState(false)
 
   return (
     <div className="wrap" style={{ paddingBottom: '4rem' }}>
@@ -51,28 +51,36 @@ export default function Dashboard() {
         </div>
 
         {!selfEvalOf(progress).before && <SelfEvalCard modulesOk={stats.modulesOk} />}
-        <CoachTeaser />
-        <CoachPlanCard />
-
-        <div className="card coach-teaser cm-teaser">
-          <span className="coach-dot lg cm-dot" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="9" r="3.2" /><circle cx="16.5" cy="10" r="2.6" /><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8M14.5 15c2.6-.4 5 1 5.8 4" /></svg></span>
-          <div>
-            <span className="eyebrow">{owned.size > 1 ? 'Members' : 'Members only'}</span>
-            <h4>The HIT Academy community</h4>
+        <div className="premium-tiles">
+          <CoachTile />
+          <ArenaTile onOpen={() => go('practice')} onBuy={() => setBuying(true)} />
+          <div className="card premium-tile tile-community">
+            <div className="tile-top">
+              <span className="coach-dot lg cm-dot" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="9" r="3.2" /><circle cx="16.5" cy="10" r="2.6" /><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8M14.5 15c2.6-.4 5 1 5.8 4" /></svg></span>
+              <span className="eyebrow">{owned.size > 1 ? 'Members' : 'Members only'}</span>
+            </div>
+            <h4>The community</h4>
             <p className="small muted">Share your wins, ask other members how they would handle a tough conversation, and find practice partners.</p>
+            <div className="tile-actions">
+              <button className="btn btn-sm" onClick={() => go('community')}>{owned.size > 1 ? 'Open the community' : 'See what is inside'}</button>
+            </div>
           </div>
-          <div className="row" style={{ gap: '.5rem' }}>
-            <button className="btn" onClick={() => go('community')}>{owned.size > 1 ? 'Open the community' : 'See what is inside'}</button>
-          </div>
+        </div>
+        {buying && <TopUpCard onClose={() => setBuying(false)} />}
+
+        {/* My courses: one block per course (banner, then its modules), so a second course simply adds another block. */}
+        <div className="dash-section-title">
+          <h2>My courses</h2>
         </div>
 
         <div className="stack">
-          <h3>Course modules</h3>
+          <CourseBanner course={course} stats={stats} owned={owned} />
+          <div className="modules-label"><span>Course modules</span></div>
           {o.bundle && (
             <div className="card upgrade-card">
               <div>
                 <strong>Unlock all 7 modules for {euro(o.bundle.price)}{o.bundle.launch && !o.bundle.credit ? ` (launch price, normally ${euro(o.bundle.regular)})` : ''}</strong>
-                <p className="small muted">{o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for the modules you bought. ` : ''}Save {euro(o.bundle.saving)} compared with buying them one by one. Includes {BUNDLE_PRACTICE_MESSAGES} AI role-play practice messages in the Arena and the certificate.</p>
+                <p className="small muted">{o.bundle.credit ? `You pay only the difference: ${euro(o.bundle.full)} less ${euro(o.bundle.credit)} for what you already bought. ` : ''}Save {euro(o.bundle.saving)} compared with buying them one by one. Includes the Arena for AI role-plays ({BUNDLE_PRACTICE_MESSAGES} tokens, valid for a year) and the certificate.</p>
               </div>
               <button className="btn btn-primary btn-sm" onClick={() => go('checkout', { choice: 'bundle' })}>Unlock all</button>
             </div>
@@ -202,6 +210,31 @@ function ModulePitch({ mod, onUnlock }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// The course's own banner on the dashboard: name, tagline and progress.
+function CourseBanner({ course, stats, owned }) {
+  const name = course.displayName || course.title
+  const [first, ...rest] = name.split(' & ')
+  const total = course.modules.length
+  const unlocked = course.modules.filter((m) => owned.has(m.id)).length
+  return (
+    <div className="course-banner">
+      <div className="course-banner-text">
+        <span className="course-banner-eyebrow">Course · Self-paced · {total} modules</span>
+        <h2>{rest.length ? <>{first} <span className="amp">&amp;</span> {rest.join(' & ')}</> : name}</h2>
+        <p>{course.tagline}</p>
+        <div className="course-banner-stats">
+          <span><strong className="tnum">{stats.completeCount}</strong> of {total} modules complete</span>
+          <span><strong className="tnum">{unlocked}</strong> unlocked</span>
+          <span>Certificate of completion</span>
+        </div>
+      </div>
+      <div className="ring course-banner-ring" style={{ '--p': stats.pctAll }} aria-label={`${name}: ${stats.pctAll}% complete`}>
+        <div><span><strong className="tnum">{stats.pctAll}%</strong><br /><span className="small">done</span></span></div>
+      </div>
     </div>
   )
 }

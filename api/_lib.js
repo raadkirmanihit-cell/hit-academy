@@ -1,6 +1,6 @@
 // Shared helpers for the server functions in /api (files starting with _ are not routes).
 import { createClient } from '@supabase/supabase-js'
-import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS, BUNDLE_PRACTICE_MESSAGES, TOPUP_ID, TOPUP_MESSAGES, PAID_MODULES, moduleProductId } from '../src/content/pricing.js'
+import { BUNDLE_ID, COURSE_PRODUCT_IDS, LAUNCH_BUYERS, BUNDLE_COACH_MONTHS, BUNDLE_PRACTICE_MESSAGES, TOPUP_ID, TOPUP_MESSAGES, PAID_MODULES, moduleProductId, ARENA_ID, ARENA_TOKENS } from '../src/content/pricing.js'
 
 export const PRODUCT_ID = BUNDLE_ID // the complete course (all 7 modules); single modules are hit-negotiation-m1…m7
 
@@ -45,14 +45,15 @@ export async function requireUser(req) {
 
 // The student's paid course purchases, as [{ productId, status }] (the shape pricing.js expects).
 export async function coursePurchases(userId) {
-  const { data, error } = await db().from('purchases').select('product_id, status').eq('user_id', userId).eq('status', 'paid').in('product_id', COURSE_PRODUCT_IDS)
+  // The Arena is included too: it counts towards the complete-course upgrade price.
+  const { data, error } = await db().from('purchases').select('product_id, status').eq('user_id', userId).eq('status', 'paid').in('product_id', [...COURSE_PRODUCT_IDS, ARENA_ID])
   if (error) throw error
   return (data || []).map((p) => ({ productId: p.product_id, status: p.status }))
 }
 
 // Bought the complete course or at least one module.
 export async function hasPaid(userId) {
-  return (await coursePurchases(userId)).length > 0
+  return (await coursePurchases(userId)).some((p) => p.productId !== ARENA_ID)
 }
 
 export function isAdmin(user) {
@@ -165,7 +166,8 @@ export async function requireAdmin(req) {
 // ---- AI coach subscription -------------------------------------------------
 
 export const COACH_PRICE_CENTS = 2100 // €21 a month (used when STRIPE_COACH_PRICE_ID isn't set)
-export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free messages for every account
+export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free coach messages for every account (coach only)
+export const ARENA_FREE_TOKENS = Number(process.env.ARENA_FREE_TOKENS || 0) // free Arena tokens for every account (off: the Arena is paid)
 export const COACH_MONTHLY_LIMIT = Number(process.env.COACH_MONTHLY_LIMIT || 300) // fair use per month
 // past_due: Stripe is still retrying a failed renewal, so access stays on until it gives up.
 // included: the coach months that come with the complete course (no Stripe subscription).
@@ -182,8 +184,35 @@ export async function getCoachSubscription(userId) {
   return data
 }
 
-// What the student may do with the coach right now.
-export async function coachAccess(userId) {
+// Arena tokens: every batch (free starter, course pack, each extra pack) lasts ARENA_TOKEN_DAYS
+// from the day it was received. Tokens are spent oldest batch first, so the ones that run out
+// soonest go first. Usage is recorded per day (practice_usage), so a day's tokens come out of
+// the batches that were valid on that day.
+export const ARENA_TOKEN_DAYS = 365
+export function arenaBalance(batches, usage, now = Date.now()) {
+  const list = batches
+    .map((b) => ({ ...b, from: dayOf(b.at), until: new Date(new Date(b.at).getTime() + ARENA_TOKEN_DAYS * 864e5), left: b.tokens }))
+    .sort((a, b) => a.until - b.until)
+  for (const u of [...usage].sort((a, b) => (a.day < b.day ? -1 : 1))) {
+    let n = u.count
+    for (const b of list) {
+      if (n <= 0) break
+      if (b.left <= 0 || b.from > u.day || dayOf(b.until) <= u.day) continue
+      const take = Math.min(n, b.left); b.left -= take; n -= take
+    }
+  }
+  const live = list.filter((b) => b.until > now)
+  const total = live.reduce((t, b) => t + b.tokens, 0)
+  const left = live.reduce((t, b) => t + b.left, 0)
+  const next = live.find((b) => b.left > 0)
+  return { total, left, used: total - left, expires: next ? next.until.toISOString() : null, expiresLeft: next ? next.left : 0 }
+}
+
+// What the student may do right now with the coach (messages) and the Arena (tokens).
+// The two are never pooled: coach messages can't be spent in the Arena, Arena tokens can't be spent on the coach.
+// user: the signed-in user (its created_at starts the free Arena tokens), or just the id.
+export async function coachAccess(user) {
+  const userId = typeof user === 'string' ? user : user.id
   const sub = await getCoachSubscription(userId)
   // A paid subscription gets 3 days' grace while Stripe confirms the renewal; included months end on the day.
   const grace = sub?.status === 'included' ? 0 : 3 * 864e5
@@ -196,25 +225,40 @@ export async function coachAccess(userId) {
   const { data: used, error } = await db().rpc('coach_usage_since', { p_user: userId, p_since: since })
   // Before update 4 the counter function is missing: count nothing, so nobody is locked out by mistake.
   const count = error ? 0 : used || 0
-  // The practice pack: AI role-play messages for complete-course buyers, counted separately, no expiry.
-  let practiceLimit = 0, practiceUsed = 0
-  // Students who bought all seven modules one by one get the same pack, so everyone can earn the certificate.
-  const { data: bought } = await db().from('purchases').select('product_id').eq('user_id', userId).eq('status', 'paid')
-  const ids = new Set((bought || []).map((p) => p.product_id))
-  // Each extra pack bought adds TOPUP_MESSAGES more (refunded packs no longer count).
-  const topups = (bought || []).filter((p) => p.product_id === TOPUP_ID).length
-  if (ids.has(BUNDLE_ID) || PAID_MODULES.every((m) => ids.has(moduleProductId(m)))) practiceLimit = BUNDLE_PRACTICE_MESSAGES
-  practiceLimit += topups * TOPUP_MESSAGES
-  if (practiceLimit > 0) {
-    const { data: pu, error: pe } = await db().rpc('practice_usage_total', { p_user: userId })
-    practiceUsed = pe ? 0 : pu || 0 // before update 5 the counter is missing: count nothing
-  }
+
+  // Arena tokens, batch by batch (refunded purchases no longer count).
+  const { data: bought } = await db().from('purchases').select('product_id, created_at').eq('user_id', userId).eq('status', 'paid')
+  const rows = bought || []
+  const batches = []
+  const joined = (typeof user === 'object' && user.created_at) || rows.map((p) => p.created_at).sort()[0] || new Date().toISOString()
+  if (ARENA_FREE_TOKENS > 0) batches.push({ kind: 'free', tokens: ARENA_FREE_TOKENS, at: joined })
+  const bundle = rows.filter((p) => p.product_id === BUNDLE_ID).map((p) => p.created_at).sort()[0]
+  // Students who bought all seven modules one by one get the same pack (from the day they owned all seven),
+  // so everyone can earn the certificate.
+  const singles = PAID_MODULES.map((m) => rows.filter((p) => p.product_id === moduleProductId(m)).map((p) => p.created_at).sort()[0])
+  const allSingles = singles.every(Boolean) ? singles.sort().at(-1) : null
+  const coursePack = bundle || allSingles
+  if (coursePack) batches.push({ kind: 'course', tokens: BUNDLE_PRACTICE_MESSAGES, at: coursePack })
+  // The Arena bought on its own (not again if the complete course already gave the tokens).
+  const arenaBuy = rows.filter((p) => p.product_id === ARENA_ID).map((p) => p.created_at).sort()[0]
+  if (arenaBuy && !coursePack) batches.push({ kind: 'arena', tokens: ARENA_TOKENS, at: arenaBuy })
+  const arenaAccess = !!(coursePack || arenaBuy)
+  const topupRows = rows.filter((p) => p.product_id === TOPUP_ID)
+  for (const p of topupRows) batches.push({ kind: 'pack', tokens: TOPUP_MESSAGES, at: p.created_at })
+  const { data: usage, error: ue } = await db().from('practice_usage').select('day, count').eq('user_id', userId)
+  const arena = arenaBalance(batches, ue ? [] : usage || []) // before update 5 the table is missing: count nothing
+
   return {
     subscribed,
-    topups,
-    practiceLimit,
-    practiceUsed,
-    practiceLeft: Math.max(0, practiceLimit - practiceUsed),
+    topups: topupRows.length,
+    // Arena: access (bought or included) and tokens
+    arenaAccess,
+    arenaTokens: arena.total,
+    arenaUsed: arena.used,
+    arenaLeft: arena.left,
+    arenaExpires: arena.expires, // when the oldest tokens still left run out
+    arenaExpiresLeft: arena.expiresLeft, // how many tokens run out on that day
+    // Coach messages
     status: sub?.status || 'none',
     periodEnd: sub?.current_period_end || null,
     cancelAtPeriodEnd: !!sub?.cancel_at_period_end,
@@ -260,26 +304,24 @@ export async function saveSubscription(sub, { userId, consentAt } = {}) {
 export const COACH_DAILY_LIMIT = Number(process.env.COACH_DAILY_LIMIT || 80)
 
 // Counts one AI message against the right allowance. Returns null when it may go ahead,
-// or { status, body } to send back when the student has no messages left.
-// practice: an Arena role-play turn or report. Those use the subscription's monthly messages
-// first (they expire), then the practice pack (no expiry), then the free taster.
-export async function chargeCoach(userId, { practice = false } = {}) {
-  const access = await coachAccess(userId)
-  const usedUp = () => access.subscribed
-    ? { status: 429, body: { error: `You have used this month's ${access.limit} coach messages. ${access.periodEnd ? `They renew on ${new Date(access.periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.` : 'They renew with your next monthly payment.'}`, code: 'monthly_limit' } }
-    : { status: 402, body: { error: practice && access.practiceLimit ? `You have used the ${access.practiceLimit} practice messages that come with the course. Buy more practice messages or subscribe to the AI coach to keep practising.` : 'Your free coach messages are used up. Subscribe to keep coaching.', code: 'needs_subscription' } }
-  let fromPack = false
-  if (practice) {
-    if (access.subscribed && access.left > 0) { /* monthly messages first */ }
-    else if (access.practiceLeft > 0) fromPack = true
-    else if (access.left <= 0) return usedUp()
-  } else if (access.left <= 0) return usedUp()
+// or { status, body } to send back when the student has nothing left.
+// practice: an Arena role-play turn or report, paid with one Arena token.
+// Otherwise a coach answer, paid with one coach message. The two are never mixed.
+export async function chargeCoach(user, { practice = false } = {}) {
+  const userId = typeof user === 'string' ? user : user.id
+  const access = await coachAccess(user)
   let count, error
-  if (fromPack) {
-    ({ data: count, error } = await db().rpc('bump_practice_usage', { p_user: userId }))
-    if (error) ({ data: count, error } = await db().rpc('bump_coach_usage', { p_user: userId })) // before update 5
-  } else ({ data: count, error } = await db().rpc('bump_coach_usage', { p_user: userId }))
+  if (practice) {
+    if (!access.arenaAccess) return { status: 402, body: { error: 'The Arena comes with the complete course, or you can unlock it on its own.', code: 'needs_arena' } }
+    if (access.arenaLeft <= 0) return { status: 402, body: { error: `You have no Arena tokens left. Buy ${TOPUP_MESSAGES} more to keep practising.`, code: 'needs_tokens' } }
+    ;({ data: count, error } = await db().rpc('bump_practice_usage', { p_user: userId }))
+  } else {
+    if (access.left <= 0) return access.subscribed
+      ? { status: 429, body: { error: `You have used this month's ${access.limit} coach messages. ${access.periodEnd ? `They renew on ${new Date(access.periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.` : 'They renew with your next monthly payment.'}`, code: 'monthly_limit' } }
+      : { status: 402, body: { error: 'Your free coach messages are used up. Subscribe to keep coaching.', code: 'needs_subscription' } }
+    ;({ data: count, error } = await db().rpc('bump_coach_usage', { p_user: userId }))
+  }
   if (error) throw error
-  if (count > COACH_DAILY_LIMIT) return { status: 429, body: { error: 'You have reached today\'s coach limit. It resets at midnight.', code: 'rate_limited' } }
+  if (count > COACH_DAILY_LIMIT) return { status: 429, body: { error: 'You have reached today\'s AI limit. It resets at midnight.', code: 'rate_limited' } }
   return null
 }

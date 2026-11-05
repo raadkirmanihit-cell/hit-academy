@@ -1,6 +1,6 @@
 // The AI coach on the live site: streams Claude's reply as plain text.
 // Every account gets a few free messages; after that it needs the monthly coach subscription.
-// Complete-course buyers also get a practice pack for the Arena role-plays.
+// Coach messages and Arena tokens are separate: see chargeCoach in _lib.js.
 // Subscribers have a monthly fair-use cap, and everyone has a daily limit.
 import Anthropic from '@anthropic-ai/sdk'
 import { env, requireUser, readJson, fail, chargeCoach } from './_lib.js'
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
   } catch { return res.status(400).json({ error: 'Bad request.' }) }
 
   try {
-    const stop = await chargeCoach(user.id, { practice })
+    const stop = await chargeCoach(user, { practice })
     if (stop) return res.status(stop.status).json(stop.body)
   } catch (e) { return fail(res, e) }
 

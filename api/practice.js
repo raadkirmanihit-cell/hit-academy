@@ -116,7 +116,7 @@ async function turn(req, res, user, body) {
   if (turns.filter((t) => t.role === 'user').length > MAX_TURNS) return res.status(413).json({ error: 'This role-play is very long. Ask for your feedback report, or start again.' })
 
   try {
-    const stop = await chargeCoach(user.id, { practice: true })
+    const stop = await chargeCoach(user, { practice: true })
     if (stop) return res.status(stop.status).json(stop.body)
   } catch (e) { return fail(res, e) }
 
@@ -174,7 +174,7 @@ async function score(req, res, user, body) {
   if (turns.filter((t) => t.role === 'user').length < 2) return res.status(400).json({ error: 'Reply at least twice before asking for your report.' })
 
   try {
-    const stop = await chargeCoach(user.id, { practice: true })
+    const stop = await chargeCoach(user, { practice: true })
     if (stop) return res.status(stop.status).json(stop.body)
   } catch (e) { return fail(res, e) }
 
