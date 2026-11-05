@@ -1134,6 +1134,8 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 }
 .practice-rules { padding: .8rem 1.1rem; display: grid; gap: .55rem; }
 .practice-rules h4 { margin: 0; }
+.practice-rules .rules-title { justify-self: center; text-align: center; font-size: 1.45rem; letter-spacing: -.01em; color: var(--ink); margin: .1rem 0 .3rem; }
+.rules-title span { padding: 0 .35rem; background: linear-gradient(transparent 58%, rgba(247, 134, 27, .38) 58%, rgba(247, 134, 27, .38) 92%, transparent 92%); }
 .practice-rules ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .2rem; }
 .dos-donts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 @media (max-width: 760px) { .dos-donts { grid-template-columns: 1fr; } }
