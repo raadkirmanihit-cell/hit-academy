@@ -20,6 +20,10 @@ export const MODULE_IDS = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']
 export const FREE_MODULES = ['m1']
 export const PAID_MODULES = MODULE_IDS.filter((m) => !FREE_MODULES.includes(m))
 export const BUNDLE_PRACTICE_MESSAGES = 150 // AI role-play messages in the Practice studio, included with the complete course (no expiry)
+// Extra Practice studio messages anyone signed in can buy, as often as they like (no expiry).
+export const TOPUP_ID = 'hit-practice-topup'
+export const TOPUP_PRICE = 12
+export const TOPUP_MESSAGES = 150
 export const BUNDLE_COACH_MONTHS = 3 // only for students who bought before 1 November 2026: the coach months they were given
 
 export const moduleProductId = (moduleId) => `hit-negotiation-${moduleId}`
@@ -54,7 +58,7 @@ export function offers(purchases, { launch = false } = {}) {
   return { bundle, modulePrice: MODULE_PRICE, owned, remaining, bought }
 }
 
-// The server's price for a checkout request: 'bundle' or a module id like 'm3'.
+// The server's price for a checkout request: 'bundle', a module id like 'm3', or 'practice' (message top-up).
 export function quote(choice, purchases, opts) {
   const o = offers(purchases, opts)
   if (choice === 'bundle') {
@@ -69,6 +73,7 @@ export function quote(choice, purchases, opts) {
       full: !o.bundle.credit && !o.bundle.launch,
     }
   }
+  if (choice === 'practice') return { productId: TOPUP_ID, cents: Math.round(TOPUP_PRICE * 100), name: `Practice studio: ${TOPUP_MESSAGES} extra AI role-play messages` }
   if (FREE_MODULES.includes(choice)) return { error: 'This module is free: just open it.' }
   if (!PAID_MODULES.includes(choice)) return { error: 'Please choose a module or the complete course.' }
   if (o.owned.has(choice)) return { error: 'You already have this module.' }

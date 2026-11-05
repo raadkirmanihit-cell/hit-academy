@@ -5,7 +5,7 @@ const FRAME_MS = 30
 const pairOf = ([pitch, g]) => ({ pitch, g })
 
 // Records the microphone, samples loudness and pitch every 30 ms, and transcribes where the browser can.
-export async function startCapture({ onLevel, onWords } = {}) {
+export async function startCapture({ onLevel, onWords, recognise = true } = {}) {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }) // raw voice: the browser's voice clean-up can flatten pitch
   const AC = window.AudioContext || window.webkitAudioContext
   const ctx = new AC()
@@ -35,7 +35,7 @@ export async function startCapture({ onLevel, onWords } = {}) {
   // Live transcript (Chrome, Edge, Safari). Other browsers: the learner types what they said.
   const R = window.SpeechRecognition || window.webkitSpeechRecognition
   let sr = null, finalText = '', interim = ''
-  if (R) {
+  if (R && recognise) {
     try {
       sr = new R()
       sr.lang = 'en-US'; sr.continuous = true; sr.interimResults = true
@@ -327,6 +327,32 @@ export function wordTimes(text, speech) {
   }
   let acc = 0
   return words.map((w, i) => { const s = at(acc / W); acc += weight[i]; return { w, s, e: at(acc / W) } })
+}
+
+// The voice measurements of one spoken turn, in a small form that can be stored and sent to the server.
+export function voiceSummary(m) {
+  if (!m?.ok) return null
+  return {
+    wpm: m.wpm, up: m.up, down: m.down, level: m.level, pauses: m.pauses, strategic: m.strategic, hesitant: m.hesitant,
+    hedges: m.hedges.reduce((a, h) => a + h.n, 0), hedgeWords: m.hedges.map((h) => h.word).slice(0, 6),
+  }
+}
+
+// Several spoken turns combined into one set of measurements that readings() can describe.
+export function combineVoice(list) {
+  const v = list.filter(Boolean)
+  if (!v.length) return null
+  const sum = (k) => v.reduce((a, x) => a + (x[k] || 0), 0)
+  const paced = v.filter((x) => x.wpm)
+  const words = new Map()
+  for (const x of v) for (const w of x.hedgeWords || []) words.set(w, (words.get(w) || 0) + 1)
+  return {
+    turns: v.length,
+    wpm: paced.length ? Math.round(paced.reduce((a, x) => a + x.wpm, 0) / paced.length) : null,
+    pauses: sum('pauses'), strategic: sum('strategic'), hesitant: sum('hesitant'),
+    endings: [...Array(sum('down')).fill('down'), ...Array(sum('level')).fill('level'), ...Array(sum('up')).fill('up')],
+    words: 1, hedges: sum('hedges') ? [...words].map(([word, n]) => ({ word, n })) : [],
+  }
 }
 
 // Plain-language reading of each measurement. Tone: 'good' | 'warn'.

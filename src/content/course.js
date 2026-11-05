@@ -13,6 +13,8 @@ export const course = {
     // 'all' = every module below must be complete (use this in production).
     // 'all-published' = only modules released so far (useful while modules are still arriving).
     requires: 'all',
+    // Also needed: one passed Practice studio role-play at each of these levels (pass mark in coach/scoring.js).
+    practiceLevels: ['Beginner', 'Intermediate', 'Advanced'],
     signatory: 'Raad Kirmani',
     signatoryRole: 'Founder, Human Interactions Translated',
   },

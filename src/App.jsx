@@ -17,6 +17,7 @@ import ContactPage from './ui/Contact.jsx'
 import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
 import { TERMS_VERSION } from './content/terms.js'
 import { ownedModules } from './content/pricing.js'
+import { practiceHistory } from './coach/practiceApi.js'
 import { fromHash, writeHash } from './platform/route.js'
 
 // Modules the student may open, and whether they bought anything at all.
@@ -39,6 +40,8 @@ export default function App() {
   const [launch, setLaunch] = useState({ launch: false }) // launch price for the complete course
   const [authorMode, setAuthorMode] = useState(false)
   const [admin, setAdmin] = useState(false)
+  // Practice studio scores. Live site: the server's record (loaded on sign-in). Preview: kept with progress.
+  const [practiceLive, setPracticeLive] = useState([])
   const toastTimer = useRef()
   const loaded = useRef(false) // progress is only saved after it has been loaded
   const lastSaved = useRef('') // skip saving when nothing changed
@@ -75,7 +78,7 @@ export default function App() {
   const enter = useCallback(async (u, { welcome = false } = {}) => {
     loaded.current = false
     setUser(u)
-    if (!u) { setProgress(emptyProgress()); return }
+    if (!u) { setProgress(emptyProgress()); setPracticeLive([]); return }
     const saved = await backend.loadProgress(u.id).catch(() => null)
     const start = saved || emptyProgress()
     lastSaved.current = JSON.stringify(start)
@@ -83,6 +86,7 @@ export default function App() {
     loaded.current = true
     go(hasAny(u) ? 'dashboard' : 'checkout', welcome ? { welcome: true } : {}, { replace: true })
     if (isLive) backend.isAdmin().then(setAdmin, () => setAdmin(false))
+    if (isLive) practiceHistory().then((d) => setPracticeLive(d.attempts || []), () => setPracticeLive([]))
   }, [go])
 
   // Start-up: restore the session, and handle returns from Stripe and from email links.
@@ -99,6 +103,22 @@ export default function App() {
       backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
       if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
+      // Back from buying extra practice messages: wait until the server has counted the new pack.
+      if (u && checkout === 'success' && item === 'practice') {
+        const had = Number(params.get('had') || 0)
+        let plan = null
+        for (let i = 0; i < 10 && !(plan?.topups > had); i++) {
+          plan = await backend.coachPlan().catch(() => null)
+          if (!(plan?.topups > had)) await new Promise((r) => setTimeout(r, 1500))
+        }
+        await enter(u)
+        await refreshCoachPlan()
+        go('practice', {}, { replace: true })
+        notify(plan?.topups > had ? 'Payment received. Your extra practice messages are ready.' : 'Payment received. Your messages appear in a minute: please reload this page shortly.', 6000)
+        off = backend.onRecovery(() => go('newpass')) || (() => {})
+        setBooted(true)
+        return
+      }
       if (u && checkout === 'success' && !unlocked(u, item)) {
         // Stripe confirms the payment to our server a few seconds after the redirect.
         for (let i = 0; i < 10 && !unlocked(u, item); i++) {
@@ -150,8 +170,14 @@ export default function App() {
 
   useEffect(() => { window.scrollTo({ top: 0 }) }, [view.name, view.moduleId])
 
+  const practice = isLive ? practiceLive : (progress.practice || [])
   const api = useMemo(() => ({
-    course, modules, user, paid, owned, launch, progress, view, go, notify, authorMode, setAuthorMode, admin, isLive,
+    course, modules, user, paid, owned, launch, progress, view, go, notify, authorMode, setAuthorMode, admin, isLive, practice,
+    // A scored role-play: { scenario_id, level, overall, passed, skills, created_at }.
+    recordPractice(a) {
+      if (isLive) setPracticeLive((l) => [...l, a])
+      else setProgress((p) => ({ ...p, practice: [...(p.practice || []), a] }))
+    },
     async signUp(data) {
       const u = await backend.signUp(data)
       await enter(u)
@@ -205,7 +231,7 @@ export default function App() {
     completeModule(moduleId) {
       setProgress((p) => update(p, moduleId, (ms) => { if (!ms.completedAt) ms.completedAt = new Date().toISOString() }))
     },
-  }), [user, paid, owned, launch, progress, view, go, notify, authorMode, admin, enter])
+  }), [user, paid, owned, launch, progress, view, go, notify, authorMode, admin, enter, practice])
 
   if (!booted) return <div className="boot" aria-busy="true"><span className="boot-dot" /></div>
 

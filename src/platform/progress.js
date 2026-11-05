@@ -23,7 +23,8 @@ export function moduleStats(module, progress) {
   return { total: steps.length, done, pct: steps.length ? Math.round((done / steps.length) * 100) : 0, quizPassed, complete, best: ms.quiz?.best ?? null }
 }
 
-export function courseStats(course, modules, progress) {
+// practice: the student's scored Practice studio role-plays (see coach/scoring.js).
+export function courseStats(course, modules, progress, practice = []) {
   const published = course.modules.filter((m) => modules[m.id])
   const stats = published.map((m) => moduleStats(modules[m.id], progress))
   const required = course.certificate.requires === 'all' ? course.modules.length : published.length
@@ -32,7 +33,17 @@ export function courseStats(course, modules, progress) {
   const doneSteps = stats.reduce((a, s) => a + s.done, 0)
   // Overall % counts unpublished modules as 0% so the ring stays honest.
   const pctAll = Math.round(stats.reduce((a, s) => a + s.pct, 0) / course.modules.length)
-  return { completeCount, required, published: published.length, totalSteps, doneSteps, pctAll, eligible: completeCount >= required && required > 0 }
+  // The certificate can also ask for a passed role-play at each difficulty level.
+  const needLevels = course.certificate.practiceLevels || []
+  const passedLevels = new Set((practice || []).filter((a) => a.passed).map((a) => a.level))
+  const practiceDone = needLevels.filter((l) => passedLevels.has(l))
+  const practiceOk = practiceDone.length === needLevels.length
+  return {
+    completeCount, required, published: published.length, totalSteps, doneSteps, pctAll,
+    practiceLevels: needLevels, practicePassed: practiceDone, practiceOk,
+    modulesOk: completeCount >= required && required > 0,
+    eligible: completeCount >= required && required > 0 && practiceOk,
+  }
 }
 
 export function update(progress, moduleId, fn) {

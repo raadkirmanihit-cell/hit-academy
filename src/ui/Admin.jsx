@@ -2,6 +2,8 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { backend } from '../platform/backend.js'
 import { flatSteps } from '../platform/progress.js'
+import { scenarios as SCENARIOS } from '../coach/scenarios.js'
+import { SKILLS, LEVELS, band } from '../coach/scoring.js'
 
 const date = (d) => (d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '–')
 const dateTime = (d) => (d ? new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '–')
@@ -44,7 +46,7 @@ export default function AdminPage() {
         <button className="btn btn-ghost btn-sm" onClick={() => { setData(null); load() }}>Refresh</button>
       </div>
       <div className="tabs" role="tablist">
-        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
+        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'Practice studio'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
           <button key={id} className="tab" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -52,6 +54,7 @@ export default function AdminPage() {
       {tab === 'students' && <Students data={data} act={act} />}
       {tab === 'payments' && <Payments data={data} act={act} />}
       {tab === 'coach' && <CoachSubs data={data} />}
+      {tab === 'practice' && <Practice data={data} />}
       {tab === 'messages' && <Messages data={data} act={act} />}
     </div>
   )
@@ -136,23 +139,23 @@ function Students({ data, act }) {
             <option value="all">Everyone</option><option value="paid">Paid</option><option value="unpaid">Not paid yet</option>
           </select></div>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={() => downloadCsv('hit-academy-students', ['Name', 'Email', 'Registered', 'Paid', 'Modules completed', 'Quizzes passed', 'Last active', 'Terms accepted', 'Terms version'],
-          data.students.map((r) => [r.name, r.email, r.registered, r.paidAt || '', r.modulesCompleted, r.quizzesPassed, r.lastActive || '', r.termsAcceptedAt || '', r.termsVersion || '']))}>Download as spreadsheet (CSV)</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => downloadCsv('hit-academy-students', ['Name', 'Email', 'Registered', 'Paid', 'Modules completed', 'Quizzes passed', 'Last active', 'Practice levels passed', 'Best practice score', 'Terms accepted', 'Terms version'],
+          data.students.map((r) => [r.name, r.email, r.registered, r.paidAt || '', r.modulesCompleted, r.quizzesPassed, r.lastActive || '', (r.practice?.levelsPassed || []).join(' / '), r.practice?.best ?? '', r.termsAcceptedAt || '', r.termsVersion || '']))}>Download as spreadsheet (CSV)</button>
       </div>
       <p className="small muted">Tap a student to see their progress in each module.</p>
       <div className="card admin-scroll" style={{ padding: 0 }}>
         <table className="admin-table">
-          <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Paid</th><th>Modules done</th><th>Quizzes passed</th><th>Last active</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Paid</th><th>Modules done</th><th>Quizzes passed</th><th>Practice</th><th>Last active</th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <Fragment key={r.id}>
                 <tr className={`admin-row${open === r.id ? ' open' : ''}`} onClick={() => setOpen(open === r.id ? null : r.id)} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(open === r.id ? null : r.id)}>
                   <td><b>{r.name || '–'}</b></td><td>{r.email}</td><td>{date(r.registered)}</td>
                   <td>{r.paidAt ? date(r.paidAt) : <span className="muted">No</span>}</td>
-                  <td className="tnum">{r.modulesCompleted} / 7</td><td className="tnum">{r.quizzesPassed}</td><td>{date(r.lastActive)}</td>
+                  <td className="tnum">{r.modulesCompleted} / 7</td><td className="tnum">{r.quizzesPassed}</td><td className="tnum">{r.practice?.attempts ? `${r.practice.levelsPassed.length} / 3 levels` : <span className="muted">–</span>}</td><td>{date(r.lastActive)}</td>
                 </tr>
                 {open === r.id && (
-                  <tr className="admin-detail"><td colSpan={7}>
+                  <tr className="admin-detail"><td colSpan={8}>
                     <div className="stack" style={{ gap: '1rem' }}>
                       <p className="small muted">Terms and Conditions: {r.termsAcceptedAt ? <>accepted {dateTime(r.termsAcceptedAt)} (version {r.termsVersion})</> : 'not accepted yet'}</p>
                       <table className="admin-table admin-mini">
@@ -172,6 +175,7 @@ function Students({ data, act }) {
                           })}
                         </tbody>
                       </table>
+                      <p className="small muted">Practice studio: {r.practice?.attempts ? <>{r.practice.attempts} scored role-play{r.practice.attempts === 1 ? '' : 's'}, best score {r.practice.best ?? '–'}/100, levels passed: {r.practice.levelsPassed.length ? LEVELS.filter((l) => r.practice.levelsPassed.includes(l)).join(', ') : 'none yet'}. See the Practice studio tab for each attempt.</> : 'no scored role-plays yet'}</p>
                       <div className="row" style={{ gap: '.5rem' }}>
                         <a className="btn btn-ghost btn-sm" href={`mailto:${r.email}`}>Email {r.name.split(' ')[0] || 'student'}</a>
                         <button className="btn btn-ghost btn-sm" onClick={() => {
@@ -183,7 +187,7 @@ function Students({ data, act }) {
                 )}
               </Fragment>
             ))}
-            {!rows.length && <tr><td colSpan={7} className="muted">No students found.</td></tr>}
+            {!rows.length && <tr><td colSpan={8} className="muted">No students found.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -305,6 +309,88 @@ function CoachSubs({ data }) {
                 )
               })}
               {!subs.length && <tr><td colSpan={5} className="muted">No subscribers yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const scenarioName = (id) => SCENARIOS.find((s) => s.id === id)?.title || id
+
+function Practice({ data }) {
+  const { ready, attempts = [] } = data.practice || {}
+  const [q, setQ] = useState('')
+  const byScenario = useMemo(() => SCENARIOS.map((sc) => {
+    const list = attempts.filter((a) => a.scenario === sc.id)
+    const scored = list.filter((a) => a.overall != null)
+    return {
+      sc, n: list.length, people: new Set(list.map((a) => a.email)).size,
+      avg: scored.length ? Math.round(scored.reduce((t, a) => t + a.overall, 0) / scored.length) : null,
+      passRate: list.length ? Math.round((list.filter((a) => a.passed).length / list.length) * 100) : null,
+    }
+  }), [attempts])
+  const skillAvg = useMemo(() => SKILLS.map((k) => {
+    const n = attempts.map((a) => a.skills?.find((s) => s.id === k.id)?.score).filter((x) => x != null)
+    return { ...k, avg: n.length ? n.reduce((t, x) => t + x, 0) / n.length : null }
+  }), [attempts])
+  const rows = attempts.filter((a) => !q || `${a.name} ${a.email}`.toLowerCase().includes(q.toLowerCase()))
+
+  if (!ready) return <p className="muted">Run database update 6 (supabase/update-6-practice-scores.sql) in Supabase to record and see Practice studio scores here.</p>
+  return (
+    <div className="stack" style={{ gap: '1.5rem' }}>
+      <div className="admin-stats">
+        <Stat label="Scored role-plays" value={attempts.length} />
+        <Stat label="Students practising" value={new Set(attempts.map((a) => a.email)).size} />
+        <Stat label="Pass rate" value={attempts.length ? `${Math.round((attempts.filter((a) => a.passed).length / attempts.length) * 100)}%` : '–'} sub="65/100 or more, no skill below 2" />
+      </div>
+      <div className="stack" style={{ gap: '.6rem' }}>
+        <h3>By scenario</h3>
+        <div className="card admin-scroll" style={{ padding: 0 }}>
+          <table className="admin-table">
+            <thead><tr><th>Scenario</th><th>Level</th><th>Attempts</th><th>Students</th><th>Average score</th><th>Pass rate</th></tr></thead>
+            <tbody>
+              {byScenario.map(({ sc, n, people, avg, passRate }) => (
+                <tr key={sc.id}><td>{sc.title}</td><td>{sc.level}</td><td className="tnum">{n}</td><td className="tnum">{people}</td><td className="tnum">{avg != null ? `${avg} (${band(avg)})` : '–'}</td><td className="tnum">{passRate != null ? `${passRate}%` : '–'}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="stack" style={{ gap: '.6rem' }}>
+        <h3>Average per skill</h3>
+        <p className="small muted">Out of 5, across all attempts. The lowest skill shows where students need the most help.</p>
+        <div className="card admin-scroll" style={{ padding: 0 }}>
+          <table className="admin-table">
+            <thead><tr><th>Skill</th><th>Taught in</th><th>Average</th></tr></thead>
+            <tbody>{skillAvg.map((k) => <tr key={k.id}><td>{k.name}</td><td>{k.modules}</td><td className="tnum">{k.avg != null ? k.avg.toFixed(1) : '–'}</td></tr>)}</tbody>
+          </table>
+        </div>
+      </div>
+      <div className="stack" style={{ gap: '.6rem' }}>
+        <div className="row" style={{ justifyContent: 'space-between', gap: '1rem' }}>
+          <h3>All attempts</h3>
+          <div className="row" style={{ gap: '.6rem' }}>
+            <div className="field"><input aria-label="Search attempts" placeholder="Search by name or email" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+            <button className="btn btn-ghost btn-sm" onClick={() => downloadCsv('hit-academy-practice', ['Date', 'Name', 'Email', 'Scenario', 'Level', 'Score', 'Passed', ...SKILLS.map((k) => k.name), 'Learner turns'],
+              attempts.map((a) => [a.at, a.name, a.email, scenarioName(a.scenario), a.level, a.overall ?? '', a.passed ? 'yes' : 'no', ...SKILLS.map((k) => a.skills?.find((s) => s.id === k.id)?.score ?? ''), a.turns ?? '']))}>Download as spreadsheet (CSV)</button>
+          </div>
+        </div>
+        <div className="card admin-scroll" style={{ padding: 0 }}>
+          <table className="admin-table">
+            <thead><tr><th>Date</th><th>Student</th><th>Scenario</th><th>Score</th><th>Skills (1–5)</th></tr></thead>
+            <tbody>
+              {rows.map((a, i) => (
+                <tr key={i}>
+                  <td>{dateTime(a.at)}</td>
+                  <td><b>{a.name || '–'}</b><br /><span className="small muted">{a.email}</span></td>
+                  <td>{scenarioName(a.scenario)}<br /><span className="small muted">{a.level}</span></td>
+                  <td className="tnum">{a.overall != null ? <><b>{a.overall}</b>/100 </> : <span className="muted">Too short </span>}{a.passed ? <span className="pill good">Passed</span> : <span className="pill">Not yet</span>}</td>
+                  <td className="small">{SKILLS.map((k) => `${k.name.split(' ')[0]} ${a.skills?.find((s) => s.id === k.id)?.score ?? '–'}`).join(' · ')}</td>
+                </tr>
+              ))}
+              {!rows.length && <tr><td colSpan={5} className="muted">No scored role-plays yet.</td></tr>}
             </tbody>
           </table>
         </div>

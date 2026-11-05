@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { backend, isLive } from '../platform/backend.js'
 import { TermsLink } from '../ui/Terms.jsx'
 import { LEGAL } from '../content/terms.js'
+import { TOPUP_PRICE, TOPUP_MESSAGES } from '../content/pricing.js'
 
 export const COACH_PRICE = '21' // € per month, shown on the page (Stripe holds the real price)
 export const COACH_MONTHLY = 300 // messages a month (fair use), must match COACH_MONTHLY_LIMIT on the server
@@ -153,6 +154,69 @@ export function CoachPlanCard() {
               <button className="btn btn-primary" onClick={() => window.dispatchEvent(new Event('coach-subscribe'))}>Subscribe for €{COACH_PRICE}/month</button>
               {plan.hasCustomer && <button className="btn" disabled={busy} onClick={portal}>Past invoices</button>}
             </>}
+      </div>
+    </div>
+  )
+}
+
+// AI messages the student can still use in the Practice studio: the coach messages
+// (monthly or free taster) plus any practice packs.
+export function practiceMessagesLeft(plan) {
+  if (!plan || plan.preview || !Number.isFinite(plan.left)) return null
+  return Math.max(0, plan.left) + Math.max(0, plan.practiceLeft || 0)
+}
+
+// Top right of the Practice studio: how many AI messages are left, and a button to buy more.
+export function PracticeCounter({ onBuy }) {
+  const { plan } = useCoachPlan()
+  const left = practiceMessagesLeft(plan)
+  if (!isLive || left == null) return null
+  return (
+    <div className={'practice-counter' + (left <= 20 ? ' low' : '')}>
+      <span className="practice-counter-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /><path d="M8.5 12h.01M12 12h.01M15.5 12h.01" /></svg>
+      </span>
+      <span className="practice-counter-text">
+        <span className="practice-counter-n tnum">{left}</span>
+        <span className="practice-counter-label">AI message{left === 1 ? '' : 's'} left</span>
+      </span>
+      <button type="button" className="practice-counter-buy" onClick={onBuy}>+ Buy more</button>
+    </div>
+  )
+}
+
+// Buy 150 more Practice studio messages for €12 (one payment, no subscription).
+export function TopUpCard({ onClose }) {
+  const [consent, setConsent] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  return (
+    <div className="card topup-card">
+      <div className="row" style={{ justifyContent: 'space-between', alignItems: 'start', gap: '1rem' }}>
+        <div>
+          <span className="eyebrow">Extra practice messages</span>
+          <h4>{TOPUP_MESSAGES} more AI messages for the Practice studio</h4>
+        </div>
+        <p className="coach-price"><strong className="tnum">€{TOPUP_PRICE}</strong> <span className="muted">one payment</span></p>
+      </div>
+      <ul className="small">
+        <li>Enough for about 9 full role-plays with feedback reports</li>
+        <li>They never expire and are added to what you have left</li>
+        <li>No subscription: you pay once</li>
+      </ul>
+      {LEGAL.smallBusiness && <p className="small muted">No VAT is charged: small business under § 19 UStG.</p>}
+      <label className="waiver">
+        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+        <span>I want the messages right away, before the 14-day withdrawal period ends. I understand that I lose my right of withdrawal once I start using them.</span>
+      </label>
+      <p className="small muted">Subject to our <TermsLink />, sections 5 and 10.</p>
+      {err && <p className="error" role="alert">{err}</p>}
+      <div className="row" style={{ gap: '.5rem' }}>
+        <button className="btn btn-primary" disabled={busy || !consent || !isLive} onClick={async () => {
+          setBusy(true); setErr('')
+          try { await backend.startCheckout(null, 'practice', { waiver: consent }) } catch (x) { setErr(x.message); setBusy(false) }
+        }}>{busy ? 'Opening secure payment…' : `Buy ${TOPUP_MESSAGES} messages · €${TOPUP_PRICE}`}</button>
+        {onClose && <button className="btn btn-ghost" onClick={onClose}>Not now</button>}
       </div>
     </div>
   )

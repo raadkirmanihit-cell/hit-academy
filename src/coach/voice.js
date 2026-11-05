@@ -1,6 +1,7 @@
 // Basic voice for the coach prototype, using the browser's built-in speech features.
 // The launched product would use a proper speech service on our own server instead.
 import { useEffect, useRef, useState } from 'react'
+import { startCapture, analyse, voiceSummary } from '../activities/speechMetrics.js'
 
 const synth = () => (typeof window !== 'undefined' ? window.speechSynthesis : null)
 const Recognition = () => (typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : null)
@@ -25,9 +26,17 @@ function pickVoice(alt) {
   return sorted[alt && sorted.length > 1 ? 1 : 0]
 }
 
+// Voice measurements need a second use of the microphone next to speech recognition. Phones often
+// allow only one, so they get pace only.
+const canMeasureVoice = () => typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia && typeof window.MediaRecorder !== 'undefined' && !/Android|iPhone|iPad/i.test(navigator.userAgent || '')
+
 const micAllowedByPage = () => {
   try { return document.featurePolicy?.allowsFeature ? document.featurePolicy.allowsFeature('microphone') : true } catch { return true }
 }
+
+// How long the learner can pause before their spoken turn is sent, and how long to wait for them to start.
+export const PAUSE_MS = 4000
+const NOTHING_MS = 12000
 
 export function useVoice({ alt = false } = {}) {
   const canSpeak = !!synth()
@@ -37,34 +46,44 @@ export function useVoice({ alt = false } = {}) {
   const [speaking, setSpeaking] = useState(false)
   const [micNote, setMicNote] = useState('')
   const rec = useRef(null)
+  const cap = useRef(null) // the voice-measurement recording of the current turn
 
   useEffect(() => {
     const s = synth(); if (!s) return
     s.getVoices() // some browsers load the voice list lazily
-    return () => { s.cancel(); rec.current?.abort?.() }
+    return () => { s.cancel(); const r = rec.current; rec.current = null; r?.abort?.(); cap.current?.then((c) => c?.stop()).catch(() => {}) }
   }, [])
 
-  function speak(text) {
-    const s = synth(); if (!s) return
+  // onEnd runs when the reply has been spoken (used by hands-free mode to open the microphone).
+  function speak(text, onEnd) {
+    const s = synth(); if (!s) { onEnd?.(); return }
     s.cancel()
     const u = new SpeechSynthesisUtterance(speakable(text))
     const v = pickVoice(alt); if (v) { u.voice = v; u.lang = v.lang } else u.lang = 'en-GB'
     u.rate = 1; u.pitch = alt ? 0.95 : 1
     u.onstart = () => setSpeaking(true)
-    u.onend = u.onerror = () => setSpeaking(false)
+    u.onend = () => { setSpeaking(false); onEnd?.() }
+    u.onerror = () => setSpeaking(false)
     s.speak(u)
   }
   function stopSpeaking() { synth()?.cancel(); setSpeaking(false) }
 
-  // Listens once; streams the words into onText and calls onFinal with the full sentence.
-  function listen(onText, onFinal) {
+  // Listens for one turn; streams the words into onText and calls onFinal with the full text and how long
+  // the learner spoke ({ secs }), measured from the first to the last word heard.
+  // The turn ends after a silence of pauseMs (so a short, deliberate pause doesn't cut the learner off),
+  // or when the learner taps the microphone again.
+  function listen(onText, onFinal, onNothing, { pauseMs = PAUSE_MS, measure = false } = {}) {
     const R = Recognition(); if (!R) return
-    if (listening) { rec.current?.stop(); return }
+    if (listening || rec.current) { rec.current?.stop(); return } // a second tap ends the turn
     stopSpeaking()
     const r = new R()
-    r.lang = 'en-US'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1
-    let finalText = ''
+    r.lang = 'en-US'; r.interimResults = true; r.continuous = true; r.maxAlternatives = 1
+    let finalText = '', first = 0, last = 0, timer = 0, capture = null
+    const stopAfter = (ms) => { clearTimeout(timer); timer = setTimeout(() => { try { r.stop() } catch { /* already stopped */ } }, ms) }
+    stopAfter(NOTHING_MS) // give up if nothing is said at all
     r.onresult = (e) => {
+      const now = performance.now(); if (!first) first = now; last = now
+      stopAfter(pauseMs)
       let interim = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) finalText += e.results[i][0].transcript
@@ -78,9 +97,25 @@ export function useVoice({ alt = false } = {}) {
         setMicNote('The microphone isn\'t available here. Please type instead, or check your browser\'s microphone permission.')
       }
     }
-    r.onend = () => { setListening(false); if (finalText.trim()) onFinal(finalText.trim()) }
+    r.onend = async () => {
+      clearTimeout(timer)
+      if (rec.current !== r) return // only one ending per turn
+      rec.current = null
+      setListening(false)
+      const c = await capture
+      if (cap.current === capture) cap.current = null
+      const rec2 = c ? await c.stop().catch(() => null) : null
+      const text = finalText.trim()
+      if (!text) return onNothing?.()
+      // The first result arrives about half a second after speech starts.
+      const secs = first ? Math.max(0.5, (last - first) / 1000 + 0.5) : 0
+      let voice = null
+      try { voice = rec2 ? voiceSummary(analyse(rec2.frames, text)) : null } catch { voice = null }
+      onFinal(text, { secs, ...(voice ? { voice } : {}) })
+    }
     rec.current = r
-    try { r.start(); setListening(true); setMicNote('') } catch { setListening(false) }
+    try { r.start(); setListening(true); setMicNote('') } catch { rec.current = null; setListening(false); return }
+    if (measure && canMeasureVoice()) capture = cap.current = startCapture({ recognise: false }).catch(() => null)
   }
 
   // Where the page can't use the microphone itself, the device's own dictation still works in the text box.
