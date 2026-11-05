@@ -647,7 +647,7 @@ export function PracticeStudio() {
     <div className="wrap" style={{ paddingBottom: '4rem', maxWidth: 920 }}>
       <button className="btn btn-sm" onClick={() => (active ? go('practice') : go('dashboard'))} style={{ marginBottom: '1rem' }}>← {active ? 'All scenarios' : 'Dashboard'}</button>
       {active ? <Spar key={active.id} scenarioId={active.id} /> : (
-        <div className="stack" style={{ gap: '1.2rem' }}>
+        <div className="stack" style={{ gap: '.9rem' }}>
           <div className="studio-head">
             <div className="stack" style={{ gap: '.6rem' }}>
               <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
@@ -732,7 +732,7 @@ export function PracticeStudio() {
                       <span className="badge-title-label">{cleared ? '★ Badge earned' : 'Badge to earn'}</span>
                       <strong>{RANKS[level].title}</strong>
                     </div>
-                    <LevelBadge level={level} earned={cleared} size={76} />
+                    <LevelBadge level={level} earned={cleared} size={64} />
                   </div>
                 </div>
                 <div className="studio-grid">

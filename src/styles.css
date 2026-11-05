@@ -1074,10 +1074,10 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .coach-teaser { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; padding: 1.2rem 1.4rem; border-top: 4px solid var(--orange); }
 .coach-teaser h4 { margin: .2rem 0; }
 @media (max-width: 760px) { .coach-teaser { grid-template-columns: auto 1fr; } .coach-teaser .row { grid-column: 1 / -1; } }
-.studio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.studio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
 @media (max-width: 760px) { .studio-grid { grid-template-columns: 1fr; } }
 /* Scenario cards: the whole photo on the left, the text beside it, two cards filling the row. */
-.studio-card { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 1rem; align-items: start; text-align: left; padding: .9rem; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
+.studio-card { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: .8rem; align-items: start; text-align: left; padding: .65rem; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
 .studio-card:hover { border-color: var(--orange); }
 .studio-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; display: block; }
 .studio-img { position: relative; display: block; }
@@ -1086,7 +1086,7 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .studio-card:disabled:hover { border-color: var(--line); }
 .level-tag { margin-left: auto; font: 500 .72rem/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--orange-ink); display: inline-flex; gap: .3rem; align-items: center; text-align: right; }
 /* Level bands: three shades of the brand navy-blue, lighter to deeper as the levels get harder. */
-.level-band { --band: #5b8def; --band-bg: #eaf1fe; display: grid; gap: .9rem; padding: 1rem 1.1rem 1.1rem; border-radius: 18px; background: var(--band-bg); border: 1px solid color-mix(in srgb, var(--band) 35%, transparent); border-left: 6px solid var(--band); transition: opacity .2s, filter .2s; }
+.level-band { --band: #5b8def; --band-bg: #eaf1fe; display: grid; gap: .6rem; padding: .7rem .9rem .8rem; border-radius: 14px; background: var(--band-bg); border: 1px solid color-mix(in srgb, var(--band) 35%, transparent); border-left: 6px solid var(--band); transition: opacity .2s, filter .2s; }
 .level-band.band-2 { --band: #2f5bd3; --band-bg: #e4eafb; }
 .level-band.band-3 { --band: #16275e; --band-bg: #e2e5f1; }
 .level-band-head { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
@@ -1105,7 +1105,7 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 :root[data-theme="dark"] .level-band { --band-bg: color-mix(in srgb, var(--band) 14%, var(--surface)); }
 :root[data-theme="dark"] .level-band.band-3 { --band: #6f86d6; }
 /* The level path: rank card + Beginner -> Intermediate -> Advanced -> Certificate. */
-.quest { display: grid; grid-template-columns: minmax(180px, 230px) 1fr; gap: 1.2rem; align-items: center; padding: 1.2rem 1.4rem; border-radius: 16px; background: var(--navy); color: var(--on-navy, #f4f6fb); }
+.quest { display: grid; grid-template-columns: minmax(180px, 230px) 1fr; gap: 1rem; align-items: center; padding: .9rem 1.2rem; border-radius: 16px; background: var(--navy); color: var(--on-navy, #f4f6fb); }
 .quest .eyebrow { color: #9aa5c6; }
 .quest-rank { display: grid; gap: .25rem; }
 .quest-rank strong { font-size: 1.25rem; color: var(--orange); }
@@ -1126,9 +1126,9 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
   .quest-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .quest-step + .quest-step::before { display: none; }
 }
-.practice-rules { padding: 1rem 1.2rem; display: grid; gap: .8rem; }
+.practice-rules { padding: .8rem 1.1rem; display: grid; gap: .55rem; }
 .practice-rules h4 { margin: 0; }
-.practice-rules ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .35rem; }
+.practice-rules ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .2rem; }
 .dos-donts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 @media (max-width: 760px) { .dos-donts { grid-template-columns: 1fr; } }
 .dos-donts > div { border-radius: 12px; padding: .8rem 1rem; }
@@ -1143,7 +1143,7 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .level-up h4 { margin: .15rem 0; color: #fff; }
 @keyframes levelup { from { transform: scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .level-up { animation: none; } }
-.studio-card-text { display: grid; gap: .4rem; align-content: start; }
+.studio-card-text { display: grid; gap: .2rem; align-content: start; font-size: .92rem; }
 .studio-card h4 { margin: 0; }
 @media (max-width: 420px) { .studio-card { grid-template-columns: 110px minmax(0, 1fr); gap: .8rem; } }
 .studio-head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: start; justify-content: space-between; }
@@ -1413,7 +1413,7 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 /* The badge name under each level title: big enough to feel like an achievement. */
 .level-band-title { display: flex; gap: .4rem .9rem; align-items: center; flex-wrap: wrap; }
 .level-band-title .level-tag { margin-left: 0; }
-.level-band-badge { margin-left: auto; display: flex; gap: .8rem; align-items: center; }
+.level-band-badge { margin-left: auto; display: flex; gap: .6rem; align-items: center; }
 .level-band-badge .badge-title { text-align: right; justify-items: end; }
 .badge-title { display: grid; gap: .1rem; justify-self: start; }
 .badge-title-label { font: 500 .68rem/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
