@@ -4,8 +4,9 @@
 // - Module 1 is free for every account (no payment needed).
 // - Single modules 2 to 7: €38 each (€228 for all six).
 // - Complete course (all 7 modules): €196, or €126 at the launch price (first 100 buyers, or until
-//   LAUNCH_PRICE_UNTIL if that is set on the server). It includes a pack of AI role-play
-//   practice messages for the Arena (no expiry).
+//   LAUNCH_PRICE_UNTIL if that is set on the server). It includes a pack of Arena tokens
+//   for AI role-plays (valid 12 months).
+// - Arena tokens (1 token = 1 AI reply in the Arena) and AI coach messages are separate and never mixed.
 // - Students who already bought single modules can upgrade to the complete course and pay only
 //   the difference: the package price minus €38 for each module they bought.
 // All sums are done in cents, so prices never pick up rounding errors.
@@ -19,8 +20,8 @@ export const MODULE_PRICE = 38
 export const MODULE_IDS = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']
 export const FREE_MODULES = ['m1']
 export const PAID_MODULES = MODULE_IDS.filter((m) => !FREE_MODULES.includes(m))
-export const BUNDLE_PRACTICE_MESSAGES = 150 // AI role-play messages in the Arena, included with the complete course (no expiry)
-// Extra The Arena messages anyone signed in can buy, as often as they like (no expiry).
+export const BUNDLE_PRACTICE_MESSAGES = 150 // Arena tokens included with the complete course (valid 12 months)
+// Extra Arena tokens anyone signed in can buy, as often as they like (each pack valid 12 months).
 export const TOPUP_ID = 'hit-practice-topup'
 export const TOPUP_PRICE = 12
 export const TOPUP_MESSAGES = 150
@@ -73,7 +74,7 @@ export function quote(choice, purchases, opts) {
       full: !o.bundle.credit && !o.bundle.launch,
     }
   }
-  if (choice === 'practice') return { productId: TOPUP_ID, cents: Math.round(TOPUP_PRICE * 100), name: `The Arena: ${TOPUP_MESSAGES} extra AI role-play messages` }
+  if (choice === 'practice') return { productId: TOPUP_ID, cents: Math.round(TOPUP_PRICE * 100), name: `The Arena: ${TOPUP_MESSAGES} Arena tokens (valid 12 months)` }
   if (FREE_MODULES.includes(choice)) return { error: 'This module is free: just open it.' }
   if (!PAID_MODULES.includes(choice)) return { error: 'Please choose a module or the complete course.' }
   if (o.owned.has(choice)) return { error: 'You already have this module.' }

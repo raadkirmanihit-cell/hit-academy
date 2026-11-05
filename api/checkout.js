@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const priceId = q.full ? process.env.STRIPE_PRICE_ID : null
     const choice = body.choice || 'bundle'
     // For a message top-up, the app waits on return until the pack count goes up from this number.
-    const had = choice === 'practice' ? (await coachAccess(user.id)).topups : 0
+    const had = choice === 'practice' ? (await coachAccess(user)).topups : 0
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [priceId

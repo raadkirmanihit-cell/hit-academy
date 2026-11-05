@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   try {
     const user = await requireUser(req)
     if (req.method === 'GET') {
-      return res.status(200).json(await coachAccess(user.id))
+      return res.status(200).json(await coachAccess(user))
     }
     if (req.method !== 'POST') return res.status(405).json({ error: 'Use GET or POST.' })
 
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     if (body.action === 'subscribe') {
       if (!body.consent) return res.status(400).json({ error: 'Please confirm the box about starting the coach right away first.' })
-      const access = await coachAccess(user.id)
+      const access = await coachAccess(user)
       if (access.subscribed && !access.included) return res.status(200).json({ alreadySubscribed: true })
       // Still in the coach months included with the course: the subscription starts when they end.
       const trialEnd = access.included && access.periodEnd && new Date(access.periodEnd) > Date.now() + 2 * 864e5

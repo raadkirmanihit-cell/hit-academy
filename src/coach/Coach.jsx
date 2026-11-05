@@ -12,7 +12,7 @@ import { useVoice } from './voice.js'
 import { practiceTurn, practiceScore } from './practiceApi.js'
 import { combineVoice, readings } from '../activities/speechMetrics.js'
 import { SKILLS, PASS_SCORE, PASS_MIN_SKILL, MIN_SKILLS, MIN_TURNS, LEVELS, RANKS, levelOpen, currentRank, computeScore, practiceSummary } from './scoring.js'
-import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, CoachPaywall, PlanNote, PracticeCounter, TopUpCard } from './plan.jsx'
+import { useCoachPlan, usedOneMessage, usedOnePractice, coachLocked, arenaLocked, CoachPaywall, PlanNote, PracticeCounter, TopUpCard } from './plan.jsx'
 
 const MicIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
 const SpeakerIcon = ({ off }) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" />{off ? <path d="M17 9l5 6M22 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}</svg>
@@ -74,7 +74,7 @@ const ERRORS = {
   network: 'Connection problem. Please check your internet and try again.',
 }
 // Server says the free messages are used up: switch the coach to the subscribe card.
-export const noteError = (e) => { if (e?.code === 'needs_subscription') coachLocked() }
+export const noteError = (e) => { if (e?.code === 'needs_subscription') coachLocked(); if (e?.code === 'needs_tokens') arenaLocked() }
 export const errorText = (e) => (isLive && e?.message && e.code !== 'cancelled' ? e.message : ERRORS[e?.code]) || 'Something went wrong. Please try again.'
 
 // Coach replies use **bold** and "- " bullets only.
@@ -365,7 +365,7 @@ export function Spar({ scenarioId, compact }) {
         </div>
       )}
       {history.length > 0 && <ScoreHistory attempts={history} />}
-      {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? <div className="stack" style={{ gap: '1rem' }}>{isLive && <TopUpCard />}<CoachPaywall compact={compact} practice /></div> : !turns ? (
+      {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? <TopUpCard /> : !turns ? (
         <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={start}>Start the negotiation</button>
           <VoiceToggle voice={voice} />
@@ -651,7 +651,7 @@ export function PracticeStudio() {
         <div className="stack" style={{ gap: '.9rem' }}>
           <div className="studio-head">
             <div className="stack" style={{ gap: '.6rem' }}>
-              <span className="eyebrow">{isLive ? 'AI coach · Premium' : 'AI coach · Premium prototype'}</span>
+              <span className="eyebrow">{isLive ? 'Premium · Arena tokens' : 'Premium prototype'}</span>
               <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>The Arena</h1>
               <p className="arena-tagline">Put your skills to the test</p>
             </div>
@@ -765,20 +765,3 @@ export function PracticeStudio() {
   )
 }
 
-export function CoachTeaser() {
-  const { go } = useApp()
-  return (
-    <div className="card coach-teaser">
-      <span className="coach-dot lg" aria-hidden="true">AI</span>
-      <div>
-        <span className="eyebrow">{isLive ? 'Premium' : 'Premium · prototype'}</span>
-        <h4>Your AI negotiation coach</h4>
-        <p className="small muted">Ask questions about any situation, or practise live with an AI counterpart. Everything it teaches comes from the course.</p>
-      </div>
-      <div className="row" style={{ gap: '.5rem' }}>
-        <button className="btn" onClick={() => window.dispatchEvent(new Event('open-coach'))}>Ask the coach</button>
-        <button className="btn btn-primary" onClick={() => go('practice')}>The Arena</button>
-      </div>
-    </div>
-  )
-}

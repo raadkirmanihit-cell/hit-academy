@@ -105,7 +105,7 @@ export default function App() {
       backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
       if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
-      // Back from buying extra practice messages: wait until the server has counted the new pack.
+      // Back from buying Arena tokens: wait until the server has counted the new pack.
       if (u && checkout === 'success' && item === 'practice') {
         const had = Number(params.get('had') || 0)
         let plan = null
@@ -116,7 +116,7 @@ export default function App() {
         await enter(u)
         await refreshCoachPlan()
         go('practice', {}, { replace: true })
-        notify(plan?.topups > had ? 'Payment received. Your extra practice messages are ready.' : 'Payment received. Your messages appear in a minute: please reload this page shortly.', 6000)
+        notify(plan?.topups > had ? 'Payment received. Your new Arena tokens are ready.' : 'Payment received. Your tokens appear in a minute: please reload this page shortly.', 6000)
         off = backend.onRecovery(() => go('newpass')) || (() => {})
         setBooted(true)
         return
