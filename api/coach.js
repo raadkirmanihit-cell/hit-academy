@@ -8,6 +8,25 @@ import { env, requireUser, readJson, fail, chargeCoach } from './_lib.js'
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
 const MAX_CHARS = 120_000
 
+// Prompt caching: the long, fixed part of the coach rules and the conversation so far are
+// stored by Anthropic for a few minutes, so the next message reads them at a tenth of the price.
+const SPLIT = '\nThe learner is currently on:'
+const CACHE = { type: 'ephemeral' }
+function withCache(messages) {
+  const out = messages.map((m) => ({ ...m }))
+  const first = out[0]
+  const at = first.role === 'user' ? first.content.indexOf(SPLIT) : -1
+  if (at > 0) {
+    first.content = [
+      { type: 'text', text: first.content.slice(0, at), cache_control: CACHE },
+      { type: 'text', text: first.content.slice(at) },
+    ]
+  }
+  const last = out[out.length - 1]
+  if (last !== first) last.content = [{ type: 'text', text: last.content, cache_control: CACHE }]
+  return out
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST.' })
   let user
@@ -42,7 +61,7 @@ export default async function handler(req, res) {
       model: MODEL,
       max_tokens: 4000,
       // The course's coach rules arrive as the first user message (built in the browser from the course content).
-      messages,
+      messages: withCache(messages),
       output_config: { effort: tier === 'quick' ? 'low' : 'medium' },
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',

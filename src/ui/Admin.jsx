@@ -4,6 +4,7 @@ import { backend } from '../platform/backend.js'
 import { flatSteps } from '../platform/progress.js'
 import { scenarios as SCENARIOS } from '../coach/scenarios.js'
 import { SKILLS, LEVELS, band } from '../coach/scoring.js'
+import { REMOVAL_REASONS } from '../content/forum.js'
 
 const date = (d) => (d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '–')
 const dateTime = (d) => (d ? new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '–')
@@ -46,7 +47,7 @@ export default function AdminPage() {
         <button className="btn btn-ghost btn-sm" onClick={() => { setData(null); load() }}>Refresh</button>
       </div>
       <div className="tabs" role="tablist">
-        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'The Arena'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
+        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'The Arena'], ['community', 'Community'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
           <button key={id} className="tab" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -55,6 +56,7 @@ export default function AdminPage() {
       {tab === 'payments' && <Payments data={data} act={act} />}
       {tab === 'coach' && <CoachSubs data={data} />}
       {tab === 'practice' && <Practice data={data} />}
+      {tab === 'community' && <CommunityAdmin />}
       {tab === 'messages' && <Messages data={data} act={act} />}
     </div>
   )
@@ -419,6 +421,85 @@ function Messages({ data, act }) {
           </div>
         </article>
       ))}
+    </div>
+  )
+}
+
+// Community moderation: reports to review (DSA notices) and members who post.
+function CommunityAdmin() {
+  const { notify, go } = useApp()
+  const [d, setD] = useState(null)
+  const [err, setErr] = useState('')
+  const [pick, setPick] = useState({}) // report id -> chosen removal reason
+  const load = useCallback(() => backend.forum({ admin: true }).then(setD, (e) => setErr(e.message)), [])
+  useEffect(() => { load() }, [load])
+  async function run(action, payload, done) {
+    try { await backend.forumAction(action, payload); notify(done); await load() } catch (e) { notify(e.message, 5000) }
+  }
+  if (err) return <p className="muted">{/opens soon/i.test(err) ? 'Run database update 7 (supabase/update-7-community.sql) in Supabase to switch the community on.' : err}</p>
+  if (!d) return <div className="boot"><span className="boot-dot" /></div>
+  const open = d.reports.filter((r) => !r.resolvedAt)
+  const done = d.reports.filter((r) => r.resolvedAt)
+  const blocked = d.members.filter((m) => m.blockedAt)
+  return (
+    <div className="stack" style={{ gap: '1.5rem' }}>
+      <div className="row">
+        <button className="btn btn-primary btn-sm" onClick={() => go('community')}>Open the community</button>
+        <span className="small muted">{d.members.length} member{d.members.length === 1 ? '' : 's'} with a forum name · {open.length} open report{open.length === 1 ? '' : 's'} · {blocked.length} blocked</span>
+      </div>
+      <p className="small muted" style={{ margin: 0 }}>You can also remove posts, pin or close conversations and block members right inside the community. Every removal or block emails the member the reason, and every report you resolve emails the person who reported it.</p>
+      <div className="stack">
+        <h3>Reports to review</h3>
+        {!open.length && <p className="muted">No open reports.</p>}
+        {open.map((r) => (
+          <article key={r.id} className="card admin-msg unread">
+            <div className="row" style={{ justifyContent: 'space-between', gap: '.5rem' }}>
+              <div><b>{r.reason}</b> <span className="small muted">reported by {r.reporter}</span></div>
+              <span className="small muted">{dateTime(r.at)}</span>
+            </div>
+            {r.details && <p style={{ margin: 0 }}><i>{r.details}</i></p>}
+            {r.post ? <>
+              <div className="small muted">Post by <b>{r.post.author}</b> {r.post.authorEmail && `(${r.post.authorEmail})`} in “{r.post.thread}”{r.post.status !== 'ok' ? ` · already ${r.post.status}` : ''}</div>
+              <p style={{ whiteSpace: 'pre-wrap', margin: 0, padding: '.7rem .9rem', background: 'var(--surface-2)', borderRadius: 'var(--r-s)' }}>{r.post.body}</p>
+              <div className="row" style={{ gap: '.5rem' }}>
+                <button className="btn btn-ghost btn-sm" onClick={() => go('community', { threadId: r.post.threadId })}>Open conversation</button>
+                <select value={pick[r.id] || ''} onChange={(e) => setPick({ ...pick, [r.id]: e.target.value })} aria-label="Reason for removal" style={{ minHeight: 36, borderRadius: 8, border: '1px solid var(--line)', padding: '0 .5rem', background: 'var(--surface)', color: 'var(--ink)' }}>
+                  <option value="">Reason for removal…</option>
+                  {REMOVAL_REASONS.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+                </select>
+                <button className="btn btn-primary btn-sm" disabled={!pick[r.id] || r.post.status !== 'ok'} onClick={() => run('remove', { postId: r.post.id, reason: pick[r.id] }, 'Post removed. The author and the reporter have been told.')}>Remove post</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => run('dismiss', { reportId: r.id }, 'Report closed. The post stays up.')}>Keep post</button>
+              </div>
+            </> : <div className="row"><span className="small muted">The post no longer exists.</span><button className="btn btn-ghost btn-sm" onClick={() => run('dismiss', { reportId: r.id }, 'Report closed.')}>Close report</button></div>}
+          </article>
+        ))}
+      </div>
+      <div className="stack">
+        <h3>Members</h3>
+        {!d.members.length ? <p className="muted">Nobody has posted yet.</p> : (
+          <div className="admin-scroll"><table className="admin-table">
+            <thead><tr><th>Display name</th><th>Email</th><th>Joined</th><th>Posts (30 days)</th><th>Status</th><th /></tr></thead>
+            <tbody>{d.members.map((m) => (
+              <tr key={m.id}>
+                <td>{m.name}</td><td>{m.email}</td><td>{date(m.since)}</td><td className="tnum">{m.posts30}</td>
+                <td>{m.blockedAt ? <span title={m.blockedReason}>Blocked {date(m.blockedAt)}</span> : 'Can post'}</td>
+                <td>{m.blockedAt
+                  ? <button className="btn btn-ghost btn-sm" onClick={() => run('block', { userId: m.id, on: false }, `${m.name} can post again.`)}>Unblock</button>
+                  : <span className="small muted">Block from a post</span>}</td>
+              </tr>
+            ))}</tbody>
+          </table></div>
+        )}
+      </div>
+      {!!done.length && (
+        <details>
+          <summary className="small">Resolved reports ({done.length})</summary>
+          <div className="admin-scroll"><table className="admin-table">
+            <thead><tr><th>Reported</th><th>Reason</th><th>Post by</th><th>Outcome</th><th>Resolved</th></tr></thead>
+            <tbody>{done.map((r) => <tr key={r.id}><td>{date(r.at)}</td><td>{r.reason}</td><td>{r.post?.author || '–'}</td><td>{r.resolution === 'removed' ? 'Removed' : 'Kept'}</td><td>{date(r.resolvedAt)}</td></tr>)}</tbody>
+          </table></div>
+        </details>
+      )}
     </div>
   )
 }

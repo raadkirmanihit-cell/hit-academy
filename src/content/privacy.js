@@ -3,8 +3,8 @@
 // (for example email via Resend, analytics, or a new payment method).
 import { LEGAL } from './terms.js'
 
-export const PRIVACY_VERSION = '2026-10-29'
-export const PRIVACY_UPDATED = '29 October 2026'
+export const PRIVACY_VERSION = '2026-11-05'
+export const PRIVACY_UPDATED = '5 November 2026'
 
 export const PRIVACY = [
   {
@@ -34,7 +34,8 @@ export const PRIVACY = [
       '**Course progress.** Lessons completed, activity answers, reflections you write, quiz attempts and scores, and the date you complete each module. We need these to save your place, show your progress and issue your certificate. Legal basis: performance of the contract (Art. 6 (1) (b) GDPR). We can see this progress on our administration board to support you and improve the course.',
       '**Messages to us.** When you use "Message Raad" or email us, we process your name, email and message to reply. Legal basis: performance of the contract, or our legitimate interest in answering enquiries (Art. 6 (1) (b) and (f) GDPR).',
       '**AI coach.** What you type into the AI coach, together with matching excerpts from the course, is sent to our AI provider to generate a reply. **We do not store your coach conversations**; we only keep a daily count of how often you used the coach, to enforce the fair-use limit. Please do not enter sensitive personal data, or other people\'s confidential information, into the coach. Legal basis: performance of the contract (Art. 6 (1) (b) GDPR).',
-      '**Emails from us.** We send emails that are needed to run your account: confirming your email address, resetting your password, confirming your purchase. We do not send marketing emails without your separate consent.',
+      '**Members\' community.** If you join the community, we process the display name you choose, when you accepted the community rules, and what you post (conversations, replies, edits), with dates. **Other members can see your display name and your posts.** Your email address and your real name are never shown to them. If you report a post, we process your report and contact you about the outcome; the author is not told who reported them. If we remove a post or stop you from posting, we keep a record of the decision and the reason. Legal basis: performance of the contract (Art. 6 (1) (b) GDPR), and our legal obligations and legitimate interest in keeping the community safe and handling reports under the EU Digital Services Act (Art. 6 (1) (c) and (f) GDPR). Please do not post sensitive personal data about yourself or anyone else.',
+      '**Emails from us.** We send emails that are needed to run your account: confirming your email address, resetting your password, confirming your purchase, and community notices (the outcome of a report you made, or the reason a post of yours was removed). We do not send marketing emails without your separate consent.',
     ],
   },
   {
@@ -44,7 +45,7 @@ export const PRIVACY = [
       'We use the following providers. They process data only on our instructions under data processing agreements (Art. 28 GDPR):',
       { list: [
         '**Vercel Inc.** (USA): hosting of the platform and its server functions.',
-        '**Supabase Inc.** (USA): user accounts, sign-in, and the database for profiles, purchases, progress and messages.',
+        '**Supabase Inc.** (USA): user accounts, sign-in, and the database for profiles, purchases, progress, messages and community posts.',
         '**Stripe Payments Europe Ltd.** (Ireland) and its affiliates: payment processing, receipts and invoices. Stripe is also an independent controller for some data, for example for fraud prevention and its legal obligations. See stripe.com/privacy.',
         '**Anthropic PBC** (USA): the AI model behind the AI coach.',
         '**Resend** (USA), once switched on: delivery of our account and notification emails.',
@@ -69,6 +70,7 @@ export const PRIVACY = [
         'Purchase and invoice records: for the periods required by German tax and commercial law (currently up to 10 years, § 147 AO, § 257 HGB).',
         'Messages to us: for up to 3 years after the matter is closed, unless your account still exists.',
         'AI coach usage counts: deleted with your account.',
+        'Community posts and display name: until you delete them, or until your account is deleted. Posts you delete, and posts we remove, are kept for up to 6 months (so that we can handle complaints about a decision), then deleted. Reports and moderation decisions: up to 1 year after the decision.',
       ] },
     ],
   },
@@ -101,7 +103,7 @@ export const PRIVACY = [
     id: 'security',
     title: '9. Security and changes to this policy',
     body: [
-      'All connections to the platform are encrypted (HTTPS). Passwords are stored only in hashed form. Access to the database is restricted so that each student can only see their own data.',
+      'All connections to the platform are encrypted (HTTPS). Passwords are stored only in hashed form. Access to the database is restricted so that each student can only see their own data, apart from the community posts and display names that members choose to share with each other.',
       'We may update this policy when the platform or the law changes. The current version is always available on this page.',
     ],
   },
