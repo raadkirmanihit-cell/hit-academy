@@ -10,6 +10,7 @@ import Checkout from './ui/Checkout.jsx'
 import Dashboard from './ui/Dashboard.jsx'
 import Player from './ui/Player.jsx'
 import CertificatePage from './ui/Certificate.jsx'
+import SelfEvalPage, { needsBeforeGate } from './ui/SelfEval.jsx'
 import { CoachLauncher, PracticeStudio } from './coach/Coach.jsx'
 import { refreshCoachPlan } from './coach/plan.jsx'
 import AdminPage from './ui/Admin.jsx'
@@ -229,6 +230,13 @@ export default function App() {
         if (result.passed) ms.done.quiz = true
       }))
     },
+    // Course self-evaluation (ui/SelfEval.jsx). phase: 'before' | 'after'.
+    saveSelfEval(phase, answers) {
+      setProgress((p) => ({ ...p, selfEval: { ...(p.selfEval || {}), [phase]: { answers, at: new Date().toISOString() } } }))
+    },
+    skipSelfEval() {
+      setProgress((p) => ({ ...p, selfEval: { ...(p.selfEval || {}), skippedAt: new Date().toISOString() } }))
+    },
     completeModule(moduleId) {
       setProgress((p) => update(p, moduleId, (ms) => { if (!ms.completedAt) ms.completedAt = new Date().toISOString() }))
     },
@@ -248,7 +256,9 @@ export default function App() {
   else if (['signup', 'signin', 'reset'].includes(view.name)) screen = <AuthScreen mode={view.name} />
   else if (view.name === 'checkout') screen = <Checkout choice={view.choice} />
   else if (view.name === 'module' && modules[view.moduleId] && !owned.has(view.moduleId)) screen = <Checkout choice={view.moduleId} />
+  else if (view.name === 'module' && modules[view.moduleId] && needsBeforeGate(progress)) screen = <SelfEvalPage phase="before" gate={{ moduleId: view.moduleId, stepId: view.stepId }} />
   else if (view.name === 'module' && modules[view.moduleId]) screen = <Player key={view.moduleId} module={modules[view.moduleId]} initialStep={view.stepId} />
+  else if (view.name === 'selfeval') screen = <SelfEvalPage key={view.phase} phase={view.phase} />
   else if (view.name === 'certificate') screen = <CertificatePage />
   else if (view.name === 'practice') screen = <PracticeStudio />
   else if (view.name === 'admin' && admin) screen = <AdminPage />

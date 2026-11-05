@@ -7,6 +7,7 @@ import { offers, MODULE_PRICE, BUNDLE_PRACTICE_MESSAGES, FREE_MODULES, euro } fr
 import { useState } from 'react'
 import { pitch, moduleInside, previewBlock } from '../content/module-pitch.js'
 import { Blocks } from './Blocks.jsx'
+import { SelfEvalCard, selfEvalOf } from './SelfEval.jsx'
 
 export default function Dashboard() {
   const { course, modules, user, progress, openModule, go, view, owned, launch, practice } = useApp()
@@ -49,6 +50,7 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {!selfEvalOf(progress).before && <SelfEvalCard modulesOk={stats.modulesOk} />}
         <CoachTeaser />
         <CoachPlanCard />
 
@@ -127,6 +129,8 @@ export default function Dashboard() {
             })()}
           </div>
         </div>
+
+        {selfEvalOf(progress).before && <SelfEvalCard modulesOk={stats.modulesOk} />}
 
         <div className="card cert-teaser">
           <Icon.award />
