@@ -1108,12 +1108,15 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 :root[data-theme="dark"] .level-band.band-3 { --band: #6f86d6; }
 :root[data-theme="dark"] .level-band.done { --band: #3cc47a; }
 /* The level path: rank card + Beginner -> Intermediate -> Advanced -> Certificate. */
-.quest { display: grid; grid-template-columns: minmax(180px, 230px) 1fr; gap: 1rem; align-items: center; padding: .9rem 1.2rem; border-radius: 16px; background: var(--navy); color: var(--on-navy, #f4f6fb); }
+.quest { display: grid; grid-template-columns: minmax(240px, 290px) 1fr; gap: 1rem; align-items: center; padding: .9rem 1.2rem; border-radius: 16px; background: var(--navy); color: var(--on-navy, #f4f6fb); }
 .quest .eyebrow { color: #9aa5c6; }
-.quest-rank { display: grid; gap: .25rem; }
+.quest-rank { display: flex; align-items: center; gap: .9rem; }
+.quest-rank-text { display: grid; gap: .25rem; min-width: 0; }
+.level-badge.hero .level-badge-tick { width: 28px; height: 28px; right: -2px; bottom: 2px; border-color: var(--navy); }
+.level-badge.hero .level-badge-tick svg { width: 16px; height: 16px; }
 .quest-rank strong { font-size: 1.25rem; color: var(--orange); }
 .quest-rank .small { color: #c9d0e6; }
-.quest-path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .8rem; counter-reset: none; }
+.quest-path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: .8rem; counter-reset: none; }
 .quest-step { display: grid; justify-items: center; text-align: center; gap: .4rem; position: relative; }
 .quest-step + .quest-step::before { content: ''; position: absolute; top: 20px; right: calc(50% + 24px); width: calc(100% - 48px + .8rem); height: 2px; background: #2c3c74; }
 .quest-step.done + .quest-step::before, .quest-step.done + .quest-step.done::before { background: var(--orange); }

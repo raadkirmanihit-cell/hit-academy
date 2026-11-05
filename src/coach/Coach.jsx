@@ -520,13 +520,14 @@ function VoiceReport({ turns }) {
 // A unique badge for each level: shield in the level's colour with its own emblem.
 // Earned badges are in full colour with a green tick; the others are greyed out.
 const BADGE_COLORS = ['#5b8def', '#2f5bd3', '#16275e']
-function LevelBadge({ level, earned, size = 44 }) {
+function LevelBadge({ level, earned, size = 44, hero = false }) {
   const i = LEVELS.indexOf(level)
   const fill = earned ? BADGE_COLORS[i] : '#a9b1c7'
   return (
-    <span className={'level-badge' + (earned ? ' earned' : '')} style={{ width: size, height: size }}>
-      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true">
-        <path d="M24 3 L42 9 V23 C42 34 34 41 24 45 C14 41 6 34 6 23 V9 Z" fill={fill} stroke="#f7861b" strokeWidth={earned ? 2 : 0} />
+    <span className={'level-badge' + (earned ? ' earned' : '') + (hero ? ' hero' : '')} style={{ width: size, height: size }}>
+      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true" shapeRendering="geometricPrecision">
+        <path d="M24 3 L42 9 V23 C42 34 34 41 24 45 C14 41 6 34 6 23 V9 Z" fill={fill} stroke="#f7861b" strokeWidth={earned ? 2 : 0} strokeLinejoin="round" />
+        {hero && <path d="M24 6.6 L39 11.6 V23 C39 32.4 32.4 38.3 24 41.8 C15.6 38.3 9 32.4 9 23 V11.6 Z" fill="none" stroke="#fff" strokeOpacity=".35" strokeWidth=".8" strokeLinejoin="round" />}
         {i === 0 && <path d="M15 15h18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-9l-5 4v-4h-4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z" fill="#fff" />}
         {i === 1 && <g fill="none" stroke="#fff" strokeWidth="2.4"><circle cx="24" cy="23" r="9" /><circle cx="24" cy="23" r="4.5" /><circle cx="24" cy="23" r="1" fill="#fff" /></g>}
         {i === 2 && <polygon points="24.0,13.5 26.6,19.9 33.5,20.4 28.2,24.9 29.9,31.6 24.0,27.9 18.1,31.6 19.8,24.9 14.5,20.4 21.4,19.9" fill="#f7861b" />}
@@ -660,9 +661,12 @@ export function PracticeStudio() {
 
           <div className="quest">
             <div className="quest-rank">
-              <span className="eyebrow">Your latest badge</span>
-              <strong>{rank ? RANKS[rank].title : 'No badge yet'}</strong>
-              <span className="small">{rank ? RANKS[rank].line : 'Clear the Beginner level to earn your first badge.'}</span>
+              <LevelBadge level={rank || LEVELS[0]} earned={!!rank} size={84} hero />
+              <div className="quest-rank-text">
+                <span className="eyebrow">Your latest badge</span>
+                <strong>{rank ? RANKS[rank].title : 'No badge yet'}</strong>
+                <span className="small">{rank ? RANKS[rank].line : 'Clear the Beginner level to earn your first badge.'}</span>
+              </div>
             </div>
             <ol className="quest-path">
               {LEVELS.map((l, i) => {
