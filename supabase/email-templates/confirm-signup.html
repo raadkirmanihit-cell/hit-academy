@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirm your email</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6fb;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">One click to confirm your email and open your HIT Academy account.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #dbe0ec;">
+        <tr>
+          <td align="center" style="padding:28px 24px 8px;">
+            <img src="https://hit-academy-git-production-f1e64b-human-interactions-translated.vercel.app/img/brand/logo-email.png" width="96" height="92" alt="H.I.T. Human Interactions Translated" style="display:block;border:0;width:96px;height:auto;">
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:4px 24px 0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#a94f00;font-weight:bold;">
+            HIT Academy
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 36px 8px;font-family:'DM Sans',Arial,Helvetica,sans-serif;color:#0b1a44;">
+            <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25;text-align:center;color:#0b1a44;">Confirm your email</h1>
+            <p style="margin:0 0 14px;font-size:16px;line-height:1.55;color:#33406a;">{{ if .Data.name }}Hi {{ .Data.name }},{{ else }}Hi there,{{ end }}</p>
+            <p style="margin:0 0 24px;font-size:16px;line-height:1.55;color:#33406a;">Welcome to HIT Academy. Please confirm your email address so we can open your account.</p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:0 36px 24px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" bgcolor="#f7861b" style="border-radius:10px;">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 30px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#0b1a44;text-decoration:none;border-radius:10px;">Confirm my email</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 36px 28px;font-family:'DM Sans',Arial,Helvetica,sans-serif;color:#5d6888;">
+            <p style="margin:0 0 12px;font-size:14px;line-height:1.5;">You are getting this email because someone signed up for HIT Academy with {{ .Email }}. If that was not you, you can ignore this email and no account will be opened.</p>
+            <p style="margin:0 0 8px;font-size:13px;line-height:1.5;">If the button does not work, copy this link into your browser:</p>
+            <p style="margin:0;font-size:13px;line-height:1.5;word-break:break-all;"><a href="{{ .ConfirmationURL }}" style="color:#a94f00;">{{ .ConfirmationURL }}</a></p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#0b1a44;padding:20px 36px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#c9d0e4;text-align:center;">
+            HIT Academy by Human Interactions Translated<br>
+            Raad Kirmani, Mainzer Ring 103, 63075 Offenbach, Germany<br>
+            <a href="mailto:info@humaninteractionstranslated.com" style="color:#f7861b;text-decoration:none;">info@humaninteractionstranslated.com</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
