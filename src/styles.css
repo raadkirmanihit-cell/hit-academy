@@ -1662,3 +1662,4 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .spar-safety { border: 1px solid var(--orange); border-left-width: 4px; background: var(--orange-soft); border-radius: 10px; padding: .8rem 1rem; display: grid; gap: .4rem; }
 .spar-safety p { margin: 0; }
 .review-note { max-width: 62ch; margin: 0; }
+.review-need { margin: 0; color: var(--orange-ink); }

@@ -67,6 +67,11 @@ export default function ReviewsPage() {
             <textarea id="rv-text" rows={6} value={text} maxLength={REVIEW_LIMITS.body[1]} onChange={(e) => setText(e.target.value)}
               placeholder="What did you learn? What changed in your negotiations? What could be better?" />
           </div>
+          {(() => {
+            const left = REVIEW_LIMITS.body[0] - text.trim().length
+            const need = [!rating && 'choose a star rating', left > 0 && `write ${left} more character${left === 1 ? '' : 's'}`].filter(Boolean)
+            return need.length ? <p className="small review-need" role="status">To submit, {need.join(' and ')}.</p> : null
+          })()}
           <p className="small muted">Your first name and last initial are shown with your review. Each review is checked for spam and abuse before it goes live. Your words are never changed.</p>
           {err && <p className="error" role="alert">{err}</p>}
           <div className="row">
