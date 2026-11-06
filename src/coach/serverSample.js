@@ -40,7 +40,8 @@ export function makeServerSample() {
       if (e?.name === 'AbortError') throw err('cancelled', 'Cancelled', text)
       throw err('network', 'The connection dropped. Please try again.', text)
     }
-    return { text, truncated: false }
+    // safety: the server answered a crisis message itself with help lines (no message used).
+    return { text, truncated: false, safety: r.headers.get('X-Safety') === '1' }
   }
   sample.json = async (input, opts = {}) => {
     const { text } = await sample(input + '\n\nReply with the JSON object only, no other text.', opts)

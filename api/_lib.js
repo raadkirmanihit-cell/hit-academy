@@ -297,6 +297,8 @@ export async function saveSubscription(sub, { userId, consentAt } = {}) {
     ...(consentAt || sub.metadata?.consent_at ? { consent_at: consentAt || sub.metadata.consent_at } : {}),
   }
   const { error } = await db().from('coach_subscriptions').upsert(row, { onConflict: 'user_id' })
+  // The account was deleted (Stripe tells us about the cancellation afterwards): nothing to keep.
+  if (error?.code === '23503') { console.warn('Coach subscription for a deleted account', sub.id); return null }
   if (error) throw error
   return row
 }

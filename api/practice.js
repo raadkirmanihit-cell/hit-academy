@@ -11,6 +11,7 @@ import { SPAR_RULES, FEEDBACK_PROMPT } from '../src/coach/prompts.js'
 import { scenarioById } from '../src/coach/scenarios.js'
 import { buildChunks, retrieve, formatExcerpts, library } from '../src/coach/knowledge.js'
 import { computeScore, SKILLS, LEVELS } from '../src/coach/scoring.js'
+import { soundsLikeCrisis, SAFETY_REPLY, SAFETY_TOKEN } from '../src/coach/safety.js'
 import { modules } from '../src/content/index.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
@@ -77,6 +78,12 @@ export default async function handler(req, res) {
 async function turn(req, res, user, body) {
   const message = String(body.message || '').trim().slice(0, MAX_MESSAGE)
   if (!message) return res.status(400).json({ error: 'Nothing to answer.' })
+  // A clear sign of crisis pauses the role-play with a fixed, caring reply and help lines:
+  // no model call, no token used, and the line is not added to the role-play.
+  if (soundsLikeCrisis(message)) {
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Safety': '1', ...(body.sessionId ? { 'X-Session-Id': String(body.sessionId) } : {}) })
+    return res.end(`${SAFETY_TOKEN} ${SAFETY_REPLY}`)
+  }
   const secs = Number(body.delivery?.secs)
   const delivery = secs > 0 && secs < 600 ? { secs, ...(voiceOf(body.delivery.voice) ? { voice: voiceOf(body.delivery.voice) } : {}) } : undefined
 
@@ -149,7 +156,8 @@ async function turn(req, res, user, body) {
     return res.end()
   }
   const reply = text.replace('[END]', '').trim()
-  if (saved && reply) {
+  // The counterpart stepped out of role for safety: keep that exchange out of the role-play record.
+  if (saved && reply && !reply.startsWith(SAFETY_TOKEN)) {
     const { error } = await db().from('practice_sessions').update({ turns: [...turns, { role: 'assistant', content: reply }], updated_at: new Date().toISOString() }).eq('id', session.id)
     if (error) console.error(error)
   }
