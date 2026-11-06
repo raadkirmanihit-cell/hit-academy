@@ -486,14 +486,21 @@ function CommunityAdmin() {
         <h3>Members</h3>
         {!d.members.length ? <p className="muted">Nobody has posted yet.</p> : (
           <div className="admin-scroll"><table className="admin-table">
-            <thead><tr><th>Display name</th><th>Email</th><th>Joined</th><th>Posts (30 days)</th><th>Status</th><th /></tr></thead>
+            <thead><tr><th /><th>Display name</th><th>Email</th><th>Joined</th><th>Posts (30 days)</th><th>Status</th><th /></tr></thead>
             <tbody>{d.members.map((m) => (
               <tr key={m.id}>
+                <td>{m.photo ? <img className="cm-avatar" src={m.photo} alt="" loading="lazy" /> : null}</td>
                 <td>{m.name}</td><td>{m.email}</td><td>{date(m.since)}</td><td className="tnum">{m.posts30}</td>
                 <td>{m.blockedAt ? <span title={m.blockedReason}>Blocked {date(m.blockedAt)}</span> : 'Can post'}</td>
-                <td>{m.blockedAt
-                  ? <button className="btn btn-ghost btn-sm" onClick={() => run('block', { userId: m.id, on: false }, `${m.name} can post again.`)}>Unblock</button>
-                  : <span className="small muted">Block from a post</span>}</td>
+                <td><div className="row" style={{ gap: '.4rem', flexWrap: 'nowrap' }}>
+                  {m.photo && <select className="btn-sm" value="" aria-label={`Remove ${m.name}'s photo`} onChange={(e) => e.target.value && window.confirm(`Remove ${m.name}'s profile photo? They will get an email with the reason.`) && run('removePhoto', { userId: m.id, reason: e.target.value }, `${m.name}'s photo was removed. They have been told why.`)}>
+                    <option value="">Remove photo…</option>
+                    {REMOVAL_REASONS.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+                  </select>}
+                  {m.blockedAt
+                    ? <button className="btn btn-ghost btn-sm" onClick={() => run('block', { userId: m.id, on: false }, `${m.name} can post again.`)}>Unblock</button>
+                    : <span className="small muted">Block from a post</span>}
+                </div></td>
               </tr>
             ))}</tbody>
           </table></div>

@@ -1,7 +1,7 @@
 // PREVIEW community forum: same answers as api/forum.js, kept in this browser only.
 // Moderation is not available in the preview (there is no admin there).
 import { readJSON, writeJSON } from './storage.js'
-import { CATEGORIES, categoryOf, checkText } from '../content/forum.js'
+import { CATEGORIES, categoryOf, checkText, reservedName, parsePhoto } from '../content/forum.js'
 import { COURSE_PRODUCT_IDS } from '../content/pricing.js'
 
 const KEY = 'hit.forum'
@@ -12,10 +12,11 @@ const fail = (m) => { throw new Error(m) }
 function meOf(user, db) {
   const member = !!user?.purchases?.some((p) => p.status === 'paid' && COURSE_PRODUCT_IDS.includes(p.productId))
   const p = db.members[user?.id]
-  return { admin: false, member, blocked: false, blockedReason: '', name: p?.name || '', rulesAccepted: !!p?.rulesAt, canPost: member && !!p?.name && !!p?.rulesAt }
+  return { admin: false, member, blocked: false, blockedReason: '', name: p?.name || '', photo: p?.photo || null, rulesAccepted: !!p?.rulesAt, canPost: member && !!p?.name && !!p?.rulesAt }
 }
 
 const nameOf = (db, uid) => db.members[uid]?.name || 'Member'
+const photoOf = (db, uid) => db.members[uid]?.photo || null
 
 export const previewForum = {
   read(user, { thread, category } = {}) {
@@ -29,7 +30,7 @@ export const previewForum = {
         me,
         thread: { id: t.id, category: t.category, title: t.title, pinned: false, locked: false, removed: false, mine: t.userId === user.id, createdAt: t.createdAt },
         posts: db.posts.filter((p) => p.threadId === t.id).map((p) => ({
-          id: p.id, first: p.first, name: nameOf(db, p.userId), trainer: false, mine: p.userId === user.id,
+          id: p.id, first: p.first, name: nameOf(db, p.userId), photo: photoOf(db, p.userId), trainer: false, mine: p.userId === user.id,
           status: p.deleted ? 'deleted' : 'ok', body: p.deleted ? null : p.body, createdAt: p.createdAt, editedAt: p.editedAt || null,
         })),
       }
@@ -40,7 +41,7 @@ export const previewForum = {
     return {
       me, counts,
       threads: list.map((t) => ({
-        id: t.id, category: t.category, title: t.title, name: nameOf(db, t.userId), trainer: false, mine: t.userId === user.id, pinned: false, locked: false,
+        id: t.id, category: t.category, title: t.title, name: nameOf(db, t.userId), photo: photoOf(db, t.userId), trainer: false, mine: t.userId === user.id, pinned: false, locked: false,
         replies: db.posts.filter((p) => p.threadId === t.id && !p.first && !p.deleted).length, lastPostAt: t.lastPostAt, createdAt: t.createdAt,
       })),
     }
@@ -53,10 +54,14 @@ export const previewForum = {
     if (!me.member) fail('The community is for course members. Buy a module or the complete course to join.')
     if (action === 'profile') {
       const name = String(b.name || '').trim().replace(/\s+/g, ' ')
-      const err = checkText('name', name); if (err) fail(err)
-      if (!b.acceptRules) fail('Please accept the community rules.')
-      db.members[user.id] = { name, rulesAt: now }
-      return save()
+      const err = checkText('name', name) || reservedName(name); if (err) fail(err)
+      const prev = db.members[user.id] || {}
+      if (!prev.rulesAt && !b.acceptRules) fail('Please accept the community rules.')
+      let photo = prev.photo || null
+      if (b.photo === null) photo = null
+      else if (b.photo !== undefined) { const ph = parsePhoto(b.photo); if (typeof ph === 'string') fail(ph); photo = b.photo }
+      db.members[user.id] = { name, rulesAt: prev.rulesAt || now, photo }
+      return save({ photo })
     }
     if (action === 'report') return { ok: true } // Raad gets reports on the live site only.
     if (!me.canPost) fail('Choose a display name and accept the community rules first.')
