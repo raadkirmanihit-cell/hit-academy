@@ -1,7 +1,7 @@
 // Stripe calls this after a payment. It records the course purchase (which unlocks the course)
 // and keeps the AI coach subscription in sync: new, renewed, failed, cancelled, refunded.
 import Stripe from 'stripe'
-import { env, db, notifyOwner, markRefunded, saveSubscription, PRODUCT_ID, INVOICE_FOOTER } from './_lib.js'
+import { env, db, notifyOwner, sendEmail, siteUrl, markRefunded, saveSubscription, PRODUCT_ID, INVOICE_FOOTER, COACH_MONTHLY_LIMIT } from './_lib.js'
 import { moduleFromProduct, TOPUP_ID, TOPUP_MESSAGES, ARENA_ID } from '../src/content/pricing.js'
 
 // Stripe signs the exact bytes it sent, so read the raw body.
@@ -63,8 +63,9 @@ export default async function handler(req, res) {
       }
     }
     if (['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted'].includes(event.type)) {
-      await coachSubscriptionChanged(event.data.object, event.type)
+      await coachSubscriptionChanged(event.data.object, event.type, siteUrl(req))
     }
+    if (event.type === 'customer.subscription.trial_will_end') await coachFirstChargeReminder(event.data.object, siteUrl(req))
     if (event.type === 'invoice.paid') await coachInvoicePaid(stripe, event.data.object)
     res.status(200).json({ received: true })
   } catch (e) {
@@ -95,12 +96,29 @@ async function coachCheckoutDone(stripe, s) {
   ])
 }
 
-async function coachSubscriptionChanged(sub, type) {
+const day = (iso) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' })
+
+async function coachSubscriptionChanged(sub, type, base) {
   if (!isCoach(sub)) return
   // A late message about an old subscription must not overwrite a newer one.
-  const { data: cur } = await db().from('coach_subscriptions').select('stripe_subscription_id, status').eq('user_id', sub.metadata.user_id).maybeSingle()
+  const { data: cur } = await db().from('coach_subscriptions').select('stripe_subscription_id, status, cancel_at_period_end').eq('user_id', sub.metadata.user_id).maybeSingle()
   if (cur && cur.stripe_subscription_id && cur.stripe_subscription_id !== sub.id && ['active', 'trialing', 'past_due'].includes(cur.status) && sub.status !== 'active') return
   const row = await saveSubscription(sub)
+  // § 312k BGB: confirm a cancellation to the student straight away, in text form, with the end date.
+  const sameSub = cur?.stripe_subscription_id === sub.id
+  const newlyCancelled = row && sameSub && !cur.cancel_at_period_end && row.cancel_at_period_end && type === 'customer.subscription.updated'
+  const endedNow = row && sameSub && type === 'customer.subscription.deleted' && !cur.cancel_at_period_end && cur.status !== 'canceled'
+  if (newlyCancelled || endedNow) {
+    const p = await userName(row.user_id)
+    const end = sub.cancel_at ? new Date(sub.cancel_at * 1000).toISOString() : row.current_period_end
+    if (p?.email) await sendEmail(p.email, 'Your AI coach subscription is cancelled', [
+      `Hello ${p.name?.split(' ')[0] || 'there'},`, '',
+      `We have received your cancellation of the H.I.T. AI coach subscription on ${day(new Date().toISOString())}.`,
+      endedNow ? 'Your subscription has ended and you will not be charged again.' : `The coach stays on until ${day(end)}. After that the subscription ends and you will not be charged again.`, '',
+      `Changed your mind? You can restart it any time from your dashboard: ${base}`, '',
+      'Human Interactions Translated',
+    ])
+  }
   if (row && type === 'customer.subscription.deleted') {
     const p = await userName(row.user_id)
     await notifyOwner(`AI coach subscription ended: ${p?.name || 'a student'}`, [`${p?.name || ''} <${p?.email || ''}>'s coach subscription has ended (${sub.cancellation_details?.reason || sub.status}).`])
@@ -136,4 +154,19 @@ async function coachInvoicePaid(stripe, inv) {
 async function markCoachPaymentRefunded(pi) {
   const { error } = await db().from('coach_payments').update({ status: 'refunded', refunded_at: new Date().toISOString() }).eq('payment_intent', pi)
   if (error && !/relation|schema cache|does not exist/i.test(error.message || '')) throw error
+}
+
+// Stripe sends this 3 days before a trial ends. Our only "trial" is the free coach time that earlier
+// course buyers had included, when they subscribe before it runs out: remind them before the first charge.
+async function coachFirstChargeReminder(sub, base) {
+  if (!isCoach(sub) || !sub.trial_end || sub.cancel_at_period_end) return
+  const p = await userName(sub.metadata.user_id)
+  if (!p?.email) return
+  const amount = ((sub.items?.data?.[0]?.price?.unit_amount || 0) / 100).toFixed(2)
+  await sendEmail(p.email, 'Reminder: your AI coach subscription starts soon', [
+    `Hello ${p.name?.split(' ')[0] || 'there'},`, '',
+    `The AI coach time included with your course ends on ${day(new Date(sub.trial_end * 1000).toISOString())}. On that day your AI coach subscription starts and we will charge €${amount}, then the same every month (up to ${COACH_MONTHLY_LIMIT} coach messages a month).`, '',
+    `If you don't want to continue, cancel before then on your dashboard ("Cancel subscription here"): ${base}`, '',
+    'Human Interactions Translated',
+  ])
 }

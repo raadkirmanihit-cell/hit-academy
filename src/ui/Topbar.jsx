@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
+import { backend } from '../platform/backend.js'
 import { courseStats } from '../platform/progress.js'
 
 export default function Topbar() {
-  const { course, modules, user, paid, progress, go, signOut, resetProgress, authorMode, setAuthorMode, view, admin, isLive, practice } = useApp()
+  const { course, modules, user, paid, progress, go, signOut, resetProgress, authorMode, setAuthorMode, view, admin, isLive, practice, notify } = useApp()
   const [open, setOpen] = useState(false)
   const ref = useRef()
   useEffect(() => {
@@ -74,6 +75,7 @@ export default function Topbar() {
                   </button>
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); resetProgress() }}>Reset my progress</button>}
                   <button role="menuitem" onClick={() => { setOpen(false); signOut() }}>Sign out</button>
+                  <button role="menuitem" onClick={() => { setOpen(false); requestDeletion(user, notify) }}>Delete my account</button>
                 </div>
               )}
             </div>
@@ -82,4 +84,15 @@ export default function Topbar() {
       </header>
     </>
   )
+}
+
+// GDPR right to erasure (Art. 17): the request goes to Raad, who deletes the account from the
+// control board within 30 days (Privacy Policy, section 6).
+async function requestDeletion(user, notify) {
+  const ok = window.confirm('Delete your account?\n\nWe will delete your account, progress, Arena role-plays and community posts within 30 days, and cancel any AI coach subscription. You will lose access to everything you bought. Payment records are kept as tax law requires.\n\nPress OK to send the request.')
+  if (!ok) return
+  try {
+    await backend.sendMessage({ subject: 'Account deletion request', body: `Please delete my account (${user.email}) and my personal data, as described in the Privacy Policy.` })
+    notify('Request sent. We will delete your account within 30 days and confirm by email.', 6000)
+  } catch (e) { notify(`The request could not be sent: ${e.message} Please email info@humaninteractionstranslated.com instead.`, 8000) }
 }

@@ -185,6 +185,12 @@ function Students({ data, act }) {
                         <button className="btn btn-ghost btn-sm" onClick={() => {
                           if (window.confirm(`Send ${r.email} an email with a link to choose a new password?`)) act('reset', { email: r.email }, 'Password-reset email sent.')
                         }}>Send password-reset email</button>
+                        <button className="btn btn-ghost btn-sm" style={{ color: 'var(--b-aggressive)' }} onClick={() => {
+                          const typed = window.prompt(`Delete ${r.name || r.email}'s account for good?\n\nThis cancels their AI coach subscription in Stripe and deletes their account, progress, Arena role-plays and community posts. It can't be undone. Payment records stay for tax purposes.\n\nType their email address to confirm:`)
+                          if (typed == null) return
+                          if (typed.trim().toLowerCase() !== String(r.email).toLowerCase()) return notify('The email didn\'t match, so nothing was deleted.', 5000)
+                          act('delete-user', { userId: r.id }, 'Account deleted.')
+                        }}>Delete account</button>
                       </div>
                     </div>
                   </td></tr>
