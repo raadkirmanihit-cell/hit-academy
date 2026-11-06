@@ -98,7 +98,7 @@ export default function Landing() {
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
           </a>
           {/* § 5b (3) UWG: say whether and how shown reviews are checked. */}
-          <p className="small muted review-note">These are excerpts from public Google reviews of Raad's coaching and training, shortened (…) but otherwise unchanged. Google reviews are not checked by us to come from verified customers. The star rating is the average of all reviews on our Google profile.</p>
+          <p className="small muted review-note">Shortened excerpts from public Google reviews of Raad's coaching and training. We don't verify that reviewers are customers.</p>
                   </div>
       </section>
 
