@@ -8,6 +8,12 @@ import { Icon } from './icons.jsx'
 // (and shown on the site once approved), then they can share the same text on Google in one paste.
 // The Google step is offered to everyone, whatever their rating (no review gating).
 export default function ReviewsPage() {
+  return <ReviewPanel />
+}
+
+// The same review box, also shown at the bottom of the dashboard (embedded: only for buyers,
+// and without the page wrapper).
+export function ReviewPanel({ embedded = false }) {
   const { go } = useApp()
   const [me, setMe] = useState(null)
   const [err, setErr] = useState('')
@@ -35,8 +41,9 @@ export default function ReviewsPage() {
     } catch (x) { setErr(x.message) } finally { setBusy(false) }
   }
 
-  if (!me) return <div className="wrap reviews-wrap"><p className="muted">{err || 'Loading…'}</p></div>
+  if (!me) return embedded ? null : <div className="wrap reviews-wrap"><p className="muted">{err || 'Loading…'}</p></div>
   if (!me.canReview) {
+    if (embedded) return null
     return (
       <div className="wrap reviews-wrap stack">
         <span className="eyebrow">Reviews</span>
@@ -50,11 +57,15 @@ export default function ReviewsPage() {
   const mine = me.mine
   const showForm = !mine || editing || (mine.status === 'rejected' && !done)
   return (
-    <div className="wrap reviews-wrap stack" style={{ gap: '1.5rem' }}>
-      <div className="stack" style={{ gap: '.4rem' }}>
-        <span className="eyebrow">Reviews</span>
-        <h1>{mine && !editing ? 'Your feedback' : 'Share your feedback or experience'}</h1>
-      </div>
+    <div className={embedded ? 'stack dash-review' : 'wrap reviews-wrap stack'} style={{ gap: embedded ? '1rem' : '1.5rem' }}>
+      {embedded ? (
+        <div className="dash-section-title"><h2>{mine && !editing ? 'Your feedback' : 'Share your feedback or experience'}</h2></div>
+      ) : (
+        <div className="stack" style={{ gap: '.4rem' }}>
+          <span className="eyebrow">Reviews</span>
+          <h1>{mine && !editing ? 'Your feedback' : 'Share your feedback or experience'}</h1>
+        </div>
+      )}
 
       {showForm ? (
         <form className="card review-form stack" onSubmit={submit}>
