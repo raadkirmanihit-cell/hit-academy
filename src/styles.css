@@ -194,16 +194,18 @@ button { font: inherit; color: inherit; }
 .dash { padding-bottom: 4rem; }
 .dash-hello { gap: .5rem; }
 .dash-hello h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); }
-.dash-stack { gap: 2rem; }
+.dash-stack { gap: 1.4rem; }
 .resume-body h2 { font-size: 1.6rem; }
-.dash-head { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end; padding-block: 2.5rem 1.5rem; }
+.dash-head { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; padding-block: 1.75rem 1.1rem; }
 .ring { --p: 0; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center;
   background: conic-gradient(var(--orange) calc(var(--p) * 1%), var(--surface-2) 0); }
 .ring > div { width: 92px; height: 92px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; text-align: center; }
 .ring strong { font: 750 1.6rem/1 var(--f-display); }
 .resume-card { display: grid; grid-template-columns: 220px 1fr; overflow: hidden; }
 .resume-card img { width: 100%; height: 100%; object-fit: cover; min-height: 200px; }
-.resume-body { padding: 1.5rem; display: grid; gap: .8rem; align-content: center; }
+.resume-body { padding: 1.3rem 1.5rem; display: grid; gap: .65rem; align-content: center; }
+/* On larger screens the photo fills the card's height instead of setting it, so the card is only as tall as its text. */
+@media (min-width: 641px) { .resume-card img { height: 0; min-height: 100%; } }
 .bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
 .bar > span { display: block; height: 100%; background: var(--orange); border-radius: inherit; transition: width .4s ease; }
 .module-list { display: grid; gap: .6rem; }
@@ -214,7 +216,7 @@ button { font: inherit; color: inherit; }
 .pill { display: inline-flex; align-items: center; gap: .35rem; font: 500 .72rem/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: .38rem .6rem; border-radius: 99px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
 .pill.good { background: var(--good-soft); color: var(--good); }
 .pill.orange { background: var(--orange-soft); color: var(--orange-ink); }
-.cert-teaser { display: grid; grid-template-columns: auto 1fr auto; gap: 1.25rem; align-items: center; padding: 1.25rem 1.5rem; }
+.cert-teaser { display: grid; grid-template-columns: auto 1fr auto; gap: 1.25rem; align-items: center; padding: 1.05rem 1.4rem; }
 .cert-teaser svg { width: 52px; height: 52px; }
 
 /* player */
@@ -1581,7 +1583,7 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .tile-community .tile-actions { margin-top: auto; }
 
 /* Dashboard: "My courses" section, then one banner + modules block per course. */
-.dash-section-title { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+.dash-section-title { display: flex; align-items: center; gap: 1rem; margin-top: .6rem; }
 .dash-section-title h2 { font-size: clamp(1.5rem, 3vw, 1.9rem); margin: 0; white-space: nowrap; }
 .dash-section-title::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, var(--orange), transparent); border-radius: 2px; }
 .course-banner { display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: center; padding: 1.8rem 2rem; border-radius: 18px; color: var(--on-navy);
