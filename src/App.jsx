@@ -269,7 +269,7 @@ export default function App() {
 
   return (
     <Ctx.Provider value={api}>
-      <div className={[authorMode && 'author-mode', screen.type === Dashboard && 'page-wide'].filter(Boolean).join(' ')}>
+      <div className={authorMode ? 'author-mode' : ''}>
         <Topbar />
         <main>{screen}</main>
         {view.name !== 'landing' && (
