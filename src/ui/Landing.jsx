@@ -88,7 +88,7 @@ export default function Landing() {
 
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="wrap stack" style={{ gap: '1.5rem' }}>
-          <span className="eyebrow">From past participants</span>
+          <span className="eyebrow">From Raad's coaching and training clients</span>
           <div className="quote-grid">
             <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I wanted to improve my confidence level in terms of communication with colleagues and customers… Moreover, he helped me to get a raise of my bonus from my supervisor.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/ildar.webp" alt="" /><span className="small muted">Ildar A., Google review</span></span></div>
             <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I was having a hard time and several issues overcoming some difficulties at the work place… a brilliant and well thought approach that helped improve my communication skills and my fear of conflict.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/teji.webp" alt="" /><span className="small muted">Teji, Google review</span></span></div>
@@ -97,6 +97,8 @@ export default function Landing() {
           <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
           </a>
+          {/* § 5b (3) UWG: say whether and how shown reviews are checked. */}
+          <p className="small muted review-note">These are excerpts from public Google reviews of Raad's coaching and training, shortened (…) but otherwise unchanged. Google reviews are not checked by us to come from verified customers. The star rating is the average of all reviews on our Google profile.</p>
                   </div>
       </section>
 

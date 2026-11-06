@@ -25,7 +25,8 @@ async function call(method, body, signal) {
   return r
 }
 
-// One learner turn. Streams the counterpart's reply into onText. Returns { text, sessionId, saved }.
+// One learner turn. Streams the counterpart's reply into onText. Returns { text, sessionId, saved, free }
+// (free: the server paused the role-play for safety without using a token).
 export async function practiceTurn({ scenarioId, sessionId, message, delivery, turns, onText, signal }) {
   const r = await call('POST', { action: 'turn', scenarioId, sessionId, message, delivery, turns }, signal)
   const reader = r.body.getReader()
@@ -42,7 +43,7 @@ export async function practiceTurn({ scenarioId, sessionId, message, delivery, t
     if (e?.name === 'AbortError') throw err('cancelled', 'Cancelled')
     throw err('network', 'The connection dropped. Please try again.')
   }
-  return { text, sessionId: r.headers.get('X-Session-Id'), saved: r.headers.get('X-Session-Saved') === '1' }
+  return { text, sessionId: r.headers.get('X-Session-Id'), saved: r.headers.get('X-Session-Saved') === '1', free: r.headers.get('X-Safety') === '1' }
 }
 
 export async function practiceScore({ sessionId, scenarioId, turns }) {

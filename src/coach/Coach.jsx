@@ -7,6 +7,7 @@ import { flatSteps } from '../platform/progress.js'
 import { Md } from '../ui/md.jsx'
 import { buildChunks, retrieve, formatExcerpts, library } from './knowledge.js'
 import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
+import { SAFETY_TOKEN } from './safety.js'
 import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
 import { practiceTurn, practiceScore } from './practiceApi.js'
@@ -162,11 +163,11 @@ function CoachPanel({ ctx, subscribe, onClose }) {
     const rules = COACH_RULES({ where: ctx.where, library: kb.library, excerpts: formatExcerpts(found) })
     ctl.current = new AbortController()
     try {
-      const { text } = await sample([{ role: 'user', content: rules }, ...history.slice(-16)], {
+      const { text, safety } = await sample([{ role: 'user', content: rules }, ...history.slice(-16)], {
         cache: false, signal: ctl.current.signal, onText: ({ text }) => setLive(text),
       })
       setTurns((t) => [...t, { role: 'assistant', content: text }])
-      usedOneMessage()
+      if (!safety) usedOneMessage() // the safety reply with help lines is free
       if (voiceOn.current) voice.speak(text)
     } catch (e) {
       if (e?.text) setTurns((t) => [...t, { role: 'assistant', content: e.text + ' …' }])
@@ -287,21 +288,28 @@ export function Spar({ scenarioId, compact }) {
     if (!msg || busy || sending.current || ended || !sample) return
     sending.current = true
     setErr(''); setDraft(''); setHint('')
-    const past = turns
+    const past = turns.filter(inPlay)
     const history = [...past, { role: 'user', content: msg, ...(delivery ? { delivery } : {}) }]
     setTurns(history); setBusy(true); setLive('')
     ctl.current = new AbortController()
     try {
-      let text
+      let text, free = false
       if (isLive) {
         const r = await practiceTurn({ scenarioId: sc.id, sessionId: session.current, message: msg, delivery, turns: past, signal: ctl.current.signal, onText: (t) => setLive(t.replace('[END]', '')) })
-        session.current = r.sessionId // also when not saved: the server then scores what the browser sends
-        text = r.text
+        session.current = r.sessionId || session.current // also when not saved: the server then scores what the browser sends
+        text = r.text; free = r.free
       } else {
         // claude.ai preview: the conversation is built in the browser.
-        const transcript = history.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
+        const transcript = history.filter(inPlay).map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
         const input = SPAR_RULES(sc) + `\n\nCONVERSATION SO FAR\n${transcript}\n\nWrite ${sc.counterpart.name}'s next reply only.`
         text = (await sample(input, { cache: false, modelTier: 'quick', purpose: 'practice', signal: ctl.current.signal, onText: ({ text }) => setLive(text.replace('[END]', '')) })).text
+      }
+      if (text.trimStart().startsWith(SAFETY_TOKEN)) {
+        // Stepped out of role for the learner's safety: pause, show help lines, keep both lines out of the role-play.
+        voice.stopSpeaking(); setHandsFree(false); hf.current = false
+        setTurns((t) => [...t.slice(0, -1), { ...t[t.length - 1], off: true }, { role: 'safety', content: text.trimStart().slice(SAFETY_TOKEN.length).trim() }])
+        if (!free) usedOnePractice()
+        return
       }
       const done = text.includes('[END]')
       const reply = text.replace('[END]', '').trim()
@@ -323,12 +331,12 @@ export function Spar({ scenarioId, compact }) {
     try {
       let r, s
       if (isLive) {
-        ({ report: r, score: s } = await practiceScore({ sessionId: session.current, scenarioId: sc.id, turns }))
+        ({ report: r, score: s } = await practiceScore({ sessionId: session.current, scenarioId: sc.id, turns: turns.filter(inPlay) }))
       } else {
-        const transcript = turns.map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
+        const transcript = turns.filter(inPlay).map((t) => `${t.role === 'user' ? 'LEARNER' : sc.counterpart.name.toUpperCase()}: ${t.content}`).join('\n')
         const excerpts = formatExcerpts(retrieve(kb, sc.query + ' ' + transcript, {}, 12))
         r = await sample.json(FEEDBACK_PROMPT(sc, transcript, excerpts, kb.library), { cache: false, purpose: 'practice' })
-        s = { ...computeScore(r?.skills, { turns: turns.filter((t) => t.role === 'user').length, level: sc.level, conduct: r?.conduct }), level: sc.level, saved: true, at: new Date().toISOString() }
+        s = { ...computeScore(r?.skills, { turns: turns.filter((t) => inPlay(t) && t.role === 'user').length, level: sc.level, conduct: r?.conduct }), level: sc.level, saved: true, at: new Date().toISOString() }
       }
       usedOnePractice()
       if (!r || typeof r !== 'object') { setErr('The feedback report could not be created. Please try again.'); return }
@@ -341,7 +349,7 @@ export function Spar({ scenarioId, compact }) {
     } finally { setReporting(false) }
   }
 
-  const learnerTurns = turns ? turns.filter((t) => t.role === 'user').length : 0
+  const learnerTurns = turns ? turns.filter((t) => inPlay(t) && t.role === 'user').length : 0
   const [early, setEarly] = useState(false) // asking: end before the minimum replies?
   const canHandsFree = voice.canListen && voice.canSpeak
   return (
@@ -482,7 +490,19 @@ function ReportProgress() {
   )
 }
 
+// Lines that belong to the role-play (not a safety pause or the message that caused it).
+const inPlay = (t) => !t.off && t.role !== 'safety'
+
 function SparLine({ t, sc, typing, voice }) {
+  if (t.role === 'safety') {
+    return (
+      <div className="spar-safety" role="alert">
+        <strong>Role-play paused</strong>
+        <Md text={t.content} />
+        <p className="small muted">When you're ready, you can carry on with your next reply or start again.</p>
+      </div>
+    )
+  }
   const me = t.role === 'user'
   return (
     <div className={'line' + (me ? ' right' : '')}>
