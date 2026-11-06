@@ -6,7 +6,8 @@ import { hasStrongLanguage } from './forum.js'
 
 export const GOOGLE_REVIEW_URL = 'https://g.page/r/CVEmuY5MA9xaEBM/review'
 
-export const REVIEW_LIMITS = { body: [20, 1500] }
+// The text is optional: a student may leave only stars.
+export const REVIEW_LIMITS = { body: [0, 1500] }
 
 // The only reasons a review may be rejected. "It's negative" is not one of them.
 export const REJECT_REASONS = [
@@ -21,7 +22,7 @@ export function checkReview(rating, body) {
   const t = String(body || '').trim()
   const [min, max] = REVIEW_LIMITS.body
   if (!(Number.isInteger(rating) && rating >= 1 && rating <= 5)) return 'Please choose a star rating.'
-  if (t.length < min) return `Please write at least ${min} characters about your experience.`
+  if (min && t.length < min) return `Please write at least ${min} characters about your experience.`
   if (t.length > max) return `Your review is too long (at most ${max} characters).`
   if (hasStrongLanguage(t)) return 'Please keep it professional: strong swear words are not allowed. Rephrase and try again.'
   return ''

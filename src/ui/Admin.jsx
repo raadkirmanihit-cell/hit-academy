@@ -533,7 +533,7 @@ function ReviewsAdmin({ notify }) {
         <span><b>{r.name}</b> <span className="small muted">{r.email} · {new Date(r.updatedAt || r.at).toLocaleDateString('en-GB')}{r.google ? ' · opened Google' : ''}</span></span>
         <span className="review-stars" aria-label={`${r.rating} out of 5 stars`}>{'★'.repeat(r.rating)}<span className="off">{'★'.repeat(5 - r.rating)}</span></span>
       </div>
-      <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{r.body}</p>
+      {r.body ? <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{r.body}</p> : <p className="small muted" style={{ margin: 0 }}>Stars only (counted automatically)</p>}
       {r.status === 'rejected' && <p className="small muted" style={{ margin: 0 }}>Rejected: {r.rejectReason}</p>}
       {reasonFor === r.id ? (
         <div className="row">

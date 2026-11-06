@@ -28,9 +28,9 @@ export default function ReviewsPage() {
     e.preventDefault()
     setBusy(true); setErr('')
     try {
-      await backend.reviewAction('submit', { rating, body: text })
+      const r = await backend.reviewAction('submit', { rating, body: text })
       setDone(true); setEditing(false)
-      setMe((m) => ({ ...m, mine: { rating, body: text.trim(), status: 'pending' } }))
+      setMe((m) => ({ ...m, mine: { rating, body: text.trim(), status: r?.status || (text.trim() ? 'pending' : 'published') } }))
     } catch (x) { setErr(x.message) } finally { setBusy(false) }
   }
 
@@ -63,19 +63,15 @@ export default function ReviewsPage() {
             <StarPicker value={rating} onChange={setRating} labelledBy="rv-stars" />
           </div>
           <div className="field">
-            <label htmlFor="rv-text">Your review</label>
+            <label htmlFor="rv-text">Your review <span className="muted" style={{ fontWeight: 400 }}>(optional)</span></label>
             <textarea id="rv-text" rows={6} value={text} maxLength={REVIEW_LIMITS.body[1]} onChange={(e) => setText(e.target.value)}
               placeholder="What did you learn? What changed in your negotiations? What could be better?" />
           </div>
-          {(() => {
-            const left = REVIEW_LIMITS.body[0] - text.trim().length
-            const need = [!rating && 'choose a star rating', left > 0 && `write ${left} more character${left === 1 ? '' : 's'}`].filter(Boolean)
-            return need.length ? <p className="small review-need" role="status">To submit, {need.join(' and ')}.</p> : null
-          })()}
+          {!rating && <p className="small review-need" role="status">Choose a star rating to submit.</p>}
           <p className="small muted">Your first name and last initial are shown with your review. Each review is checked for spam and abuse before it goes live. Your words are never changed.</p>
           {err && <p className="error" role="alert">{err}</p>}
           <div className="row">
-            <button className="btn btn-primary" disabled={busy || !rating || text.trim().length < REVIEW_LIMITS.body[0]}>{busy ? 'Sending…' : mine ? 'Send updated review' : 'Submit review'}</button>
+            <button className="btn btn-primary" disabled={busy || !rating}>{busy ? 'Sending…' : mine ? 'Send updated review' : 'Submit review'}</button>
             {editing && <button type="button" className="btn btn-ghost" onClick={() => { setEditing(false); setRating(mine.rating); setText(mine.body) }}>Cancel</button>}
           </div>
         </form>
@@ -83,9 +79,9 @@ export default function ReviewsPage() {
         <div className="card stack">
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <span className="review-stars" aria-label={`${mine.rating} out of 5 stars`}>{'★'.repeat(mine.rating)}<span className="off">{'★'.repeat(5 - mine.rating)}</span></span>
-            <span className={'pill ' + (mine.status === 'published' ? 'good' : 'orange')}>{mine.status === 'published' ? 'Published' : 'Waiting for approval'}</span>
+            <span className={'pill ' + (mine.status === 'published' ? 'good' : 'orange')}>{mine.status === 'published' ? (mine.body ? 'Published' : 'Counted') : 'Waiting for approval'}</span>
           </div>
-          <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{mine.body}</p>
+          {mine.body ? <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{mine.body}</p> : <p className="small muted" style={{ margin: 0 }}>Star rating only. You can add a few words any time.</p>}
           <div className="row"><button className="btn btn-sm" onClick={() => setEditing(true)}>Edit my review</button></div>
         </div>
       )}
@@ -99,7 +95,7 @@ export default function ReviewsPage() {
 function GoogleShare({ text, thanks }) {
   const [copied, setCopied] = useState(false)
   async function onClick() {
-    try { await navigator.clipboard.writeText(text) } catch { /* the student can still type it */ }
+    if (text) { try { await navigator.clipboard.writeText(text) } catch { /* the student can still type it */ } }
     setCopied(true)
     backend.reviewAction('google').catch(() => {})
   }
@@ -108,12 +104,12 @@ function GoogleShare({ text, thanks }) {
       <span className="google-badge" aria-hidden="true"><span className="g">G</span><span><b>Google</b> Reviews<br /><span className="gstars">★★★★★</span></span></span>
       <span className="eyebrow">{thanks ? 'Thank you' : 'Share it'}</span>
       {thanks && <strong style={{ fontSize: '1.1rem' }}>Your review is saved.</strong>}
-      <p className="small muted" style={{ margin: 0 }}>Would you also share it on Google? It helps other professionals find the course. Your text is ready to paste.</p>
-      <p className="review-quote">“{text}”</p>
+      <p className="small muted" style={{ margin: 0 }}>Would you also share it on Google? It helps other professionals find the course.{text ? ' Your text is ready to paste.' : ''}</p>
+      {text && <p className="review-quote">“{text}”</p>}
       <div className="row">
-        <a className="btn btn-primary" href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" onClick={onClick}>Copy text and open Google <Icon.arrowR /></a>
+        <a className="btn btn-primary" href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" onClick={onClick}>{text ? 'Copy text and open Google' : 'Rate us on Google'} <Icon.arrowR /></a>
       </div>
-      {copied && <p className="small muted" role="status" style={{ margin: 0 }}>Copied. Google's review page opened in a new tab: paste your text, choose your stars and post.</p>}
+      {copied && <p className="small muted" role="status" style={{ margin: 0 }}>{text ? 'Copied. Google\'s review page opened in a new tab: paste your text, choose your stars and post.' : 'Google\'s review page opened in a new tab: choose your stars and post.'}</p>}
     </div>
   )
 }
@@ -138,10 +134,10 @@ export function StudentReviews() {
     <div className="stack" style={{ gap: '1rem' }}>
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'end' }}>
         <span className="eyebrow">From students of the course</span>
-        <span className="small"><span className="review-stars" aria-hidden="true">★</span> <b>{data.average.toFixed(1)}</b> <span className="muted">· {data.count} verified review{data.count === 1 ? '' : 's'}</span></span>
+        <span className="small"><span className="review-stars" aria-hidden="true">★</span> <b>{data.average.toFixed(1)}</b> <span className="muted">· {data.count} verified rating{data.count === 1 ? '' : 's'}</span></span>
       </div>
       <div className="quote-grid">
-        {data.reviews.slice(0, 3).map((r) => (
+        {data.reviews.filter((r) => r.body).slice(0, 3).map((r) => (
           <div key={r.id} className="quote">
             <span className="stars" aria-label={`Rated ${r.rating} out of 5 stars`}>{'★'.repeat(r.rating)}<span className="off">{'★'.repeat(5 - r.rating)}</span></span>
             <p>“{r.body}”</p>
@@ -149,7 +145,7 @@ export function StudentReviews() {
           </div>
         ))}
       </div>
-      <p className="small muted review-note">Course reviews can only be written by students who bought the course. Each review is checked for spam and abuse before it goes live, and the rating counts every published review.</p>
+      <p className="small muted review-note">Course reviews can only be written by students who bought the course. Written reviews are checked for spam and abuse before they go live. The rating counts every star rating and published review.</p>
     </div>
   )
 }

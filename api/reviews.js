@@ -62,19 +62,22 @@ export default async function handler(req, res) {
       if (problem) throw bad(problem)
       const { data: p } = await db().from('profiles').select('name').eq('id', user.id).maybeSingle()
       const now = new Date().toISOString()
-      // Editing a review sends it back for approval.
+      // A review with text waits for approval (also after an edit). Stars only have nothing to check,
+      // so they count straight away.
+      const starsOnly = !text
       const { error } = await db().from('reviews').upsert({
         user_id: user.id, display_name: shortName(p?.name || user.user_metadata?.name), rating, body: text,
-        status: 'pending', reject_reason: null, decided_at: null, updated_at: now,
+        status: starsOnly ? 'published' : 'pending', reject_reason: null, decided_at: starsOnly ? now : null, updated_at: now,
       }, { onConflict: 'user_id' })
       if (error && notReady(error)) throw bad('Reviews aren\'t switched on yet. Please try again soon.', 503)
       if (error) throw error
+      if (starsOnly) return res.status(200).json({ ok: true, status: 'published' })
       await notifyOwner(`New course review (${rating}★) waiting for approval`, [
         `${p?.name || ''} <${user.email}> wrote:`, '', `${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}`, text, '',
         `Publish or reject it on your control board (Reviews tab): ${siteUrl(req)}/#/admin`,
         'Remember: publish every genuine review, including critical ones. Reject only spam, abuse, private details or off-topic text.',
       ])
-      return res.status(200).json({ ok: true })
+      return res.status(200).json({ ok: true, status: 'pending' })
     }
 
     if (body.action === 'google') {
