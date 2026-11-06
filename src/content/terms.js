@@ -167,7 +167,7 @@ export const TERMS = [
     title: '12. The members\' community',
     body: [
       'The community is a discussion area inside H.I.T. Academy where members can talk to each other. It is open to members who have bought at least one module or the complete course, or who have an active AI coach subscription. It is a free extra: it is not part of what you pay for, and we may change it or close it at any time. If we close it, we will tell members at least 4 weeks before, where reasonable.',
-      'Before your first post you choose a display name and agree to these community rules. Your display name and everything you post can be read by all other members. Your email address is never shown.',
+      'Before your first post you choose a display name and agree to these community rules. You can also add a profile photo, and change your name or photo at any time. Your display name, your photo and everything you post can be read by all other members. Your email address is never shown. The community rules apply to your name and photo too: do not pretend to be someone else, and only upload a picture you have the right to use.',
       '**Community rules.** When you post, you agree to:',
       { list: [
         'be respectful: disagree with ideas, never attack people; no insults, harassment, threats, or discrimination of any kind;',
@@ -178,7 +178,7 @@ export const TERMS = [
       ] },
       'You remain responsible for what you post, and you confirm that you have the right to share it. You allow us to show your posts to other members for as long as the community exists. You can edit or delete your own posts at any time.',
       `**Reporting.** Every post has a "Report" button. You can also report content by email to ${LEGAL.email} (our contact point for the community, including for authorities). Please say which post you mean and why you think it breaks the rules or the law. We review every report, act quickly on content that is clearly illegal, and tell you the outcome.`,
-      '**Moderation.** We do not check posts before they appear. We may remove a post, close a conversation for replies, or stop a member from posting, if a post breaks these rules or the law. A post with certain strong swear words is held back automatically, and you are asked to rephrase it; all other decisions are made by a person. When we remove your post or stop you from posting, we tell you which rule it broke and why. If you disagree, reply to that message: we will look at the decision again. You can also use an out-of-court dispute settlement body certified under the EU Digital Services Act, or go to court.',
+      '**Moderation.** We do not check posts before they appear. We may remove a post or a profile photo, close a conversation for replies, or stop a member from posting, if content breaks these rules or the law. A post with certain strong swear words is held back automatically, and you are asked to rephrase it; all other decisions are made by a person. When we remove your post or photo, or stop you from posting, we tell you which rule it broke and why. If you disagree, reply to that message: we will look at the decision again. You can also use an out-of-court dispute settlement body certified under the EU Digital Services Act, or go to court.',
       'Stopping you from posting does not affect your access to the course. For a serious or repeated breach, section 13 applies.',
     ],
   },

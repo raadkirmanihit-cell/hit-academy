@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { backend } from '../platform/backend.js'
-import { CATEGORIES, categoryOf, COMMUNITY_RULES, REPORT_REASONS, REMOVAL_REASONS, LIMITS } from '../content/forum.js'
+import { CATEGORIES, categoryOf, COMMUNITY_RULES, REPORT_REASONS, REMOVAL_REASONS, LIMITS, PHOTO_SIZE } from '../content/forum.js'
 
 const ago = (d) => {
   const s = (Date.now() - new Date(d)) / 1000
@@ -17,10 +17,17 @@ const Chat = (p) => <svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
 const Pin = (p) => <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 4h6l-1 5 3 3H7l3-3zM12 12v8" /></svg>
 const Lock = (p) => <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 018 0v3" /></svg>
 
-function Author({ name, trainer }) {
+function Avatar({ name, photo, trainer, big }) {
+  const [broken, setBroken] = useState(false)
+  const cls = 'cm-avatar' + (trainer ? ' trainer' : '') + (big ? ' big' : '')
+  if (photo && !broken) return <img className={cls} src={photo} alt="" loading="lazy" onError={() => setBroken(true)} />
+  return <span className={cls} aria-hidden="true">{initials(name)}</span>
+}
+
+function Author({ name, photo, trainer, big }) {
   return (
     <span className="cm-author">
-      <span className={'cm-avatar' + (trainer ? ' trainer' : '')} aria-hidden="true">{initials(name)}</span>
+      <Avatar name={name} photo={photo} trainer={trainer} big={big} />
       <b>{name}</b>
       {trainer && <span className="pill orange">Trainer</span>}
     </span>
@@ -35,9 +42,9 @@ let cameFromList = false
 // The members' community: a list of conversations, or one conversation (threadId).
 export default function Community({ threadId }) {
   const { notify } = useApp()
-  // #/community/new is the list with the "Start a conversation" form open, so Back closes the form.
-  const composing = threadId === 'new'
-  const thread = composing ? null : threadId
+  // #/community/new and #/community/profile are the list with a form open, so Back closes the form.
+  const form = threadId === 'new' || threadId === 'profile' ? threadId : ''
+  const thread = form ? null : threadId
   const key = thread || 'list'
   const [data, setData] = useState(() => cache.get(key) || null)
   const [err, setErr] = useState('')
@@ -58,7 +65,7 @@ export default function Community({ threadId }) {
   if (!data) return <div className="boot"><span className="boot-dot" /></div>
   if (data.locked) return <Locked />
   if (thread) return <ThreadView data={data} act={act} reload={load} setData={setData} />
-  return <ThreadList data={data} act={act} reload={load} composing={composing} />
+  return <ThreadList data={data} act={act} reload={load} form={form} />
 }
 
 function Head({ children }) {
@@ -96,31 +103,82 @@ function Locked() {
   )
 }
 
-// Display name and community rules, once, before the first post.
-function Setup({ me, act, onDone, onCancel }) {
-  const { user } = useApp()
+// Crops a picture to a square and shrinks it in the browser. Drawing it again also drops the
+// photo's hidden details (camera, place), so only the picture itself is uploaded.
+async function shrinkPhoto(file) {
+  if (!/^image\//.test(file?.type || '')) throw new Error('Please choose a picture (JPG, PNG or WebP).')
+  if (file.size > 20e6) throw new Error('That picture is too large. Please choose one under 20 MB.')
+  const url = URL.createObjectURL(file)
+  try {
+    const img = await new Promise((ok, no) => {
+      const i = new Image()
+      i.onload = () => ok(i)
+      i.onerror = () => no(new Error('That picture could not be opened. Please try a JPG or PNG.'))
+      i.src = url
+    })
+    const side = Math.min(img.naturalWidth, img.naturalHeight)
+    const c = document.createElement('canvas')
+    c.width = c.height = PHOTO_SIZE
+    const g = c.getContext('2d')
+    g.imageSmoothingQuality = 'high'
+    g.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, PHOTO_SIZE, PHOTO_SIZE)
+    const webp = c.toDataURL('image/webp', 0.82)
+    return webp.startsWith('data:image/webp') ? webp : c.toDataURL('image/jpeg', 0.85)
+  } finally { URL.revokeObjectURL(url) }
+}
+
+// Before the first post: display name, optional photo and the community rules.
+// Later (edit = true): change the name or the photo.
+function Setup({ me, act, onDone, onCancel, edit = false }) {
+  const { user, notify } = useApp()
   const [name, setName] = useState(me.name || user.name.split(' ')[0] || '')
-  const [ok, setOk] = useState(false)
+  const [photo, setPhoto] = useState(undefined) // undefined = unchanged, null = remove, data URL = new
+  const [ok, setOk] = useState(me.rulesAccepted)
   const [busy, setBusy] = useState(false)
+  const shown = photo === undefined ? me.photo : photo
+  const changed = name.trim() !== me.name || photo !== undefined
   return (
     <form className="card cm-setup stack" onSubmit={async (e) => {
       e.preventDefault(); setBusy(true)
-      try { await act('profile', { name, acceptRules: ok }); await onDone() } catch { /* shown as a message */ } finally { setBusy(false) }
+      try {
+        await act('profile', { name, acceptRules: ok, ...(photo !== undefined ? { photo } : {}) }, edit ? 'Your profile is saved.' : undefined)
+        cache.clear()
+        await onDone()
+      } catch { /* shown as a message */ } finally { setBusy(false) }
     }}>
-      <span className="eyebrow">Before your first post</span>
-      <h3>Choose how you appear, and agree to the community rules</h3>
+      <span className="eyebrow">{edit ? 'Your community profile' : 'Before your first post'}</span>
+      <h3>{edit ? 'Change how you appear to other members' : 'Choose how you appear, and agree to the community rules'}</h3>
+      <div className="cm-photo-row">
+        <Avatar name={name} photo={shown} trainer={me.admin} big />
+        <div className="stack" style={{ gap: '.35rem' }}>
+          <div className="row" style={{ gap: '.4rem' }}>
+            <label className="btn btn-ghost btn-sm cm-file">
+              {shown ? 'Change photo' : 'Add a photo'}
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" disabled={me.blocked} onChange={async (e) => {
+                const f = e.target.files?.[0]; e.target.value = ''
+                if (!f) return
+                try { setPhoto(await shrinkPhoto(f)) } catch (x) { notify(x.message, 6000) }
+              }} />
+            </label>
+            {shown && <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPhoto(null)}>Remove photo</button>}
+          </div>
+          <span className="small muted">Optional. Other members see it next to your posts. Please use a photo of yourself or a neutral picture: the community rules apply to photos too.</span>
+        </div>
+      </div>
       <div className="field">
         <label htmlFor="cm-name">Display name</label>
-        <input id="cm-name" value={name} maxLength={LIMITS.name[1]} onChange={(e) => setName(e.target.value)} required />
-        <span className="small muted">Shown next to your posts. Your email is never shown. A first name or a nickname is fine.</span>
+        <input id="cm-name" value={name} maxLength={LIMITS.name[1]} disabled={me.blocked} onChange={(e) => setName(e.target.value)} required />
+        <span className="small muted">Shown next to your posts. Your email is never shown. A first name, your full name or a nickname is fine.</span>
       </div>
-      <ol className="cm-rules">{COMMUNITY_RULES.map((r) => <li key={r}>{r}</li>)}</ol>
-      <label className="cm-check">
-        <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
-        <span>I agree to the community rules (section 12 of the <a href="/?page=terms" target="_blank" rel="noreferrer">Terms and Conditions</a>). I understand other members can read what I post.</span>
-      </label>
+      {!me.rulesAccepted && <>
+        <ol className="cm-rules">{COMMUNITY_RULES.map((r) => <li key={r}>{r}</li>)}</ol>
+        <label className="cm-check">
+          <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
+          <span>I agree to the community rules (section 12 of the <a href="/?page=terms" target="_blank" rel="noreferrer">Terms and Conditions</a>). I understand other members can read what I post.</span>
+        </label>
+      </>}
       <div className="row">
-        <button className="btn btn-primary" disabled={busy || !ok || name.trim().length < LIMITS.name[0]}>{busy ? 'Saving…' : 'Continue'}</button>
+        <button className="btn btn-primary" disabled={busy || !ok || name.trim().length < LIMITS.name[0] || (edit && !changed)}>{busy ? 'Saving…' : edit ? 'Save' : 'Continue'}</button>
         {onCancel && <button type="button" className="btn btn-ghost" onClick={onCancel}>Cancel</button>}
       </div>
     </form>
@@ -131,10 +189,12 @@ function Blocked({ me }) {
   return <div className="notice">You can read the community, but you can no longer post.{me.blockedReason ? ` Reason: ${me.blockedReason}.` : ''} If you think this is a mistake, use "Message Raad" in your account menu.</div>
 }
 
-function ThreadList({ data, act, reload, composing }) {
+function ThreadList({ data, act, reload, form }) {
   const { go } = useApp()
-  // Open the form as its own address; closing it steps back, so the browser's Back button does the same.
-  const startComposing = () => { cameFromList = true; go('community', { threadId: 'new' }) }
+  const composing = form === 'new'
+  // Open a form as its own address; closing it steps back, so the browser's Back button does the same.
+  const openForm = (f) => { cameFromList = true; go('community', { threadId: f }) }
+  const startComposing = () => openForm('new')
   const stopComposing = () => {
     if (cameFromList) { cameFromList = false; window.history.back() } else go('community', {}, { replace: true })
   }
@@ -155,9 +215,13 @@ function ThreadList({ data, act, reload, composing }) {
     <div className="wrap cm-page">
       <button className="btn btn-ghost btn-sm" style={{ justifySelf: 'start', marginBottom: '-.75rem' }} onClick={() => go('dashboard')}>← My dashboard</button>
       <Head>
-        {!me.blocked && !composing && <button className="btn btn-primary" onClick={startComposing}><Chat /> Start a conversation</button>}
+        {!form && <div className="row" style={{ gap: '.5rem' }}>
+          {me.name && <button className="btn btn-ghost cm-me" onClick={() => openForm('profile')}><Avatar name={me.name} photo={me.photo} trainer={me.admin} /> My profile</button>}
+          {!me.blocked && <button className="btn btn-primary" onClick={startComposing}><Chat /> Start a conversation</button>}
+        </div>}
       </Head>
       {me.blocked && <Blocked me={me} />}
+      {form === 'profile' && <Setup me={me} act={act} edit={!!me.name} onDone={async () => { await reload(); stopComposing() }} onCancel={stopComposing} />}
       {composing && (!me.canPost
         ? <Setup me={me} act={act} onDone={reload} onCancel={stopComposing} />
         : <NewThread categories={startable} initial={cat && (!cat.adminOnly || me.admin) ? cat.id : startable.find((c) => !c.adminOnly)?.id} act={act}
@@ -190,7 +254,7 @@ function ThreadList({ data, act, reload, composing }) {
                   {!category && <span className="pill">{categoryOf(t.category)?.title}</span>}
                 </div>
                 <h3>{t.title}</h3>
-                <span className="small muted"><Author name={t.name} trainer={t.trainer} /> · started {ago(t.createdAt)}</span>
+                <span className="small muted"><Author name={t.name} photo={t.photo} trainer={t.trainer} /> · started {ago(t.createdAt)}</span>
               </div>
               <div className="cm-thread-meta small muted">
                 <span><b className="tnum">{t.replies}</b> {t.replies === 1 ? 'reply' : 'replies'}</span>
@@ -282,7 +346,7 @@ function ThreadView({ data, act, reload, setData }) {
             try {
               await act('reply', { threadId: thread.id, body: reply })
               // Show the reply at once; the quiet refresh then brings in anything new from others.
-              setData((d) => ({ ...d, posts: [...(d.posts || []), { id: 'new-' + Date.now(), first: false, name: me.name, trainer: me.admin, mine: true, status: 'ok', body: reply.trim(), createdAt: new Date().toISOString() }] }))
+              setData((d) => ({ ...d, posts: [...(d.posts || []), { id: 'new-' + Date.now(), first: false, name: me.name, photo: me.photo, trainer: me.admin, mine: true, status: 'ok', body: reply.trim(), createdAt: new Date().toISOString() }] }))
               setReply(''); reload()
             } catch { /* shown */ } finally { setBusy(false) }
           }}>
@@ -298,7 +362,7 @@ function ThreadView({ data, act, reload, setData }) {
 
 function Post({ post, me, thread, act, reload }) {
   const { go } = useApp()
-  const [mode, setMode] = useState('') // '', 'edit', 'report', 'remove', 'block'
+  const [mode, setMode] = useState('') // '', 'edit', 'report', 'remove', 'block', 'photo'
   const [text, setText] = useState(post.body || '')
   const [title, setTitle] = useState(thread.title)
   const [reason, setReason] = useState('')
@@ -312,7 +376,7 @@ function Post({ post, me, thread, act, reload }) {
   return (
     <article className={'card cm-post' + (post.first ? ' first' : '') + (post.status === 'removed' ? ' removed' : '')}>
       <header className="row" style={{ justifyContent: 'space-between', gap: '.5rem' }}>
-        <Author name={post.name} trainer={post.trainer} />
+        <Author name={post.name} photo={post.photo} trainer={post.trainer} big />
         <span className="small muted">{ago(post.createdAt)}{post.editedAt ? ' · edited' : ''}{me.admin && post.reports ? <span className="pill orange" style={{ marginLeft: '.4rem' }}>{post.reports} open report{post.reports > 1 ? 's' : ''}</span> : null}</span>
       </header>
       {post.status === 'removed' && (
@@ -344,16 +408,17 @@ function Post({ post, me, thread, act, reload }) {
         </form>
       )}
 
-      {(mode === 'remove' || mode === 'block') && (
+      {['remove', 'block', 'photo'].includes(mode) && (
         <form className="cm-sub stack" onSubmit={(e) => {
           e.preventDefault()
           run(async () => {
             if (mode === 'remove') await act('remove', { postId: post.id, reason, note }, 'Post removed. The author has been told why.')
+            else if (mode === 'photo') { await act('removePhoto', { userId: post.authorId, reason, note }, `${post.name}'s photo was removed. They have been told why.`); cache.clear() }
             else await act('block', { userId: post.authorId, on: true, reason, note }, `${post.name} can no longer post.`)
             if (mode === 'remove' && post.first) go('community'); else await reload()
           })
         }}>
-          <b>{mode === 'remove' ? (post.first ? 'Remove this whole conversation' : 'Remove this post') : `Block ${post.name} from posting`}</b>
+          <b>{mode === 'remove' ? (post.first ? 'Remove this whole conversation' : 'Remove this post') : mode === 'photo' ? `Remove ${post.name}'s profile photo` : `Block ${post.name} from posting`}</b>
           <div className="field"><label htmlFor={`m-${post.id}`}>Reason (sent to the member)</label>
             <select id={`m-${post.id}`} value={reason} onChange={(e) => setReason(e.target.value)} required>
               <option value="">Choose a reason</option>
@@ -361,7 +426,7 @@ function Post({ post, me, thread, act, reload }) {
             </select></div>
           <div className="field"><label htmlFor={`mn-${post.id}`}>Explanation (optional, sent to the member)</label>
             <textarea id={`mn-${post.id}`} rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} /></div>
-          <div className="row"><button className="btn btn-primary btn-sm" disabled={busy || !reason}>{mode === 'remove' ? 'Remove' : 'Block'}</button><button type="button" className="btn btn-ghost btn-sm" onClick={() => setMode('')}>Cancel</button></div>
+          <div className="row"><button className="btn btn-primary btn-sm" disabled={busy || !reason}>{mode === 'block' ? 'Block' : 'Remove'}</button><button type="button" className="btn btn-ghost btn-sm" onClick={() => setMode('')}>Cancel</button></div>
         </form>
       )}
 
@@ -374,6 +439,7 @@ function Post({ post, me, thread, act, reload }) {
           }}>Delete</button>}
           {!post.mine && <button className="btn btn-ghost btn-sm" onClick={() => setMode('report')}>Report</button>}
           {me.admin && !post.mine && <button className="btn btn-ghost btn-sm cm-mod" onClick={() => { setReason(''); setNote(''); setMode('remove') }}>Remove</button>}
+          {me.admin && !post.mine && !post.trainer && post.authorId && post.photo && <button className="btn btn-ghost btn-sm cm-mod" onClick={() => { setReason(''); setNote(''); setMode('photo') }}>Remove photo</button>}
           {me.admin && !post.mine && !post.trainer && post.authorId && <button className="btn btn-ghost btn-sm cm-mod" onClick={() => { setReason(''); setNote(''); setMode('block') }}>Block member</button>}
         </footer>
       )}

@@ -30,6 +30,7 @@ export const REPORT_REASONS = [
   { id: 'illegal', label: 'Possibly illegal content' },
   { id: 'confidential', label: 'Shares confidential or personal information' },
   { id: 'spam', label: 'Advertising or spam' },
+  { id: 'profile', label: 'Inappropriate profile photo or display name' },
   { id: 'other', label: 'Something else' },
 ]
 export const reportReason = (id) => REPORT_REASONS.find((r) => r.id === id)?.label || 'Something else'
@@ -52,7 +53,12 @@ export const LIMITS = {
   threadsPerDay: 5,
   postsPerDay: 40,
   reportsPerDay: 20,
+  photoChangesPerDay: 10,
+  photoBytes: 120 * 1024, // after the browser shrinks it to PHOTO_SIZE (usually 5 to 15 KB)
 }
+
+// Profile photos are cropped to a square and shrunk to this size (pixels) in the browser before upload.
+export const PHOTO_SIZE = 192
 
 // Strong words that stop a post from being sent (same list as the Arena's scoring rules).
 // Mild everyday words (damn, crap, hell…) are allowed.
@@ -69,4 +75,17 @@ export function checkText(kind, text) {
   if (hasStrongLanguage(t)) return 'Please keep it professional: strong swear words are not allowed in the community. Rephrase and try again.'
   if (kind === 'name' && /@|https?:|www\./i.test(t)) return 'Please use a name, not an email address or link.'
   return ''
+}
+
+// Names only Raad may use, so nobody can pass themselves off as the trainer or the academy.
+const RESERVED = /\b(raad|kirmani|admin|administrator|moderator|mod|trainer|support|h\.?\s?i\.?\s?t\.?(\s+academy)?|hit\s*academy|human\s+interactions)\b/i
+export const reservedName = (name) => RESERVED.test(String(name || '')) ? 'That name is reserved for the academy. Please choose another one.' : ''
+
+// Checks an uploaded profile photo (a data URL made by the browser). Returns { type, bytes } or an error string.
+export function parsePhoto(dataUrl) {
+  const m = /^data:image\/(webp|jpeg|png);base64,([A-Za-z0-9+/]+={0,2})$/.exec(String(dataUrl || ''))
+  if (!m) return 'Please choose a JPG, PNG or WebP picture.'
+  const size = Math.floor(m[2].length * 3 / 4)
+  if (size > LIMITS.photoBytes) return 'That picture is too large. Please choose a smaller one.'
+  return { type: 'image/' + m[1], base64: m[2], size }
 }
