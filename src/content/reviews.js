@@ -3,10 +3,22 @@
 // Raad approves each review before it is shown, but may reject only for spam, abuse or private
 // details, never because it is critical, and never edits it (§ 5b UWG: honest reviews).
 import { hasStrongLanguage } from './forum.js'
+import { course } from './course.js'
 
 export const GOOGLE_REVIEW_URL = 'https://g.page/r/CVEmuY5MA9xaEBM/review'
 
-export const REVIEW_LIMITS = { body: [20, 1500] }
+// The text is optional: a student may leave only stars.
+// What the review is about (optional dropdown). The complete course is the default.
+export const REVIEW_TOPICS = [
+  { id: 'course', label: `Complete ${course.displayName} course` },
+  ...course.modules.map((m) => ({ id: m.id, label: `Module ${m.number}: ${m.title}` })),
+  { id: 'arena', label: 'The Arena (AI role-plays)' },
+  { id: 'coach', label: 'AI coach' },
+]
+export const topicLabel = (id) => REVIEW_TOPICS.find((t) => t.id === id)?.label || REVIEW_TOPICS[0].label
+export const topicOf = (id) => (REVIEW_TOPICS.some((t) => t.id === id) ? id : 'course')
+
+export const REVIEW_LIMITS = { body: [0, 1500] }
 
 // The only reasons a review may be rejected. "It's negative" is not one of them.
 export const REJECT_REASONS = [
@@ -21,7 +33,7 @@ export function checkReview(rating, body) {
   const t = String(body || '').trim()
   const [min, max] = REVIEW_LIMITS.body
   if (!(Number.isInteger(rating) && rating >= 1 && rating <= 5)) return 'Please choose a star rating.'
-  if (t.length < min) return `Please write at least ${min} characters about your experience.`
+  if (min && t.length < min) return `Please write at least ${min} characters about your experience.`
   if (t.length > max) return `Your review is too long (at most ${max} characters).`
   if (hasStrongLanguage(t)) return 'Please keep it professional: strong swear words are not allowed. Rephrase and try again.'
   return ''

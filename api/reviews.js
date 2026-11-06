@@ -8,12 +8,12 @@
 // Only buyers (a module or the complete course) can write. Raad can publish or reject, never edit,
 // and may reject only for the reasons in src/content/reviews.js (spam, abuse, private details, off topic).
 import { requireUser, isAdmin, hasPaid, db, readJson, notifyOwner, sendEmail, siteUrl, fail } from './_lib.js'
-import { checkReview, shortName, rejectReason, REJECT_REASONS, summary } from '../src/content/reviews.js'
+import { checkReview, shortName, rejectReason, REJECT_REASONS, summary, topicOf } from '../src/content/reviews.js'
 
 const bad = (msg, status = 400) => Object.assign(new Error(msg), { status })
 const notReady = (e) => /relation|schema cache|does not exist/i.test(e?.message || '')
 const must = ({ data, error }) => { if (error) throw error; return data }
-const pub = (r) => ({ id: r.id, name: r.display_name, rating: r.rating, body: r.body, at: r.created_at })
+const pub = (r) => ({ id: r.id, name: r.display_name, rating: r.rating, body: r.body, topic: topicOf(r.topic), at: r.created_at })
 
 function query(req) {
   if (req.query && Object.keys(req.query).length) return req.query
@@ -62,19 +62,25 @@ export default async function handler(req, res) {
       if (problem) throw bad(problem)
       const { data: p } = await db().from('profiles').select('name').eq('id', user.id).maybeSingle()
       const now = new Date().toISOString()
-      // Editing a review sends it back for approval.
-      const { error } = await db().from('reviews').upsert({
+      // A review with text waits for approval (also after an edit). Stars only have nothing to check,
+      // so they count straight away.
+      const starsOnly = !text
+      const row = {
         user_id: user.id, display_name: shortName(p?.name || user.user_metadata?.name), rating, body: text,
-        status: 'pending', reject_reason: null, decided_at: null, updated_at: now,
-      }, { onConflict: 'user_id' })
+        status: starsOnly ? 'published' : 'pending', reject_reason: null, decided_at: starsOnly ? now : null, updated_at: now,
+      }
+      let { error } = await db().from('reviews').upsert({ ...row, topic: topicOf(body.topic) }, { onConflict: 'user_id' })
+      // Before database update 10 the topic column doesn't exist yet: save without it.
+      if (error && /topic|column|schema cache/i.test(error.message || '') && !notReady(error)) ({ error } = await db().from('reviews').upsert(row, { onConflict: 'user_id' }))
       if (error && notReady(error)) throw bad('Reviews aren\'t switched on yet. Please try again soon.', 503)
       if (error) throw error
+      if (starsOnly) return res.status(200).json({ ok: true, status: 'published' })
       await notifyOwner(`New course review (${rating}★) waiting for approval`, [
         `${p?.name || ''} <${user.email}> wrote:`, '', `${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}`, text, '',
         `Publish or reject it on your control board (Reviews tab): ${siteUrl(req)}/#/admin`,
         'Remember: publish every genuine review, including critical ones. Reject only spam, abuse, private details or off-topic text.',
       ])
-      return res.status(200).json({ ok: true })
+      return res.status(200).json({ ok: true, status: 'pending' })
     }
 
     if (body.action === 'google') {

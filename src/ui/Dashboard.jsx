@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { pitch, moduleInside, previewBlock } from '../content/module-pitch.js'
 import { Blocks } from './Blocks.jsx'
 import { SelfEvalCard, selfEvalOf } from './SelfEval.jsx'
+import { ReviewPanel } from './Reviews.jsx'
 
 export default function Dashboard() {
   const { course, modules, user, progress, openModule, go, view, owned, launch, practice } = useApp()
@@ -164,6 +165,8 @@ export default function Dashboard() {
           </div>
           <button className="btn" onClick={() => go('contact')}>Message Raad</button>
         </div>
+
+        <ReviewPanel embedded />
       </div>
     </div>
   )

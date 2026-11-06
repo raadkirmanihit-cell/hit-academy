@@ -1656,9 +1656,10 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .google-badge .gstars { color: #fbbc04; letter-spacing: .05em; }
 @media (max-width: 520px) { .google-badge { position: static; justify-self: start; } }
 .reviewer .pill { margin-left: .4rem; }
-.reviews-wrap .card { padding: 1.4rem; }
+.reviews-wrap .card, .dash-review .card { padding: 1.4rem; }
 .review-ask { padding: 1rem 1.2rem; justify-content: space-between; gap: 1rem; }
 /* The Arena paused for the learner's safety: help lines, out of the role-play. */
 .spar-safety { border: 1px solid var(--orange); border-left-width: 4px; background: var(--orange-soft); border-radius: 10px; padding: .8rem 1rem; display: grid; gap: .4rem; }
 .spar-safety p { margin: 0; }
 .review-note { max-width: 62ch; margin: 0; }
+.review-need { margin: 0; color: var(--orange-ink); }

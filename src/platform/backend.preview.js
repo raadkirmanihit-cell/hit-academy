@@ -86,7 +86,7 @@ export const previewBackend = {
     const pub = all.filter((r) => r.status === 'published')
     return { reviews: pub, ...summary(all) }
   },
-  async reviewAction(action, { rating, body, id, reason } = {}) {
+  async reviewAction(action, { rating, body, id, reason, topic } = {}) {
     await wait(200)
     const all = readJSON('hit.reviews', [])
     const u = current()
@@ -94,7 +94,7 @@ export const previewBackend = {
       const problem = checkReview(Number(rating), body)
       if (problem) throw new Error(problem)
       const rest = all.filter((r) => r.userId !== u.id)
-      writeJSON('hit.reviews', [{ id: 'r_' + Date.now().toString(36), userId: u.id, name: shortName(u.name), rating: Number(rating), body: String(body).trim(), status: 'pending', at: new Date().toISOString(), email: u.email }, ...rest])
+      writeJSON('hit.reviews', [{ id: 'r_' + Date.now().toString(36), userId: u.id, name: shortName(u.name), rating: Number(rating), topic: topic || 'course', body: String(body || '').trim(), status: String(body || '').trim() ? 'pending' : 'published', at: new Date().toISOString(), email: u.email }, ...rest])
     } else if (action === 'publish' || action === 'reject') {
       writeJSON('hit.reviews', all.map((r) => (r.id === id ? { ...r, status: action === 'publish' ? 'published' : 'rejected', rejectReason: reason || null } : r)))
     }
