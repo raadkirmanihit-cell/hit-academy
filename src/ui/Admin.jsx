@@ -5,7 +5,7 @@ import { flatSteps } from '../platform/progress.js'
 import { scenarios as SCENARIOS } from '../coach/scenarios.js'
 import { SKILLS, LEVELS, band } from '../coach/scoring.js'
 import { REMOVAL_REASONS } from '../content/forum.js'
-import { REJECT_REASONS } from '../content/reviews.js'
+import { REJECT_REASONS, topicLabel } from '../content/reviews.js'
 
 const date = (d) => (d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '–')
 const dateTime = (d) => (d ? new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '–')
@@ -530,7 +530,7 @@ function ReviewsAdmin({ notify }) {
   const Row = ({ r }) => (
     <div className="card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '.5rem' }}>
       <div className="row" style={{ justifyContent: 'space-between' }}>
-        <span><b>{r.name}</b> <span className="small muted">{r.email} · {new Date(r.updatedAt || r.at).toLocaleDateString('en-GB')}{r.google ? ' · opened Google' : ''}</span></span>
+        <span><b>{r.name}</b> <span className="small muted">{topicLabel(r.topic)} · {r.email} · {new Date(r.updatedAt || r.at).toLocaleDateString('en-GB')}{r.google ? ' · opened Google' : ''}</span></span>
         <span className="review-stars" aria-label={`${r.rating} out of 5 stars`}>{'★'.repeat(r.rating)}<span className="off">{'★'.repeat(5 - r.rating)}</span></span>
       </div>
       {r.body ? <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{r.body}</p> : <p className="small muted" style={{ margin: 0 }}>Stars only (counted automatically)</p>}

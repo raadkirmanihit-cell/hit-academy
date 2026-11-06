@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { backend } from '../platform/backend.js'
-import { GOOGLE_REVIEW_URL, REVIEW_LIMITS } from '../content/reviews.js'
+import { GOOGLE_REVIEW_URL, REVIEW_LIMITS, REVIEW_TOPICS, topicLabel } from '../content/reviews.js'
 import { Icon } from './icons.jsx'
 
 // Course reviews: a student who bought the course rates it and writes a review. It is saved here
@@ -13,6 +13,7 @@ export default function ReviewsPage() {
   const [err, setErr] = useState('')
   const [rating, setRating] = useState(0)
   const [text, setText] = useState('')
+  const [topic, setTopic] = useState('course')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -20,7 +21,7 @@ export default function ReviewsPage() {
   useEffect(() => {
     backend.reviews({ mine: true }).then((r) => {
       setMe(r)
-      if (r.mine) { setRating(r.mine.rating); setText(r.mine.body) }
+      if (r.mine) { setRating(r.mine.rating); setText(r.mine.body); setTopic(r.mine.topic || 'course') }
     }, (e) => setErr(e.message))
   }, [])
 
@@ -28,9 +29,9 @@ export default function ReviewsPage() {
     e.preventDefault()
     setBusy(true); setErr('')
     try {
-      const r = await backend.reviewAction('submit', { rating, body: text })
+      const r = await backend.reviewAction('submit', { rating, body: text, topic })
       setDone(true); setEditing(false)
-      setMe((m) => ({ ...m, mine: { rating, body: text.trim(), status: r?.status || (text.trim() ? 'pending' : 'published') } }))
+      setMe((m) => ({ ...m, mine: { rating, topic, body: text.trim(), status: r?.status || (text.trim() ? 'pending' : 'published') } }))
     } catch (x) { setErr(x.message) } finally { setBusy(false) }
   }
 
@@ -52,20 +53,26 @@ export default function ReviewsPage() {
     <div className="wrap reviews-wrap stack" style={{ gap: '1.5rem' }}>
       <div className="stack" style={{ gap: '.4rem' }}>
         <span className="eyebrow">Reviews</span>
-        <h1>{mine && !editing ? 'Your review' : 'How was the course?'}</h1>
+        <h1>{mine && !editing ? 'Your feedback' : 'Share your feedback or experience'}</h1>
       </div>
 
       {showForm ? (
         <form className="card review-form stack" onSubmit={submit}>
           {mine?.status === 'rejected' && !editing && <p className="callout-plain">Your review wasn't published{mine.rejectReason ? `: ${mine.rejectReason}` : ''}. You can change it and send it again.</p>}
+          <div className="field">
+            <label htmlFor="rv-topic">What is it about?</label>
+            <select id="rv-topic" value={topic} onChange={(e) => setTopic(e.target.value)}>
+              {REVIEW_TOPICS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+            </select>
+          </div>
           <div className="stack" style={{ gap: '.3rem' }}>
             <span className="label" id="rv-stars">Your rating</span>
             <StarPicker value={rating} onChange={setRating} labelledBy="rv-stars" />
           </div>
           <div className="field">
-            <label htmlFor="rv-text">Your review <span className="muted" style={{ fontWeight: 400 }}>(optional)</span></label>
-            <textarea id="rv-text" rows={6} value={text} maxLength={REVIEW_LIMITS.body[1]} onChange={(e) => setText(e.target.value)}
-              placeholder="What did you learn? What changed in your negotiations? What could be better?" />
+            <label htmlFor="rv-text">Your review</label>
+            <textarea id="rv-text" rows={5} value={text} maxLength={REVIEW_LIMITS.body[1]} onChange={(e) => setText(e.target.value)}
+              placeholder="What did you learn? What changed in your negotiations? What could be better? (You can also leave just a star rating.)" />
           </div>
           {!rating && <p className="small review-need" role="status">Choose a star rating to submit.</p>}
           <p className="small muted">Your first name and last initial are shown with your review. Each review is checked for spam and abuse before it goes live. Your words are never changed.</p>
@@ -81,6 +88,7 @@ export default function ReviewsPage() {
             <span className="review-stars" aria-label={`${mine.rating} out of 5 stars`}>{'★'.repeat(mine.rating)}<span className="off">{'★'.repeat(5 - mine.rating)}</span></span>
             <span className={'pill ' + (mine.status === 'published' ? 'good' : 'orange')}>{mine.status === 'published' ? (mine.body ? 'Published' : 'Counted') : 'Waiting for approval'}</span>
           </div>
+          <span className="small muted">{topicLabel(mine.topic)}</span>
           {mine.body ? <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{mine.body}</p> : <p className="small muted" style={{ margin: 0 }}>Star rating only. You can add a few words any time.</p>}
           <div className="row"><button className="btn btn-sm" onClick={() => setEditing(true)}>Edit my review</button></div>
         </div>
@@ -141,7 +149,7 @@ export function StudentReviews() {
           <div key={r.id} className="quote">
             <span className="stars" aria-label={`Rated ${r.rating} out of 5 stars`}>{'★'.repeat(r.rating)}<span className="off">{'★'.repeat(5 - r.rating)}</span></span>
             <p>“{r.body}”</p>
-            <span className="reviewer"><span className="small muted">{r.name}</span> <span className="pill good">Verified student</span></span>
+            <span className="reviewer"><span className="small muted">{r.name} · {topicLabel(r.topic)}</span> <span className="pill good">Verified student</span></span>
           </div>
         ))}
       </div>

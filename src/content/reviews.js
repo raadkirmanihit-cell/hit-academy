@@ -3,10 +3,21 @@
 // Raad approves each review before it is shown, but may reject only for spam, abuse or private
 // details, never because it is critical, and never edits it (§ 5b UWG: honest reviews).
 import { hasStrongLanguage } from './forum.js'
+import { course } from './course.js'
 
 export const GOOGLE_REVIEW_URL = 'https://g.page/r/CVEmuY5MA9xaEBM/review'
 
 // The text is optional: a student may leave only stars.
+// What the review is about (optional dropdown). The complete course is the default.
+export const REVIEW_TOPICS = [
+  { id: 'course', label: `Complete ${course.displayName} course` },
+  ...course.modules.map((m) => ({ id: m.id, label: `Module ${m.number}: ${m.title}` })),
+  { id: 'arena', label: 'The Arena (AI role-plays)' },
+  { id: 'coach', label: 'AI coach' },
+]
+export const topicLabel = (id) => REVIEW_TOPICS.find((t) => t.id === id)?.label || REVIEW_TOPICS[0].label
+export const topicOf = (id) => (REVIEW_TOPICS.some((t) => t.id === id) ? id : 'course')
+
 export const REVIEW_LIMITS = { body: [0, 1500] }
 
 // The only reasons a review may be rejected. "It's negative" is not one of them.
