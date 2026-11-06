@@ -8,7 +8,7 @@
 
 import { TOPUP_PRICE, TOPUP_MESSAGES, ARENA_PRICE, ARENA_TOKENS } from './pricing.js'
 
-export const TERMS_VERSION = '2026-11-06'
+export const TERMS_VERSION = '2026-11-07'
 export const TERMS_UPDATED = '5 November 2026'
 
 export const LEGAL = {
@@ -54,8 +54,8 @@ export const TERMS = [
     body: [
       `The price is shown on the course page and at checkout, in euros. ${LEGAL.smallBusiness ? 'As a small business under § 19 of the German VAT Act (UStG), we do not charge VAT, so the price is the final price.' : 'It includes any VAT that applies.'} Payment is handled securely by our payment provider Stripe. We never see or store your card details.`,
       '**Free Module 1.** Module 1 and a small number of AI coach messages (currently 10) are free with every account. No payment details are needed for them.',
-      '**What you can buy.** You can buy the complete course (all seven modules, currently €196) or single modules 2 to 7 (currently €38 each). The complete course includes the Arena (AI role-plays) with 150 Arena tokens. You can also buy the Arena on its own, and extra Arena tokens (see section 10). If you already own single modules or the Arena, you can upgrade to the complete course and pay only the difference: we credit €38 for each module you bought and €38 for the Arena. The price that applies is the one shown at checkout.',
-      '**Launch price.** For a limited time the complete course costs €126 instead of €196. The launch price applies to the first 100 students who buy the complete course, and ends earlier if we announce an end date on the course page. The checkout shows whether it still applies.',
+      '**What you can buy.** You can buy the complete course (all seven modules, currently €240) or single modules 2 to 7 (currently €48 each). The complete course includes the Arena (AI role-plays) with 150 Arena tokens. You can also buy the Arena on its own, and extra Arena tokens (see section 10). If you already own single modules or the Arena, you can upgrade to the complete course and pay only the difference: we credit €48 for each module you bought and €48 for the Arena. The price that applies is the one shown at checkout.',
+      '**Launch price.** For a limited time the complete course costs €144 instead of €240. The launch price applies to the first 100 students who buy the complete course, and ends earlier if we announce an end date on the course page. The checkout shows whether it still applies.',
       'Our online course page is an invitation for you to make an offer, not a binding offer. When you click the payment button, you make a binding offer to buy what you selected (the complete course or a single module). The contract is concluded when your payment is confirmed and we unlock your access. You receive a confirmation and an invoice by email.',
       'The contract language is English.',
     ],

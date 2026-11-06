@@ -2,21 +2,21 @@
 // so the price shown is always the price charged.
 //
 // - Module 1 is free for every account (no payment needed).
-// - Single modules 2 to 7: €38 each (€228 for all six).
-// - Complete course (all 7 modules): €196, or €126 at the launch price (first 100 buyers, or until
+// - Single modules 2 to 7: €48 each (€288 for all six).
+// - Complete course (all 7 modules): €240, or €144 at the launch price (first 100 buyers, or until
 //   LAUNCH_PRICE_UNTIL if that is set on the server). It includes a pack of Arena tokens
 //   for AI role-plays (valid 12 months).
 // - Arena tokens (1 token = 1 AI reply in the Arena) and AI coach messages are separate and never mixed.
 // - Students who already bought single modules can upgrade to the complete course and pay only
-//   the difference: the package price minus €38 for each module they bought.
+//   the difference: the package price minus €48 for each module they bought.
 // All sums are done in cents, so prices never pick up rounding errors.
 
 export const CURRENCY = 'EUR'
 export const BUNDLE_ID = 'hit-negotiation-selfpaced'
-export const BUNDLE_PRICE = 196
-export const LAUNCH_PRICE = 126
+export const BUNDLE_PRICE = 240
+export const LAUNCH_PRICE = 144
 export const LAUNCH_BUYERS = 100 // the launch price ends after this many (real) package sales
-export const MODULE_PRICE = 38
+export const MODULE_PRICE = 48
 export const MODULE_IDS = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']
 export const FREE_MODULES = ['m1']
 export const PAID_MODULES = MODULE_IDS.filter((m) => !FREE_MODULES.includes(m))
@@ -29,7 +29,7 @@ export const TOPUP_MESSAGES = 150
 // course, or bought separately for ARENA_PRICE. Either way it comes with ARENA_TOKENS tokens (valid 12 months).
 // Students who own all seven modules one by one also get it. Extra token packs are for Arena owners only.
 export const ARENA_ID = 'hit-arena'
-export const ARENA_PRICE = 38
+export const ARENA_PRICE = 48
 export const ARENA_TOKENS = 150
 export const BUNDLE_COACH_MONTHS = 3 // only for students who bought before 1 November 2026: the coach months they were given
 
@@ -100,7 +100,7 @@ export function quote(choice, purchases, opts) {
   return { productId: moduleProductId(choice), cents: Math.round(MODULE_PRICE * 100), name: `Negotiation & Conflict Resolution: Module ${MODULE_IDS.indexOf(choice) + 1}` }
 }
 
-// "€38", "€196": cents only when there are any.
+// "€48", "€240": cents only when there are any.
 export function euro(n) {
   return new Intl.NumberFormat('en-IE', { style: 'currency', currency: CURRENCY, minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }).format(n)
 }
