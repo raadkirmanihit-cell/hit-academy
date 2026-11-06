@@ -3,6 +3,7 @@ import { MODULE_PRICE, euro, BUNDLE_PRICE, LAUNCH_PRICE, BUNDLE_PRACTICE_MESSAGE
 import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
+import { StudentReviews } from './Reviews.jsx'
 
 const features = [
   { icon: 'layers', title: 'Seven in-depth modules', text: 'From behaviour and strategy to empathy, body language, preparation, perception and objections.' },
@@ -97,6 +98,7 @@ export default function Landing() {
           <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
           </a>
+          <StudentReviews />
                   </div>
       </section>
 

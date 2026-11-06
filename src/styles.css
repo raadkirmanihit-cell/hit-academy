@@ -1637,3 +1637,24 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
   .cert-teaser svg { width: 40px; height: 40px; }
   .upgrade-card { padding: .85rem 1rem; gap: .7rem; }
 }
+
+/* Course reviews */
+.reviews-wrap { max-width: 720px; padding-block: 2rem 3rem; }
+.review-form { gap: 1.1rem; }
+.review-form .label { font-weight: 600; font-size: .9rem; }
+.callout-plain { margin: 0; padding: .7rem .9rem; border-radius: 10px; background: var(--orange-soft); }
+.star-picker { display: flex; gap: .15rem; }
+.star-picker button { font-size: 2rem; line-height: 1; padding: 0 .1rem; background: none; border: 0; cursor: pointer; color: var(--line); }
+.star-picker button.on { color: var(--orange); }
+.star-picker button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; border-radius: 4px; }
+.review-stars { color: var(--orange); letter-spacing: .06em; }
+.review-stars .off, .quote .stars .off { color: var(--line); }
+.review-quote { margin: 0; padding: .8rem 1rem; border-radius: 10px; background: var(--paper); white-space: pre-wrap; }
+.google-share { position: relative; }
+.google-badge { position: absolute; top: 1rem; right: 1rem; display: flex; gap: .5rem; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: .35rem .6rem; background: var(--surface); font-size: .75rem; line-height: 1.2; }
+.google-badge .g { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); font-weight: 700; color: #4285f4; }
+.google-badge .gstars { color: #fbbc04; letter-spacing: .05em; }
+@media (max-width: 520px) { .google-badge { position: static; justify-self: start; } }
+.reviewer .pill { margin-left: .4rem; }
+.reviews-wrap .card { padding: 1.4rem; }
+.review-ask { padding: 1rem 1.2rem; justify-content: space-between; gap: 1rem; }

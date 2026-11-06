@@ -154,6 +154,9 @@ export const liveBackend = {
     return api('/api/forum' + q)
   },
   async forumAction(action, payload = {}) { return api('/api/forum', { action, ...payload }) },
+  // Course reviews: {} the published list (public), { mine: true } the student's own, { admin: true } all for Raad.
+  async reviews({ mine, admin } = {}) { return api('/api/reviews' + (admin ? '?admin=1' : mine ? '?mine=1' : '')) },
+  async reviewAction(action, payload = {}) { return api('/api/reviews', { action, ...payload }) },
   // AI coach subscription: status, Stripe Checkout to subscribe, Stripe's page to cancel or change the card.
   async coachPlan() { return api('/api/coach-plan') },
   // Whether the €126 launch price for the complete course is still on.
