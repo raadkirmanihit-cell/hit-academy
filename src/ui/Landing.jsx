@@ -3,6 +3,7 @@ import { MODULE_PRICE, euro, BUNDLE_PRICE, LAUNCH_PRICE, BUNDLE_PRACTICE_MESSAGE
 import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
+import { StudentReviews } from './Reviews.jsx'
 
 const features = [
   { icon: 'layers', title: 'Seven in-depth modules', text: 'From behaviour and strategy to empathy, body language, preparation, perception and objections.' },
@@ -99,6 +100,7 @@ export default function Landing() {
           </a>
           {/* § 5b (3) UWG: say whether and how shown reviews are checked. */}
           <p className="small muted review-note">Shortened excerpts from Google reviews by clients of Raad's coaching and training. Every review shown here is from a client Raad has worked with.</p>
+          <StudentReviews />
                   </div>
       </section>
 

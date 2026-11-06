@@ -5,6 +5,7 @@ import { flatSteps } from '../platform/progress.js'
 import { scenarios as SCENARIOS } from '../coach/scenarios.js'
 import { SKILLS, LEVELS, band } from '../coach/scoring.js'
 import { REMOVAL_REASONS } from '../content/forum.js'
+import { REJECT_REASONS } from '../content/reviews.js'
 
 const date = (d) => (d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '–')
 const dateTime = (d) => (d ? new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '–')
@@ -47,7 +48,7 @@ export default function AdminPage() {
         <button className="btn btn-ghost btn-sm" onClick={() => { setData(null); load() }}>Refresh</button>
       </div>
       <div className="tabs" role="tablist">
-        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'The Arena'], ['community', 'Community'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
+        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'The Arena'], ['community', 'Community'], ['reviews', 'Reviews'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
           <button key={id} className="tab" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -57,6 +58,7 @@ export default function AdminPage() {
       {tab === 'coach' && <CoachSubs data={data} />}
       {tab === 'practice' && <Practice data={data} />}
       {tab === 'community' && <CommunityAdmin />}
+      {tab === 'reviews' && <ReviewsAdmin notify={notify} />}
       {tab === 'messages' && <Messages data={data} act={act} />}
     </div>
   )
@@ -506,6 +508,57 @@ function CommunityAdmin() {
           </table></div>
         </details>
       )}
+    </div>
+  )
+}
+
+// Course reviews waiting for approval, and the published ones. Raad can publish or reject, never edit.
+// Reject only for the listed reasons: a genuine critical review must be published (§ 5b UWG).
+function ReviewsAdmin({ notify }) {
+  const [data, setData] = useState(null)
+  const [reasonFor, setReasonFor] = useState(null)
+  const [reason, setReason] = useState('')
+  const load = useCallback(() => backend.reviews({ admin: true }).then(setData, (e) => notify(e.message, 5000)), [notify])
+  useEffect(() => { load() }, [load])
+  async function act(action, id, extra = {}) {
+    try { await backend.reviewAction(action, { id, ...extra }); notify(action === 'publish' ? 'Review published.' : 'Review rejected. The student has been told why.'); setReasonFor(null); setReason(''); load() } catch (e) { notify(e.message, 5000) }
+  }
+  if (!data) return <p className="muted">Loading reviews…</p>
+  if (!data.ready) return <p className="muted">Run supabase/update-9-reviews.sql in Supabase to switch on course reviews.</p>
+  const pending = data.reviews.filter((r) => r.status === 'pending')
+  const rest = data.reviews.filter((r) => r.status !== 'pending')
+  const Row = ({ r }) => (
+    <div className="card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '.5rem' }}>
+      <div className="row" style={{ justifyContent: 'space-between' }}>
+        <span><b>{r.name}</b> <span className="small muted">{r.email} · {new Date(r.updatedAt || r.at).toLocaleDateString('en-GB')}{r.google ? ' · opened Google' : ''}</span></span>
+        <span className="review-stars" aria-label={`${r.rating} out of 5 stars`}>{'★'.repeat(r.rating)}<span className="off">{'★'.repeat(5 - r.rating)}</span></span>
+      </div>
+      <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{r.body}</p>
+      {r.status === 'rejected' && <p className="small muted" style={{ margin: 0 }}>Rejected: {r.rejectReason}</p>}
+      {reasonFor === r.id ? (
+        <div className="row">
+          <select value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Reason">
+            <option value="">Choose a reason…</option>
+            {REJECT_REASONS.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+          </select>
+          <button className="btn btn-sm" disabled={!reason} onClick={() => act('reject', r.id, { reason })}>Reject</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setReasonFor(null)}>Cancel</button>
+        </div>
+      ) : (
+        <div className="row">
+          {r.status !== 'published' && <button className="btn btn-primary btn-sm" onClick={() => act('publish', r.id)}>Publish</button>}
+          {r.status !== 'rejected' && <button className="btn btn-ghost btn-sm" onClick={() => { setReasonFor(r.id); setReason('') }}>Reject…</button>}
+          {r.status !== 'pending' && <span className={'pill ' + (r.status === 'published' ? 'good' : '')}>{r.status === 'published' ? 'Published' : 'Rejected'}</span>}
+        </div>
+      )}
+    </div>
+  )
+  return (
+    <div className="stack" style={{ gap: '1rem' }}>
+      <p className="small muted">Publish every genuine review, including critical ones. Reject only spam, abuse, private details about other people, or text that isn't about the course. You can't change a review's words. {data.count ? `Published: ${data.count}, average ${data.average.toFixed(1)}★.` : ''}</p>
+      <h3>Waiting for approval ({pending.length})</h3>
+      {pending.length ? pending.map((r) => <Row key={r.id} r={r} />) : <p className="muted">Nothing waiting.</p>}
+      {rest.length > 0 && <><h3>Decided</h3>{rest.map((r) => <Row key={r.id} r={r} />)}</>}
     </div>
   )
 }

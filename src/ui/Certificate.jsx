@@ -121,6 +121,15 @@ export default function CertificatePage() {
           {stats.eligible && <button className="btn btn-primary" disabled={!ready} onClick={download}><Icon.download /> Download PNG</button>}
         </div>
       </div>
+      {stats.eligible && (
+        <div className="card review-ask row">
+          <div className="stack" style={{ gap: '.2rem', flex: '1 1 260px', minWidth: 0 }}>
+            <strong>How was the course for you?</strong>
+            <span className="small muted">Your review helps other professionals decide, and helps us improve the course.</span>
+          </div>
+          <button className="btn btn-primary btn-sm" onClick={() => go('reviews')}>Write a review</button>
+        </div>
+      )}
       <div className="cert-frame"><canvas ref={ref} style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 8 }} aria-label={`Certificate of completion for ${user.name}`} /></div>
       {stats.modulesOk && (() => {
         const se = selfEvalOf(progress)

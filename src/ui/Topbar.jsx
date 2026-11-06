@@ -67,6 +67,7 @@ export default function Topbar() {
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('dashboard') }}>My dashboard</button>}
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('certificate') }}>My certificate</button>}
                   <button role="menuitem" onClick={() => { setOpen(false); go('community') }}>Community</button>
+                  {paid && <button role="menuitem" onClick={() => { setOpen(false); go('reviews') }}>Review the course</button>}
                   <button role="menuitem" onClick={() => { setOpen(false); go('contact') }}>Message Raad</button>
                   {admin && <button role="menuitem" onClick={() => { setOpen(false); go('admin') }}>Control board (admin)</button>}
                   <button role="menuitem" onClick={() => setAuthorMode(!authorMode)}>

@@ -16,6 +16,7 @@ import { refreshCoachPlan } from './coach/plan.jsx'
 import AdminPage from './ui/Admin.jsx'
 import ContactPage from './ui/Contact.jsx'
 import Community from './ui/Community.jsx'
+import ReviewsPage from './ui/Reviews.jsx'
 import TermsPage, { AcceptTerms, LegalLinks, LEGAL_PAGES } from './ui/Terms.jsx'
 import { TERMS_VERSION } from './content/terms.js'
 import { ownedModules, hasArena } from './content/pricing.js'
@@ -259,6 +260,7 @@ export default function App() {
   else if (view.name === 'module' && modules[view.moduleId] && !owned.has(view.moduleId)) screen = <Checkout choice={view.moduleId} />
   else if (view.name === 'module' && modules[view.moduleId] && needsBeforeGate(progress)) screen = <SelfEvalPage phase="before" gate={{ moduleId: view.moduleId, stepId: view.stepId }} />
   else if (view.name === 'module' && modules[view.moduleId]) screen = <Player key={view.moduleId} module={modules[view.moduleId]} initialStep={view.stepId} />
+  else if (view.name === 'reviews') screen = <ReviewsPage />
   else if (view.name === 'selfeval') screen = <SelfEvalPage key={view.phase} phase={view.phase} />
   else if (view.name === 'certificate') screen = <CertificatePage />
   else if (view.name === 'practice') screen = <PracticeStudio />

@@ -5,6 +5,7 @@ import { quote, CURRENCY } from '../content/pricing.js'
 import { readJSON, writeJSON, remove } from './storage.js'
 import { TERMS_VERSION } from '../content/terms.js'
 import { previewForum } from './forum.preview.js'
+import { checkReview, shortName, summary } from '../content/reviews.js'
 
 const K = { session: 'hit.session', users: 'hit.users', progress: (id) => `hit.progress.${id}` }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -75,6 +76,30 @@ export const previewBackend = {
   // Community forum, kept in this browser (members = anyone who bought something in the preview).
   async forum(params) { await wait(150); return previewForum.read(current(), params) },
   async forumAction(action, payload) { await wait(200); return previewForum.act(current(), action, payload) },
+  // Course reviews, kept in this browser. The preview user may also approve them, to try the flow.
+  async reviews({ mine, admin } = {}) {
+    await wait(120)
+    const all = readJSON('hit.reviews', [])
+    const u = current()
+    if (admin) return { ready: true, reviews: all, ...summary(all) }
+    if (mine) return { ready: true, canReview: !!u?.purchases?.length, mine: all.find((r) => r.userId === u?.id) || null }
+    const pub = all.filter((r) => r.status === 'published')
+    return { reviews: pub, ...summary(all) }
+  },
+  async reviewAction(action, { rating, body, id, reason } = {}) {
+    await wait(200)
+    const all = readJSON('hit.reviews', [])
+    const u = current()
+    if (action === 'submit') {
+      const problem = checkReview(Number(rating), body)
+      if (problem) throw new Error(problem)
+      const rest = all.filter((r) => r.userId !== u.id)
+      writeJSON('hit.reviews', [{ id: 'r_' + Date.now().toString(36), userId: u.id, name: shortName(u.name), rating: Number(rating), body: String(body).trim(), status: 'pending', at: new Date().toISOString(), email: u.email }, ...rest])
+    } else if (action === 'publish' || action === 'reject') {
+      writeJSON('hit.reviews', all.map((r) => (r.id === id ? { ...r, status: action === 'publish' ? 'published' : 'rejected', rejectReason: reason || null } : r)))
+    }
+    return { ok: true }
+  },
   // The preview has no payments: the coach is simply open.
   async launchStatus() { return { launch: true, left: 100, until: null } },
   async coachPlan() { return { paid: true, subscribed: true, preview: true, left: Infinity } },
