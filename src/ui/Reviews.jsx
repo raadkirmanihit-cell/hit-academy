@@ -59,11 +59,11 @@ export function ReviewPanel({ embedded = false }) {
   return (
     <div className={embedded ? 'stack dash-review' : 'wrap reviews-wrap stack'} style={{ gap: embedded ? '1rem' : '1.5rem' }}>
       {embedded ? (
-        <div className="dash-section-title"><h2>{mine && !editing ? 'Your feedback' : 'Share your feedback or experience'}</h2></div>
+        <div className="dash-section-title"><h2>{mine && !editing ? 'Your feedback' : 'Share your experience'}</h2></div>
       ) : (
         <div className="stack" style={{ gap: '.4rem' }}>
           <span className="eyebrow">Reviews</span>
-          <h1>{mine && !editing ? 'Your feedback' : 'Share your feedback or experience'}</h1>
+          <h1>{mine && !editing ? 'Your feedback' : 'Share your experience'}</h1>
         </div>
       )}
 
