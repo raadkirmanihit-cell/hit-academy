@@ -158,7 +158,10 @@ button { font: inherit; color: inherit; }
 .syllabus .num, .syllabus li > .pill { margin-top: .2rem; }
 .syllabus h4 { margin: 0; }
 .syllabus .syl-sub { margin: .15rem 0 0; }
-.syllabus .syl-about { margin: .5rem 0 0; font-size: .95rem; line-height: 1.55; color: var(--ink-2); max-width: 70ch; }
+.syllabus .syl-hook { margin: .6rem 0 0; font-weight: 600; color: var(--ink); }
+.syllabus ul.syl-points { list-style: none; display: grid; gap: .35rem; margin: .5rem 0 0; }
+.syllabus ul.syl-points li { display: flex; gap: .5rem; align-items: flex-start; padding: 0; background: none; border: 0; border-radius: 0; font-size: .95rem; line-height: 1.45; color: var(--ink-2); }
+.syllabus ul.syl-points svg { flex: none; margin-top: .2rem; color: var(--orange); }
 .quote-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .quote { border-left: 3px solid var(--orange); padding: .25rem 0 .25rem 1rem; display: grid; gap: .4rem; }
 .quote p { font-size: 1.02rem; }
