@@ -91,13 +91,13 @@ export default function Landing() {
 
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="wrap stack" style={{ gap: '1.5rem' }}>
-          <span className="eyebrow">From Raad's coaching and training clients</span>
+          <span className="eyebrow">What our clients have to say</span>
           <ReviewCarousel />
           <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
           </a>
           {/* § 5b (3) UWG: say whether and how shown reviews are checked. */}
-          <p className="small muted review-note">Shortened excerpts from Google reviews by clients of Raad's coaching and training. Every review shown here is from a client Raad has worked with.</p>
+          <p className="small muted review-note">Shortened excerpts from Google reviews.</p>
           <StudentReviews />
                   </div>
       </section>
