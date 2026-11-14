@@ -7,6 +7,7 @@ import { flatSteps } from '../platform/progress.js'
 import { Md } from '../ui/md.jsx'
 import { buildChunks, retrieve, formatExcerpts, library } from './knowledge.js'
 import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
+import { lessonList, lessonOf, lessonsAsText, TOKEN } from './lessons.js'
 import { SAFETY_TOKEN } from './safety.js'
 import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
@@ -78,8 +79,39 @@ const ERRORS = {
 export const noteError = (e) => { if (e?.code === 'needs_subscription') coachLocked(); if (e?.code === 'needs_tokens') arenaLocked(); if (e?.code === 'needs_arena') refreshCoachPlan() }
 export const errorText = (e) => (isLive && e?.message && e.code !== 'cancelled' ? e.message : ERRORS[e?.code]) || 'Something went wrong. Please try again.'
 
-// Coach replies use **bold** and "- " bullets only.
-function Rich({ text }) {
+// A lesson token from the coach ([[m5/l3-what]]) becomes a link to that page.
+// Modules the learner doesn't own open the unlock page instead. Unknown tokens are dropped.
+function LessonLink({ id, onOpen }) {
+  const { modules, owned, go } = useApp()
+  const l = lessonOf(modules, id)
+  if (!l) return null
+  const open = owned.has(l.moduleId)
+  return (
+    <a className={'coach-lesson' + (open ? '' : ' locked')} href={open ? `#/module/${l.moduleId}/${l.stepId}` : `#/checkout/${l.moduleId}`}
+      title={open ? `Open "${l.page}"` : 'Unlock this module'}
+      onClick={(e) => { e.preventDefault(); onOpen?.(); open ? go('module', { moduleId: l.moduleId, stepId: l.stepId }) : go('checkout', { choice: l.moduleId }) }}>
+      {!open && <Icon.lock width="13" height="13" aria-hidden="true" style={{ verticalAlign: '-1px', marginRight: '.2rem' }} />}{l.label}{!open && <span className="sr-only"> (locked: opens the unlock page)</span>}
+    </a>
+  )
+}
+function WithLessons({ text, onLesson }) {
+  if (!/\[\[/.test(text)) return <Md text={text} />
+  const out = []
+  let last = 0, m, i = 0
+  TOKEN.lastIndex = 0
+  while ((m = TOKEN.exec(text))) {
+    if (m.index > last) out.push(<Md key={i++} text={text.slice(last, m.index)} />)
+    out.push(<LessonLink key={i++} id={m[1]} onOpen={onLesson} />)
+    last = m.index + m[0].length
+  }
+  // A half-streamed token ("[[m5/l3-") stays hidden until it is complete.
+  const rest = text.slice(last).replace(/\[\[[^\]]*$/, '')
+  if (rest) out.push(<Md key={i++} text={rest} />)
+  return out
+}
+
+// Coach replies use **bold** and "- " bullets only, plus lesson tokens.
+function Rich({ text, onLesson }) {
   const blocks = []
   let list = null
   for (const line of String(text).split('\n')) {
@@ -89,8 +121,8 @@ function Rich({ text }) {
   }
   if (list) blocks.push({ list })
   return blocks.map((b, i) => b.list
-    ? <ul key={i}>{b.list.map((x, j) => <li key={j}><Md text={x} /></li>)}</ul>
-    : <p key={i} className={/^Review:/.test(b.p) ? 'coach-review' : ''}><Md text={b.p} /></p>)
+    ? <ul key={i}>{b.list.map((x, j) => <li key={j}><WithLessons text={x} onLesson={onLesson} /></li>)}</ul>
+    : <p key={i} className={/^Review:/.test(b.p) ? 'coach-review' : /\[\[/.test(b.p) ? 'coach-pointer' : ''}><WithLessons text={b.p} onLesson={onLesson} /></p>)
 }
 
 function Unavailable() {
@@ -109,15 +141,19 @@ const SUGGESTIONS = [
 export function CoachLauncher() {
   const { user, paid, view, modules, progress } = useApp()
   const [open, setOpen] = useState(false)
+  const [mini, setMini] = useState(false) // tucked away while the learner reads a lesson; the chat is kept
   const [subscribe, setSubscribe] = useState(false)
   useEffect(() => {
-    const h = () => { setSubscribe(false); setOpen(true) }
-    const s = () => { setSubscribe(true); setOpen(true) }
+    const h = () => { setSubscribe(false); setMini(false); setOpen(true) }
+    const s = () => { setSubscribe(true); setMini(false); setOpen(true) }
     window.addEventListener('open-coach', h)
     window.addEventListener('coach-subscribe', s)
     return () => { window.removeEventListener('open-coach', h); window.removeEventListener('coach-subscribe', s) }
   }, [])
-  if (!user || !paid || !['dashboard', 'module', 'practice'].includes(view.name)) return null
+  if (!user || !paid) return null
+  // On other screens (e.g. the unlock page a lesson link leads to) the chat stays open behind the scenes.
+  const here = ['dashboard', 'module', 'practice'].includes(view.name)
+  if (!here && !open) return null
   // Where the learner is, so the coach can include that page.
   let ctx = {}
   if (view.name === 'module' && progress.last?.moduleId && modules[progress.last.moduleId]) {
@@ -127,14 +163,16 @@ export function CoachLauncher() {
   }
   return (
     <>
-      {!open && <button className="coach-fab" onClick={() => setOpen(true)} aria-label="Ask the AI coach"><span className="coach-dot" aria-hidden="true">AI</span> Ask the coach</button>}
-      {open && <CoachPanel ctx={ctx} subscribe={subscribe} onClose={() => setOpen(false)} />}
+      {here && (!open || mini) && <button className="coach-fab" onClick={() => { setMini(false); setOpen(true) }} aria-label={mini ? 'Back to your coach chat' : 'Ask the AI coach'}><span className="coach-dot" aria-hidden="true">AI</span> {mini ? 'Back to the coach' : 'Ask the coach'}</button>}
+      {open && <CoachPanel ctx={ctx} subscribe={subscribe} hidden={!here || mini} onClose={() => { setMini(false); setOpen(false) }}
+        onLesson={() => { if (window.matchMedia?.('(max-width: 640px)').matches) setMini(true) }} />}
     </>
   )
 }
 
-function CoachPanel({ ctx, subscribe, onClose }) {
+function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   const kb = useKb()
+  const { modules, owned } = useApp()
   const { ready, sample } = useSample()
   const { locked, plan } = useCoachPlan()
   const showPaywall = locked || (subscribe && plan && (!plan.subscribed || plan.included) && !plan.preview)
@@ -160,7 +198,7 @@ function CoachPanel({ ctx, subscribe, onClose }) {
     // The learner's recent messages together describe the situation, so search with all of them.
     const prevQ = turns.filter((t) => t.role === 'user').slice(-3).map((t) => t.content).join(' ')
     const found = retrieve(kb, q + ' ' + q + ' ' + prevQ, ctx)
-    const rules = COACH_RULES({ where: ctx.where, library: kb.library, excerpts: formatExcerpts(found) })
+    const rules = COACH_RULES({ where: ctx.where, library: kb.library, lessons: lessonList(modules, owned), excerpts: formatExcerpts(found) })
     ctl.current = new AbortController()
     try {
       const { text, safety } = await sample([{ role: 'user', content: rules }, ...history.slice(-16)], {
@@ -168,7 +206,7 @@ function CoachPanel({ ctx, subscribe, onClose }) {
       })
       setTurns((t) => [...t, { role: 'assistant', content: text }])
       if (!safety) usedOneMessage() // the safety reply with help lines is free
-      if (voiceOn.current) voice.speak(text)
+      if (voiceOn.current) voice.speak(lessonsAsText(text, modules))
     } catch (e) {
       if (e?.text) setTurns((t) => [...t, { role: 'assistant', content: e.text + ' …' }])
       noteError(e)
@@ -177,7 +215,7 @@ function CoachPanel({ ctx, subscribe, onClose }) {
   }
 
   return (
-    <aside className="coach-panel fade-in" aria-label="AI coach">
+    <aside className="coach-panel fade-in" aria-label="AI coach" hidden={hidden}>
       <header className="coach-head">
         <div>
           <span className="eyebrow">{isLive ? 'Premium' : 'Premium · prototype'}</span>
@@ -199,7 +237,7 @@ function CoachPanel({ ctx, subscribe, onClose }) {
               </div>
             )}
             {turns.map((t, i) => (
-              <div key={i} className={'coach-msg ' + t.role}>{t.role === 'user' ? <p>{t.content}</p> : <><Rich text={t.content} /><PlayButton voice={voice} text={t.content} /></>}</div>
+              <div key={i} className={'coach-msg ' + t.role}>{t.role === 'user' ? <p>{t.content}</p> : <><Rich text={t.content} onLesson={onLesson} /><PlayButton voice={voice} text={lessonsAsText(t.content, modules)} /></>}</div>
             ))}
             {busy && <div className="coach-msg assistant">{live ? <Rich text={live} /> : <p className="muted coach-thinking">Thinking…</p>}</div>}
             {err && <p className="small coach-err" role="alert">{err}</p>}
