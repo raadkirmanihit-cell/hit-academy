@@ -7,7 +7,8 @@ import { flatSteps } from '../platform/progress.js'
 import { Md } from '../ui/md.jsx'
 import { buildChunks, retrieve, formatExcerpts, library } from './knowledge.js'
 import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
-import { lessonList, lessonOf, lessonsAsText, TOKEN } from './lessons.js'
+import { lessonOf, TOKEN } from './lessons.js'
+import { CoachPanel } from './CoachPanel.jsx'
 import { SAFETY_TOKEN } from './safety.js'
 import { scenarios, scenarioById } from './scenarios.js'
 import { useVoice } from './voice.js'
@@ -20,7 +21,7 @@ const MicIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none
 const SpeakerIcon = ({ off }) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" />{off ? <path d="M17 9l5 6M22 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}</svg>
 
 // Voice replies on/off, shown when the browser can speak.
-function VoiceToggle({ voice }) {
+export function VoiceToggle({ voice }) {
   if (!voice.canSpeak) return null
   return (
     <button type="button" className={'btn btn-sm voice-toggle' + (voice.voiceOn ? ' on' : '')} aria-pressed={voice.voiceOn}
@@ -29,7 +30,7 @@ function VoiceToggle({ voice }) {
     </button>
   )
 }
-function MicButton({ voice, onText, onFinal, disabled, measure = false }) {
+export function MicButton({ voice, onText, onFinal, disabled, measure = false }) {
   if (!voice.canListen) return (
     <button type="button" className="btn btn-sm mic-btn off" disabled={disabled} aria-label="How to speak instead of typing" onClick={() => voice.dictationTip()}><MicIcon /></button>
   )
@@ -39,7 +40,7 @@ function MicButton({ voice, onText, onFinal, disabled, measure = false }) {
       onClick={() => voice.listen(onText, onFinal, undefined, { measure })}><MicIcon /></button>
   )
 }
-function PlayButton({ voice, text }) {
+export function PlayButton({ voice, text }) {
   if (!voice.canSpeak) return null
   return <button type="button" className="play-btn" onClick={() => voice.speak(text)} aria-label="Read this reply aloud"><SpeakerIcon /> Listen</button>
 }
@@ -81,7 +82,7 @@ export const errorText = (e) => (isLive && e?.message && e.code !== 'cancelled' 
 
 // A lesson token from the coach ([[m5/l3-what]]) becomes a link to that page.
 // Modules the learner doesn't own open the unlock page instead. Unknown tokens are dropped.
-function LessonLink({ id, onOpen }) {
+export function LessonLink({ id, onOpen }) {
   const { modules, owned, go } = useApp()
   const l = lessonOf(modules, id)
   if (!l) return null
@@ -94,7 +95,7 @@ function LessonLink({ id, onOpen }) {
     </a>
   )
 }
-function WithLessons({ text, onLesson }) {
+export function WithLessons({ text, onLesson }) {
   if (!/\[\[/.test(text)) return <Md text={text} />
   const out = []
   let last = 0, m, i = 0
@@ -110,26 +111,33 @@ function WithLessons({ text, onLesson }) {
   return out
 }
 
-// Coach replies use **bold** and "- " bullets only, plus lesson tokens.
-function Rich({ text, onLesson }) {
+// Coach replies use **bold**, "- " bullets and "1. " steps only, plus lesson tokens.
+export function Rich({ text, onLesson }) {
   const blocks = []
   let list = null
+  const flush = () => { if (list) { blocks.push(list); list = null } }
   for (const line of String(text).split('\n')) {
-    if (/^\s*[-•]\s+/.test(line)) { (list ||= []).push(line.replace(/^\s*[-•]\s+/, '')); continue }
-    if (list) { blocks.push({ list }); list = null }
+    const ol = /^\s*\d+[.)]\s+/.test(line)
+    if (ol || /^\s*[-•]\s+/.test(line)) {
+      const kind = ol ? 'ol' : 'ul'
+      if (list && list.kind !== kind) flush()
+      ;(list ||= { kind, items: [] }).items.push(line.replace(/^\s*(\d+[.)]|[-•])\s+/, ''))
+      continue
+    }
+    flush()
     if (line.trim()) blocks.push({ p: line })
   }
-  if (list) blocks.push({ list })
-  return blocks.map((b, i) => b.list
-    ? <ul key={i}>{b.list.map((x, j) => <li key={j}><WithLessons text={x} onLesson={onLesson} /></li>)}</ul>
-    : <p key={i} className={/^Review:/.test(b.p) ? 'coach-review' : /\[\[/.test(b.p) ? 'coach-pointer' : ''}><WithLessons text={b.p} onLesson={onLesson} /></p>)
+  flush()
+  return blocks.map((b, i) => b.items
+    ? <b.kind key={i}>{b.items.map((x, j) => <li key={j}><WithLessons text={x} onLesson={onLesson} /></li>)}</b.kind>
+    : <p key={i} className={/^Review:/.test(b.p) ? 'coach-review' : /\[\[/.test(b.p) ? 'coach-pointer' : /^\*\*[^*]+\*\*:?\s*$/.test(b.p.trim()) ? 'coach-label' : ''}><WithLessons text={b.p} onLesson={onLesson} /></p>)
 }
 
-function Unavailable() {
+export function Unavailable() {
   return <p className="small muted coach-off">The AI coach works when the course is opened on claude.ai. In this view it is switched off.</p>
 }
 
-const SUGGESTIONS = [
+export const SUGGESTIONS = [
   'I need to ask my manager for a raise next week.',
   'A key supplier wants to raise prices by 15%.',
   'My business partner and I keep arguing about priorities.',
@@ -165,99 +173,8 @@ export function CoachLauncher() {
     <>
       {here && (!open || mini) && <button className="coach-fab" onClick={() => { setMini(false); setOpen(true) }} aria-label={mini ? 'Back to your coach chat' : 'Ask the AI coach'}><span className="coach-dot" aria-hidden="true">AI</span> {mini ? 'Back to the coach' : 'Ask the coach'}</button>}
       {open && <CoachPanel ctx={ctx} subscribe={subscribe} hidden={!here || mini} onClose={() => { setMini(false); setOpen(false) }}
-        onLesson={() => { if (window.matchMedia?.('(max-width: 640px)').matches) setMini(true) }} />}
+        onLesson={(full) => { if (full || window.matchMedia?.('(max-width: 640px)').matches) setMini(true) }} />}
     </>
-  )
-}
-
-function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
-  const kb = useKb()
-  const { modules, owned } = useApp()
-  const { ready, sample } = useSample()
-  const { locked, plan } = useCoachPlan()
-  const showPaywall = locked || (subscribe && plan && (!plan.subscribed || plan.included) && !plan.preview)
-  const [turns, setTurns] = useState([])
-  const [draft, setDraft] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [live, setLive] = useState('')
-  const [err, setErr] = useState('')
-  const ctl = useRef(null)
-  const end = useRef(null)
-  const voice = useVoice()
-  const voiceOn = useRef(false); voiceOn.current = voice.voiceOn
-  useEffect(() => { end.current?.scrollIntoView({ block: 'end' }) }, [turns, live])
-  useEffect(() => () => ctl.current?.abort(), [])
-
-  async function ask(q) {
-    q = q.trim()
-    if (!q || busy || !sample) return
-    setErr(''); setDraft('')
-    const history = [...turns, { role: 'user', content: q }]
-    setTurns(history); setBusy(true); setLive('')
-    // Search with the latest question plus the previous one, so follow-ups keep their topic.
-    // The learner's recent messages together describe the situation, so search with all of them.
-    const prevQ = turns.filter((t) => t.role === 'user').slice(-3).map((t) => t.content).join(' ')
-    const found = retrieve(kb, q + ' ' + q + ' ' + prevQ, ctx)
-    const rules = COACH_RULES({ where: ctx.where, library: kb.library, lessons: lessonList(modules, owned), excerpts: formatExcerpts(found) })
-    ctl.current = new AbortController()
-    try {
-      const { text, safety } = await sample([{ role: 'user', content: rules }, ...history.slice(-16)], {
-        cache: false, signal: ctl.current.signal, onText: ({ text }) => setLive(text),
-      })
-      setTurns((t) => [...t, { role: 'assistant', content: text }])
-      if (!safety) usedOneMessage() // the safety reply with help lines is free
-      if (voiceOn.current) voice.speak(lessonsAsText(text, modules))
-    } catch (e) {
-      if (e?.text) setTurns((t) => [...t, { role: 'assistant', content: e.text + ' …' }])
-      noteError(e)
-      if (e?.code !== 'cancelled') setErr(errorText(e))
-    } finally { setBusy(false); setLive('') }
-  }
-
-  return (
-    <aside className="coach-panel fade-in" aria-label="AI coach" hidden={hidden}>
-      <header className="coach-head">
-        <div>
-          <span className="eyebrow">{isLive ? 'Premium' : 'Premium · prototype'}</span>
-          <h3>H.I.T. Negotiation Coach</h3>
-        </div>
-        <div className="row" style={{ gap: '.4rem', flexWrap: 'nowrap' }}>
-          {sample && <VoiceToggle voice={voice} />}
-          <button className="btn btn-sm" onClick={() => { voice.stopSpeaking(); onClose() }} aria-label="Close the coach">Close</button>
-        </div>
-      </header>
-      <div className="coach-body">
-        {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : showPaywall ? <CoachPaywall compact /> : (
-          <>
-            {turns.length === 0 && (
-              <div className="coach-intro">
-                <p>Tell me about a negotiation or a conflict you're facing. I'll ask you a few questions, one at a time, to understand your situation and your goal. Then I'll suggest what to do and what to say.</p>
-                {ctx.where && <p className="small muted">I can see you're on {ctx.where}.</p>}
-                <div className="coach-sugs">{SUGGESTIONS.map((s) => <button key={s} className="coach-sug" onClick={() => ask(s)}>{s}</button>)}</div>
-              </div>
-            )}
-            {turns.map((t, i) => (
-              <div key={i} className={'coach-msg ' + t.role}>{t.role === 'user' ? <p>{t.content}</p> : <><Rich text={t.content} onLesson={onLesson} /><PlayButton voice={voice} text={lessonsAsText(t.content, modules)} /></>}</div>
-            ))}
-            {busy && <div className="coach-msg assistant">{live ? <Rich text={live} /> : <p className="muted coach-thinking">Thinking…</p>}</div>}
-            {err && <p className="small coach-err" role="alert">{err}</p>}
-            {voice.micNote && <p className="small muted">{voice.micNote}</p>}
-            <div ref={end} />
-          </>
-        )}
-      </div>
-      {sample && !showPaywall && <PlanNote />}
-      {sample && !showPaywall && (
-        <form className="coach-input" onSubmit={(e) => { e.preventDefault(); ask(draft) }}>
-          <textarea rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={voice.listening ? 'Listening… speak now' : 'Ask about a negotiation or a conflict…'}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(draft) } }} aria-label="Your question" />
-          <MicButton voice={voice} disabled={busy} onText={setDraft} onFinal={(t) => { voice.setVoiceOn(true); voiceOn.current = true; ask(t) }} />
-          {busy ? <button type="button" className="btn btn-sm" onClick={() => ctl.current?.abort()}>Stop</button>
-            : <button className="btn btn-primary btn-sm" disabled={!draft.trim()}>Send</button>}
-        </form>
-      )}
-      <p className="coach-fine">AI coach based on the course modules. Educational guidance, not legal, financial or psychological advice.</p>
-    </aside>
   )
 }
 

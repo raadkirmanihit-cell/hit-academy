@@ -143,6 +143,30 @@ export const liveBackend = {
     await client().from('progress').upsert({ user_id: userId, data: {}, updated_at: new Date().toISOString() })
   },
   getToken: token,
+  // AI coach chats and profile (database update 11). Errors (e.g. update not run yet) go to the caller,
+  // which then keeps them in the browser instead (src/coach/store.js).
+  async coachChats(userId) {
+    const { data, error } = await client().from('coach_chats').select('id, title, kind, parent_id, messages, prep, created_at, updated_at').eq('user_id', userId).order('updated_at', { ascending: false }).limit(100)
+    if (error) throw error
+    return (data || []).map((c) => ({ id: c.id, title: c.title, kind: c.kind, parentId: c.parent_id, messages: c.messages || [], prep: c.prep || null, createdAt: c.created_at, updatedAt: c.updated_at }))
+  },
+  async saveCoachChat(userId, c) {
+    const { error } = await client().from('coach_chats').upsert({ id: c.id, user_id: userId, title: c.title, kind: c.kind || 'coach', parent_id: c.parentId || null, messages: c.messages, prep: c.prep || null, created_at: c.createdAt, updated_at: c.updatedAt })
+    if (error) throw error
+  },
+  async deleteCoachChat(userId, id) {
+    const { error } = await client().from('coach_chats').delete().eq('user_id', userId).eq('id', id)
+    if (error) throw error
+  },
+  async coachProfile(userId) {
+    const { data, error } = await client().from('coach_profiles').select('data').eq('user_id', userId).maybeSingle()
+    if (error) throw error
+    return data?.data || null
+  },
+  async saveCoachProfile(userId, data) {
+    const { error } = await client().from('coach_profiles').upsert({ user_id: userId, data, updated_at: new Date().toISOString() })
+    if (error) throw error
+  },
   async isAdmin() { return !!(await api('/api/admin-students?check=1')).admin },
   async listStudents() { return (await api('/api/admin-students')).students },
   async adminData() { return api('/api/admin-students') },
