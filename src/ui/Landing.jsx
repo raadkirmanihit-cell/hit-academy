@@ -4,6 +4,8 @@ import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
 import { StudentReviews } from './Reviews.jsx'
+import { ReviewCarousel } from './ReviewCarousel.jsx'
+import { pitch } from '../content/module-pitch.js'
 
 const features = [
   { icon: 'layers', title: 'Seven in-depth modules', text: 'From behaviour and strategy to empathy, body language, preparation, perception and objections.' },
@@ -90,11 +92,7 @@ export default function Landing() {
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="wrap stack" style={{ gap: '1.5rem' }}>
           <span className="eyebrow">From Raad's coaching and training clients</span>
-          <div className="quote-grid">
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I wanted to improve my confidence level in terms of communication with colleagues and customers… Moreover, he helped me to get a raise of my bonus from my supervisor.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/ildar.webp" alt="" /><span className="small muted">Ildar A., Google review</span></span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“I was having a hard time and several issues overcoming some difficulties at the work place… a brilliant and well thought approach that helped improve my communication skills and my fear of conflict.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/teji.webp" alt="" /><span className="small muted">Teji, Google review</span></span></div>
-            <div className="quote"><span className="stars" aria-label="Rated 5 out of 5 stars">★★★★★</span><p>“It completely transformed the way I perceive workplace relationships, approach challenges, and handle a wide range of client situations. The insights I gained have had an immediate and meaningful impact on how I work every day.”</p><span className="reviewer"><img className="reviewer-avatar" src="img/reviews/milica.webp" alt="" /><span className="small muted">Milica J., Google review</span></span></div>
-          </div>
+          <ReviewCarousel />
           <a className="google-link" href={GOOGLE_REVIEWS} target="_blank" rel="noopener noreferrer">
             <span className="stars" aria-hidden="true">★★★★★</span> Read our reviews on Google <Icon.arrowR />
           </a>
@@ -146,7 +144,7 @@ export default function Landing() {
             {course.modules.map((m) => (
               <li key={m.id}>
                 <span className="num">{String(m.number).padStart(2, '0')}</span>
-                <div><h4>{m.title}</h4><p className="muted small">{m.subtitle}</p></div>
+                <div><h4>{m.title}</h4><p className="muted small syl-sub">{m.subtitle}</p>{pitch[m.id]?.about && <><p className="syl-hook">{pitch[m.id].about.hook}</p><ul className="syl-points">{pitch[m.id].about.points.map((pt) => <li key={pt}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg><span>{pt}</span></li>)}</ul></>}</div>
                 <span className={'pill' + (modules[m.id] ? ' good' : '')}>{!modules[m.id] ? 'Coming soon' : FREE_MODULES.includes(m.id) ? 'Free' : `Included · or ${euro(MODULE_PRICE)} alone`}</span>
               </li>
             ))}

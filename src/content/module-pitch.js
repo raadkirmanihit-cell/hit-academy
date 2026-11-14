@@ -1,6 +1,7 @@
 // Sales copy for each module, shown on the dashboard while a module is locked
 // (and as a short "what you'll get" on the checkout page).
 //
+// - about: shown under the module in the landing page syllabus: a one-line hook and three short points.
 // - identity: who the student becomes. One line.
 // - skills: three concrete things they will be able to do.
 // - useIt: real situations where they will use it.
@@ -12,6 +13,7 @@
 
 export const pitch = {
   m1: {
+    about: { hook: "How you come across shapes every negotiation.", points: ["Spot aggressive, passive, manipulative and assertive behaviour", "Choose one of five strategies on purpose", "Adapt to the person and the situation"] },
     usp: ['Strategy selector tool', 'Adapt-your-style drill'],
     identity: 'Know exactly how you come across, and choose your approach on purpose.',
     skills: [
@@ -22,6 +24,7 @@ export const pitch = {
     useIt: ['Salary review', 'Team disagreement', 'Supplier price talk'],
   },
   m2: {
+    about: { hook: "Stay calm when others get heated.", points: ["Read the emotions behind price and deadline talks", "Keep your composure under pressure", "De-escalate with your voice, labels and mirrors"] },
     usp: ['Voice recordings for each approach', 'Guided breathing exercise'],
     identity: 'Stay calm when others get heated, and turn tension into trust.',
     skills: [
@@ -33,6 +36,7 @@ export const pitch = {
     preview: { step: 'l4-voices', t: 'voices', label: 'Listen to the three voices', note: 'Hear Raad demonstrate the assertive, midnight and playful voice.' },
   },
   m3: {
+    about: { hook: "A polite \"yes\" is not a commitment.", points: ["Tell a real yes from a polite one", "Make \"no\" feel safe, so objections come out early", "Use silence and pauses to learn more"] },
     usp: ['Guided pause practice', 'Scripts to turn a polite yes into commitment'],
     identity: 'Hear what people really mean, even when they say "yes".',
     skills: [
@@ -44,6 +48,7 @@ export const pitch = {
     preview: { step: 'l3-practice', t: 'activity', id: 'a-ask-for-no', label: 'Try: ask for the "no"' },
   },
   m4: {
+    about: { hook: "Get a stuck conversation moving without giving in.", points: ["Separate the people from the problem", "Uncover the interests behind fixed demands", "Settle differences with objective criteria"] },
     usp: ['Invent-then-judge option board', 'Six human needs guide'],
     identity: 'Get a stuck conversation moving without giving in.',
     skills: [
@@ -55,6 +60,7 @@ export const pitch = {
     preview: { step: 'l3-practice', t: 'activity', id: 'a-position-interest', label: 'Try: position or interest?' },
   },
   m5: {
+    about: { hook: "Win the negotiation before the meeting starts.", points: ["Set your goals and walk-away point", "Know your best alternative (BATNA) and theirs", "Map your leverage in one practical plan"] },
     usp: ['BATNA strength meter', 'Deal-zone (ZOPA) lab'],
     identity: 'Walk into any negotiation already knowing your walk-away point.',
     skills: [
@@ -66,6 +72,7 @@ export const pitch = {
     preview: { step: 'l3-strengthen', t: 'batnaMeter', label: 'Try the BATNA meter' },
   },
   m6: {
+    about: { hook: "How an offer is framed changes how it is judged.", points: ["Set an anchor, or reset theirs", "Frame proposals around gains and losses", "Offer choices and ask calibrated questions"] },
     usp: ['Anchoring lab', 'Six perception principles in action'],
     identity: 'Frame your offer so the other side sees its value, with integrity.',
     skills: [
@@ -77,6 +84,7 @@ export const pitch = {
     preview: { step: 'l3-what', t: 'anchorLab', label: 'Try the anchor lab' },
   },
   m7: {
+    about: { hook: "Stay in control when the other side plays hardball.", points: ["Recognise common pressure tactics", "Counter each one with a ready script", "Know when a tactic crosses into manipulation"] },
     usp: ['20 tactics, each with counter-scripts', 'Ethical-use check for every tactic'],
     identity: 'Stay in control when the other side plays hardball.',
     skills: [
