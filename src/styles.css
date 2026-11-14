@@ -165,10 +165,28 @@ button { font: inherit; color: inherit; }
 .quote-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .quote { border-left: 3px solid var(--orange); padding: .25rem 0 .25rem 1rem; display: grid; gap: .4rem; }
 .quote p { font-size: 1.02rem; }
-.google-link { display: inline-flex; align-items: center; gap: .5rem; align-self: start; font-weight: 600; color: var(--ink); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: .55rem 1rem; background: var(--surface); white-space: nowrap; font-size: .95rem; max-width: 100%; }
+.google-link { display: inline-flex; align-items: center; gap: .5rem; align-self: start; justify-self: start; font-weight: 600; color: var(--ink); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: .55rem 1rem; background: var(--surface); white-space: nowrap; font-size: .95rem; max-width: 100%; }
 .google-link:hover { border-color: var(--orange); }
 .quote .stars { color: var(--orange); letter-spacing: .08em; font-size: 1rem; line-height: 1; }
 .google-link .stars { color: var(--orange); letter-spacing: .05em; }
+/* Moving Google reviews carousel on the landing page */
+.rc { display: grid; gap: .6rem; }
+.rc-viewport { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.rc-track { display: flex; width: max-content; animation: rc-scroll var(--rc-dur, 36s) linear infinite; }
+.rc-set { display: flex; gap: 1rem; padding-right: 1rem; }
+.rc:hover .rc-track, .rc:focus-within .rc-track, .rc-paused .rc-track { animation-play-state: paused; }
+@keyframes rc-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.rc-card { margin: 0; width: min(360px, 80vw); flex: none; display: grid; gap: .5rem; align-content: start; background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--orange); border-radius: var(--r-m); padding: 1.1rem 1.2rem; }
+.rc-card blockquote { margin: 0; }
+.rc-card p { font-size: 1rem; margin: 0; }
+.rc-card .stars { color: var(--orange); letter-spacing: .08em; font-size: 1rem; line-height: 1; }
+.rc-toggle { justify-self: end; font-size: .8rem; }
+@media (prefers-reduced-motion: reduce) {
+  .rc-track { animation: none; }
+  .rc-viewport { overflow-x: auto; scroll-snap-type: x mandatory; -webkit-mask-image: none; mask-image: none; }
+  .rc-card { scroll-snap-align: start; }
+  .rc-copy, .rc-toggle { display: none; }
+}
 
 /* forms */
 .auth-shell { min-height: calc(100% - 64px); display: grid; place-items: center; padding-block: 3rem; }
