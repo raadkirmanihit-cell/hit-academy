@@ -4,6 +4,7 @@ import { useApp } from '../App.jsx'
 import { LegalLinks } from './Terms.jsx'
 import { Icon } from './icons.jsx'
 import { StudentReviews } from './Reviews.jsx'
+import { pitch } from '../content/module-pitch.js'
 
 const features = [
   { icon: 'layers', title: 'Seven in-depth modules', text: 'From behaviour and strategy to empathy, body language, preparation, perception and objections.' },
@@ -146,7 +147,7 @@ export default function Landing() {
             {course.modules.map((m) => (
               <li key={m.id}>
                 <span className="num">{String(m.number).padStart(2, '0')}</span>
-                <div><h4>{m.title}</h4><p className="muted small">{m.subtitle}</p></div>
+                <div><h4>{m.title}</h4><p className="muted small syl-sub">{m.subtitle}</p>{pitch[m.id]?.about && <p className="syl-about">{pitch[m.id].about}</p>}</div>
                 <span className={'pill' + (modules[m.id] ? ' good' : '')}>{!modules[m.id] ? 'Coming soon' : FREE_MODULES.includes(m.id) ? 'Free' : `Included · or ${euro(MODULE_PRICE)} alone`}</span>
               </li>
             ))}
