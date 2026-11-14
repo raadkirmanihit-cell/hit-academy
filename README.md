@@ -63,7 +63,7 @@ third element on a line is a coaching note.
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key (server only) |
 | `STRIPE_SECRET_KEY` | Stripe secret key (`sk_live_…`, or `sk_test_…` for testing) |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret of the Stripe webhook pointing to `/api/stripe-webhook` (events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`) |
-| `STRIPE_PRICE_ID` | Optional: a Stripe price for the full €196 complete course (single modules at €38 and upgrades are always priced by the app, see `src/content/pricing.js`) |
+| `STRIPE_PRICE_ID` | Optional: a Stripe price for the full €240 complete course (single modules at €48 and upgrades are always priced by the app, see `src/content/pricing.js`) |
 | `STRIPE_COACH_PRICE_ID` | Optional: a monthly Stripe price for the AI coach subscription instead of the built-in €21/month |
 | `STRIPE_AUTOMATIC_TAX` | Leave unset while H.I.T. is a Kleinunternehmer (no VAT, § 19 UStG). `true` only once you charge VAT and Stripe Tax is set up |
 | `ANTHROPIC_API_KEY` | Claude API key for the AI coach |
@@ -75,8 +75,8 @@ third element on a line is a coaching note.
 
 In Supabase, set Authentication → URL Configuration → Site URL to the website address.
 
-**Pricing** (`src/content/pricing.js`): Module 1 free for every account; modules 2 to 7 at €38; the complete
-course at €196, or €126 launch price for the first 100 real package sales (set `LAUNCH_PRICE_UNTIL=2026-12-31` to also end
+**Pricing** (`src/content/pricing.js`): Module 1 free for every account; modules 2 to 7 at €48; the complete
+course at €240, or €144 launch price for the first 100 real package sales (set `LAUNCH_PRICE_UNTIL=2026-12-31` to also end
 it on a date, or `LAUNCH_PRICE=off` to end it now). The complete course includes 3 months of the AI coach.
 
 **AI coach subscription (€21/month, 300 messages a month).** Every account gets 10 free coach messages; then the

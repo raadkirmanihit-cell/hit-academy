@@ -159,7 +159,7 @@ export const liveBackend = {
   async reviewAction(action, payload = {}) { return api('/api/reviews', { action, ...payload }) },
   // AI coach subscription: status, Stripe Checkout to subscribe, Stripe's page to cancel or change the card.
   async coachPlan() { return api('/api/coach-plan') },
-  // Whether the €126 launch price for the complete course is still on.
+  // Whether the €144 launch price for the complete course is still on.
   async launchStatus() { return api('/api/checkout') },
   async subscribeCoach({ consent }) {
     const r = await api('/api/coach-plan', { action: 'subscribe', consent: !!consent })

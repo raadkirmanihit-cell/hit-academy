@@ -185,7 +185,7 @@ export function useArenaAccess() {
   return hasArena(user?.purchases)
 }
 
-// Unlock the Arena: on its own for €38, or with the complete course.
+// Unlock the Arena: on its own for €48, or with the complete course.
 export function ArenaUnlockCard({ compact }) {
   const { go, user, launch, purchase } = useApp()
   const [consent, setConsent] = useState(false)

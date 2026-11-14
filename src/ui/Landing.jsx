@@ -9,7 +9,7 @@ const features = [
   { icon: 'layers', title: 'Seven in-depth modules', text: 'From behaviour and strategy to empathy, body language, preparation, perception and objections.' },
   { icon: 'chat', title: 'Practise, not just read', text: 'Role-plays with branching dialogue, sorting exercises and real workplace scenarios.' },
   { icon: 'target', title: 'Graded quizzes', text: 'Feedback on every answer, so you know exactly why a response works or fails.' },
-  { icon: 'clock', title: 'Self-paced', text: 'Progress saves automatically. Pick up exactly where you left off.' },
+  { icon: 'clock', title: '15 hours of hands-on training', text: 'About 100 minutes per module, plus live AI role-plays in the Arena. Go at your own pace: progress saves automatically, so you pick up exactly where you left off.' },
   { icon: 'doc', title: 'Worksheets', text: 'A downloadable planning worksheet for every module to use before real negotiations.' },
   { icon: 'device', title: 'Any device', text: 'Learn on your laptop at work or your phone on the train.' },
   { icon: 'award', wide: true, title: 'Certificate of completion', text: 'Included with the complete course. Finish all seven modules and pass each quiz to earn your certificate, with your name and a unique ID.' },
