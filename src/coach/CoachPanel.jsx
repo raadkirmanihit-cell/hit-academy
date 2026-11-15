@@ -71,30 +71,61 @@ export function splitQuestions(text) {
   return { qs, text: rest.join('\n').trim() }
 }
 
+// Tap answers are shortcuts: one question sends on a tap; with two, pick both (or one) and send.
+// The learner can always type in the chat box instead.
 function Diagnosis({ qs, active, onSend, onSkip }) {
-  const [ans, setAns] = useState(() => qs.map(() => ({ pick: '', text: '' })))
-  const set = (i, x) => setAns((a) => a.map((v, j) => (j === i ? { ...v, ...x } : v)))
-  const answer = (a) => a.text.trim() || a.pick
-  const ready = ans.some((a) => answer(a))
+  const [picks, setPicks] = useState(() => qs.map(() => ''))
   if (!active) return <ul className="coach-qs-done">{qs.map((x, i) => <li key={i}>{x.q}</li>)}</ul>
+  const fit = qs.length === 1 && /fit your situation/i.test(qs[0].q)
+  const tap = (i, o) => {
+    if (qs.length === 1) { onSend(o); return }
+    setPicks((p) => p.map((v, j) => (j === i ? (v === o ? '' : o) : v)))
+  }
+  const ready = picks.some(Boolean)
   return (
     <div className="coach-qs">
       {qs.map((x, i) => (
         <div key={i} className="coach-q">
           <p className="coach-q-text">{x.q}</p>
           {x.opts.length > 0 && <div className="coach-chips">{x.opts.map((o) => (
-            <button type="button" key={o} className={'coach-chip' + (ans[i].pick === o ? ' on' : '')} aria-pressed={ans[i].pick === o}
-              onClick={() => set(i, { pick: ans[i].pick === o ? '' : o, text: '' })}>{o}</button>
+            <button type="button" key={o} className={'coach-chip' + (picks[i] === o ? ' on' : '')} aria-pressed={picks[i] === o} onClick={() => tap(i, o)}>{o}</button>
           ))}</div>}
-          <input type="text" value={ans[i].text} placeholder={x.opts.length ? 'Or type your own answer' : 'Your answer'} aria-label={x.q}
-            onChange={(e) => set(i, { text: e.target.value, pick: e.target.value ? '' : ans[i].pick })} />
         </div>
       ))}
-      <div className="row" style={{ gap: '.5rem' }}>
-        <button type="button" className="btn btn-primary btn-sm" disabled={!ready}
-          onClick={() => onSend(qs.map((x, i) => (answer(ans[i]) ? `${x.q}\n${answer(ans[i])}` : '')).filter(Boolean).join('\n\n'))}>Send answers</button>
-        <button type="button" className="btn btn-sm" onClick={onSkip}>Just give me advice</button>
+      <div className="coach-qs-foot">
+        {qs.length > 1 && <button type="button" className="btn btn-primary btn-sm" disabled={!ready}
+          onClick={() => onSend(qs.map((x, i) => (picks[i] ? `${x.q}\n${picks[i]}` : '')).filter(Boolean).join('\n\n'))}>Send</button>}
+        <span className="small muted">{qs.length > 1 ? 'Tap your answers, or type in your own words below.' : 'Tap an answer, or type in your own words below.'}</span>
+        {!fit && <button type="button" className="linklike small" onClick={onSkip}>Skip the questions</button>}
       </div>
+    </div>
+  )
+}
+
+// Under a finished plan: one button that opens what the learner can do next.
+function NextStep({ busy, hasPrep, onRehearse, onPrep, onAsk }) {
+  const [open, setOpen] = useState(false)
+  const box = useRef(null)
+  const pick = (fn) => { setOpen(false); fn() }
+  // Bring the opened list into view inside the chat.
+  useEffect(() => {
+    const el = box.current, body = el?.closest('.coach-body')
+    if (!open || !body) return
+    const over = el.getBoundingClientRect().bottom - body.getBoundingClientRect().bottom + 12
+    if (over > 0) body.scrollBy({ top: over, behavior: 'smooth' })
+  }, [open])
+  return (
+    <div className="coach-next" ref={box}>
+      <button type="button" className="btn btn-primary btn-sm" aria-expanded={open} disabled={!!busy} onClick={() => setOpen((o) => !o)}>
+        {busy === 'prep' ? 'Making your prep sheet…' : 'Next step'} <span aria-hidden="true">{open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <ul className="coach-next-menu">
+          <li><button type="button" onClick={() => pick(onRehearse)}><strong>Rehearse it now</strong><span>The coach plays the other side, then gives you a debrief.</span></button></li>
+          <li><button type="button" onClick={() => pick(onPrep)}><strong>{hasPrep ? 'Open my prep sheet' : 'Make my prep sheet'}</strong><span>A one-page plan to take into the meeting.</span></button></li>
+          <li><button type="button" onClick={() => pick(onAsk)}><strong>Ask something else</strong><span>Follow up on this plan or add a detail.</span></button></li>
+        </ul>
+      )}
     </div>
   )
 }
@@ -102,12 +133,25 @@ function Diagnosis({ qs, active, onSend, onSkip }) {
 // ---- Helpers -----------------------------------------------------------------
 
 const say = (m) => m.role === 'user' || m.role === 'assistant' // what the model sees
+// The coach ends each reply with its hidden case file (<case>{…}</case>). It is never shown.
+export const stripCase = (t) => String(t).replace(/<case>[\s\S]*?(<\/case>|$)/g, '').replace(/<c(a(s(e)?)?)?$/, '').trim()
+export function caseOf(t) {
+  const m = String(t).match(/<case>([\s\S]*?)<\/case>/)
+  if (!m) return null
+  try { return JSON.parse(m[1]) } catch { return null }
+}
+// For the model: only the latest case file is kept, older ones are dropped to save tokens.
+function forModel(messages) {
+  const list = messages.filter(say)
+  const last = list.map((m) => m.role).lastIndexOf('assistant')
+  return list.map((m, i) => (m.role === 'assistant' && i !== last ? { role: m.role, content: stripCase(m.content) } : { role: m.role, content: m.content }))
+}
 const isPlan = (text) => /\*\*What to say\*\*/i.test(text)
 const titleOf = (q) => { const t = q.replace(/\s+/g, ' ').trim(); return t.length > 60 ? t.slice(0, 57).trim() + '…' : t }
 const when = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
 function chatText(chat) {
-  return chat.messages.filter(say).map((m) => `${m.role === 'user' ? 'LEARNER' : 'COACH'}: ${m.content}`).join('\n\n').slice(-14000)
+  return chat.messages.filter(say).map((m) => `${m.role === 'user' ? 'LEARNER' : 'COACH'}: ${stripCase(m.content)}`).join('\n\n').slice(-14000)
 }
 function rehearsalText(chat) {
   return chat.messages.filter(say).map((m) => `${m.role === 'user' ? 'LEARNER' : 'OTHER SIDE'}: ${m.content}`).join('\n').slice(-12000)
@@ -122,7 +166,6 @@ function historyText(chats, currentId) {
 }
 
 const FULL_KEY = 'hit.coach.full'
-const PROMPT_KEY = 'hit.coach.profileAsked'
 
 // ---- The panel -----------------------------------------------------------------
 
@@ -144,9 +187,9 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   const [live, setLive] = useState('')
   const [err, setErr] = useState('')
   const [confirmDel, setConfirmDel] = useState(null)
-  const [askProfile, setAskProfile] = useState(() => !readJSON(PROMPT_KEY, false))
   const ctl = useRef(null)
   const bodyRef = useRef(null)
+  const inputRef = useRef(null)
   const lastUser = useRef(null)
   const scrollMode = useRef('end') // after a send: bring the learner's message to the top; after opening a chat: the end
   const [scrollTick, setScrollTick] = useState(0)
@@ -175,7 +218,8 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   useEffect(() => {
     const body = bodyRef.current; if (!body) return
     if (screen !== 'chat') { body.scrollTop = 0; return }
-    if (scrollMode.current === 'start' && lastUser.current) lastUser.current.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    // Scroll only the chat itself (scrollIntoView would also shift the panel and hide its header).
+    if (scrollMode.current === 'start' && lastUser.current) body.scrollTo({ top: lastUser.current.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12, behavior: 'smooth' })
     else body.scrollTop = body.scrollHeight
   }, [scrollTick, activeId, screen])
 
@@ -230,7 +274,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
       const prevQ = base.messages.filter((t) => t.role === 'user').slice(-3).map((t) => t.content).join(' ')
       const found = retrieve(kb, q + ' ' + q + ' ' + prevQ, ctx)
       const rules = COACH_RULES({ where: ctx.where, library: kb.library, lessons: lessonList(modules, owned), excerpts: formatExcerpts(found), profile: profileText(profile), history: historyText(chatsRef.current, cur.id) })
-      input = [{ role: 'user', content: rules }, ...cur.messages.filter(say).slice(-16)]
+      input = [{ role: 'user', content: rules }, ...forModel(cur.messages).slice(-16)]
     }
     const text = await call(input, { onText: ({ text }) => setLive(text.replace('[END]', '')) })
     if (text) {
@@ -240,7 +284,8 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
         const ended = cur.kind === 'rehearsal' && text.includes('[END]')
         const reply = text.replace('[END]', '').trim()
         cur = store({ ...cur, ...(ended ? { ended: true } : {}), messages: [...cur.messages, { role: 'assistant', content: reply, at: new Date().toISOString() }] })
-        if (voiceOn.current) voice.speak(lessonsAsText(reply, modules))
+        if (voiceOn.current) voice.speak(lessonsAsText(stripCase(splitQuestions(reply).text), modules))
+        if (cur.kind !== 'rehearsal') learn(caseOf(reply)?.learned)
       }
       // The reply is complete: show it from its start (with the learner's message just above it).
       scrollMode.current = 'start'; setScrollTick((n) => n + 1)
@@ -286,8 +331,24 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     setBusy('')
   }
 
+  // What the learner told the coach about themselves fills empty profile answers (never overwrites theirs).
+  function learn(l) {
+    if (!l || !user) return
+    const next = { ...(profile || {}) }
+    let changed = false
+    for (const k of ['role', 'industry', 'with']) {
+      const v = String(l[k] || '').trim().slice(0, 120)
+      const cur = Array.isArray(next[k]) ? next[k].join(', ') : String(next[k] || '').trim()
+      if (v && !cur) { next[k] = k === 'with' ? [v] : v; changed = true }
+    }
+    if (!changed) return
+    next.learnedAt = new Date().toISOString()
+    setProfile(next)
+    saveProfile(user.id, next).catch(() => {})
+  }
+
   async function keepProfile(p) {
-    setProfile(p); setScreen('chat'); writeJSON(PROMPT_KEY, true); setAskProfile(false)
+    setProfile(p); setScreen('chat')
     if (user) await saveProfile(user.id, p).catch(() => {})
   }
 
@@ -337,16 +398,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
       <>
         {msgs.length === 0 && !rehearsing && (
           <div className="coach-intro">
-            <p>Tell me about a negotiation or a conflict you're facing. If I need to know more, I'll ask a few quick questions in one go. Then you get a game plan, the exact words to say, and how to answer their pushback.</p>
-            {askProfile && !profile?.at && (
-              <div className="coach-profile-ask">
-                <p className="small"><strong>Make the advice fit you.</strong> Answer six quick questions about your role and the negotiations you face, so the coach doesn't have to ask each time.</p>
-                <div className="row" style={{ gap: '.4rem' }}>
-                  <button type="button" className="btn btn-primary btn-sm" onClick={() => setScreen('profile')}>Tell the coach about me</button>
-                  <button type="button" className="btn btn-sm" onClick={() => { setAskProfile(false); writeJSON(PROMPT_KEY, true) }}>Not now</button>
-                </div>
-              </div>
-            )}
+            <p>Tell me about a negotiation or a conflict you're facing. I'll ask a few quick questions to understand it properly. Then you get a game plan, the exact words to say, and how to answer their pushback.</p>
             {ctx.where && <p className="small muted">I can see you're on {ctx.where}.</p>}
             <div className="coach-sugs">{SUGGESTIONS.map((s) => <button key={s} className="coach-sug" onClick={() => ask(s)}>{s}</button>)}</div>
           </div>
@@ -361,22 +413,19 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
           if (t.role === 'user') return <div key={i} ref={i === lastUserIdx ? lastUser : null} className="coach-msg user"><p>{t.content}</p></div>
           if (t.role === 'safety') return <div key={i} className="coach-msg assistant safety"><Rich text={t.content} /></div>
           if (t.role === 'debrief') return <div key={i} className="coach-msg assistant debrief"><span className="eyebrow">Your debrief</span><Rich text={t.content} /></div>
-          const { qs, text } = rehearsing ? { qs: [], text: t.content } : splitQuestions(t.content)
+          const { qs, text } = rehearsing ? { qs: [], text: t.content } : splitQuestions(stripCase(t.content))
           return (
             <div key={i} className={'coach-msg assistant' + (rehearsing ? ' counterpart' : '')}>
               {text && <Rich text={text} onLesson={() => onLesson?.(full)} />}
-              {qs.length > 0 && <Diagnosis qs={qs} active={i === lastAssistant && i === msgs.length - 1 && !busy} onSend={ask} onSkip={() => ask('Just give me your advice with what you know so far, and tell me what you assumed.')} />}
-              <PlayButton voice={voice} text={lessonsAsText(t.content, modules)} />
+              {qs.length > 0 && <Diagnosis qs={qs} active={i === lastAssistant && i === msgs.length - 1 && !busy} onSend={ask} onSkip={() => ask('Please skip the questions and give me your advice with what you know so far, and tell me what you assumed.')} />}
+              <PlayButton voice={voice} text={lessonsAsText(text, modules)} />
               {i === lastPlan && (
-                <div className="coach-actions">
-                  <button type="button" className="btn btn-primary btn-sm" disabled={!!busy} onClick={() => rehearse(chat)}>Rehearse it now</button>
-                  <button type="button" className="btn btn-sm" disabled={!!busy} onClick={() => (chat.prep ? setScreen('prep') : makePrep(chat))}>{busy === 'prep' ? 'Making your prep sheet…' : chat.prep ? 'Open my prep sheet' : 'Make my prep sheet'}</button>
-                </div>
+                <NextStep busy={busy} hasPrep={!!chat.prep} onRehearse={() => rehearse(chat)} onPrep={() => (chat.prep ? setScreen('prep') : makePrep(chat))} onAsk={() => inputRef.current?.focus()} />
               )}
             </div>
           )
         })}
-        {busy === 'reply' && <div className={'coach-msg assistant' + (rehearsing ? ' counterpart' : '')}>{live ? <Rich text={rehearsing ? live : splitQuestions(live).text} /> : <p className="muted coach-thinking">{rehearsing && !msgs.length ? 'Setting the scene…' : 'Thinking…'}</p>}</div>}
+        {busy === 'reply' && <div className={'coach-msg assistant' + (rehearsing ? ' counterpart' : '')}>{live ? <Rich text={rehearsing ? live : splitQuestions(stripCase(live)).text} /> : <p className="muted coach-thinking">{rehearsing && !msgs.length ? 'Setting the scene…' : 'Thinking…'}</p>}</div>}
         {busy === 'debrief' && <div className="coach-msg assistant"><p className="muted coach-thinking">Writing your debrief…</p></div>}
         {rehearsing && !busy && learnerTurns > 0 && !hasDebrief && (
           <div className="coach-actions">
@@ -425,7 +474,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
           {sample && !showPaywall && <PlanNote />}
           {canType && (
             <form className="coach-input" onSubmit={(e) => { e.preventDefault(); ask(draft) }}>
-              <textarea rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={voice.listening ? 'Listening… speak now' : rehearsing ? 'Your reply to the other side…' : 'Ask about a negotiation or a conflict…'}
+              <textarea ref={inputRef} rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={voice.listening ? 'Listening… speak now' : rehearsing ? 'Your reply to the other side…' : 'Ask about a negotiation or a conflict…'}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(draft) } }} aria-label={rehearsing ? 'Your reply' : 'Your question'} />
               <MicButton voice={voice} disabled={!!busy} onText={setDraft} onFinal={(t) => { voice.setVoiceOn(true); voiceOn.current = true; ask(t) }} />
               {busy ? <button type="button" className="btn btn-sm" onClick={() => ctl.current?.abort()}>Stop</button>
