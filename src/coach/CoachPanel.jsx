@@ -72,30 +72,42 @@ export function splitQuestions(text) {
 }
 
 // Tap answers are shortcuts: one question sends on a tap; with two, pick both (or one) and send.
-// The learner can always type in the chat box instead.
+// "Something else" opens a small box under that question for the learner's own words; an open
+// question (no tap answers) shows the box straight away. The chat box below works too.
+const OTHER = 'Something else'
 function Diagnosis({ qs, active, onSend, onSkip }) {
   const [picks, setPicks] = useState(() => qs.map(() => ''))
+  const [typed, setTyped] = useState(() => qs.map(() => ''))
   if (!active) return <ul className="coach-qs-done">{qs.map((x, i) => <li key={i}>{x.q}</li>)}</ul>
   const fit = qs.length === 1 && /fit your situation/i.test(qs[0].q)
+  const open = (i) => qs[i].opts.length === 0 || picks[i] === OTHER
+  const answer = (i) => (open(i) ? typed[i].trim() : picks[i])
+  const send = () => onSend(qs.length === 1 ? answer(0) : qs.map((x, i) => (answer(i) ? `${x.q}\n${answer(i)}` : '')).filter(Boolean).join('\n\n'))
   const tap = (i, o) => {
-    if (qs.length === 1) { onSend(o); return }
+    if (qs.length === 1 && o !== OTHER) { onSend(o); return }
     setPicks((p) => p.map((v, j) => (j === i ? (v === o ? '' : o) : v)))
   }
-  const ready = picks.some(Boolean)
+  const ready = qs.some((_, i) => answer(i))
+  const showSend = qs.length > 1 || open(0)
   return (
     <div className="coach-qs">
       {qs.map((x, i) => (
         <div key={i} className="coach-q">
           <p className="coach-q-text">{x.q}</p>
-          {x.opts.length > 0 && <div className="coach-chips">{x.opts.map((o) => (
-            <button type="button" key={o} className={'coach-chip' + (picks[i] === o ? ' on' : '')} aria-pressed={picks[i] === o} onClick={() => tap(i, o)}>{o}</button>
+          {x.opts.length > 0 && <div className="coach-chips">{[...x.opts, OTHER].map((o) => (
+            <button type="button" key={o} className={'coach-chip' + (o === OTHER ? ' other' : '') + (picks[i] === o ? ' on' : '')} aria-pressed={picks[i] === o} onClick={() => tap(i, o)}>{o === OTHER ? 'Something else…' : o}</button>
           ))}</div>}
+          {open(i) && (
+            <textarea className="coach-q-own" rows={x.opts.length ? 2 : 3} autoFocus={x.opts.length > 0}
+              value={typed[i]} placeholder={x.opts.length ? 'In your own words…' : 'Tell it in your own words. A few sentences is plenty.'}
+              onChange={(e) => { const v = e.target.value; setTyped((t) => t.map((w, j) => (j === i ? v : w))) }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && ready) { e.preventDefault(); send() } }} />
+          )}
         </div>
       ))}
       <div className="coach-qs-foot">
-        {qs.length > 1 && <button type="button" className="btn btn-primary btn-sm" disabled={!ready}
-          onClick={() => onSend(qs.map((x, i) => (picks[i] ? `${x.q}\n${picks[i]}` : '')).filter(Boolean).join('\n\n'))}>Send</button>}
-        <span className="small muted">{qs.length > 1 ? 'Tap your answers, or type in your own words below.' : 'Tap an answer, or type in your own words below.'}</span>
+        {showSend && <button type="button" className="btn btn-primary btn-sm" disabled={!ready} onClick={send}>Send</button>}
+        {!showSend && <span className="small muted">Tap an answer, or type in your own words below.</span>}
         {!fit && <button type="button" className="linklike small" onClick={onSkip}>Skip the questions</button>}
       </div>
     </div>
@@ -398,7 +410,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
       <>
         {msgs.length === 0 && !rehearsing && (
           <div className="coach-intro">
-            <p>Tell me about a negotiation or a conflict you're facing. I'll ask a few quick questions to understand it properly. Then you get a game plan, the exact words to say, and how to answer their pushback.</p>
+            <p>Tell me about a negotiation or a conflict you're facing, in your own words. What happened, who's involved, and what you'd like to come out of it: the more you share, the better your plan fits. I'll ask a few quick questions first, then you get a game plan, the exact words to say, and how to answer their pushback.</p>
             {ctx.where && <p className="small muted">I can see you're on {ctx.where}.</p>}
             <div className="coach-sugs">{SUGGESTIONS.map((s) => <button key={s} className="coach-sug" onClick={() => ask(s)}>{s}</button>)}</div>
           </div>
