@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const user = await requireUser(req)
     if (req.query?.check !== undefined || /[?&]check\b/.test(req.url || '')) return res.status(200).json({ admin: isAdmin(user) })
     if (!isAdmin(user)) return res.status(403).json({ error: 'Admins only.' })
-    const [profiles, purchases, progress, messages, coachSubs, coachPays, attempts] = await Promise.all([
+    const [profiles, purchases, progress, messages, coachSubs, coachPays, attempts, feedback] = await Promise.all([
       db().from('profiles').select('*').order('created_at', { ascending: false }).limit(5000),
       db().from('purchases').select('*').order('created_at', { ascending: false }),
       db().from('progress').select('user_id, data, updated_at'),
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
       db().from('coach_subscriptions').select('*').order('started_at', { ascending: false }),
       db().from('coach_payments').select('*').order('paid_at', { ascending: false }),
       db().from('practice_attempts').select('id, user_id, scenario_id, level, overall, passed, skills, learner_turns, created_at').order('created_at', { ascending: false }).limit(5000),
+      db().from('coach_feedback').select('*').order('created_at', { ascending: false }).limit(2000),
     ])
     for (const r of [profiles, purchases, progress]) if (r.error) throw r.error
     const people = new Map(profiles.data.map((p) => [p.id, p]))
@@ -80,6 +81,6 @@ export default async function handler(req, res) {
       attempts: tries.map((a) => ({ ...who(a.user_id), scenario: a.scenario_id, level: a.level, overall: a.overall, passed: a.passed, skills: a.skills, turns: a.learner_turns, at: a.created_at })),
     }
     // Messages need database update 2; until then the inbox is simply empty.
-    res.status(200).json({ students, payments, coach, practice, messages: messages.error ? [] : messages.data, messagesReady: !messages.error })
+    res.status(200).json({ students, payments, coach, practice, messages: messages.error ? [] : messages.data, messagesReady: !messages.error, coachFeedback: feedback.error ? null : feedback.data })
   } catch (e) { fail(res, e) }
 }

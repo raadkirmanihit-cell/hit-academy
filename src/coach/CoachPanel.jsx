@@ -2,7 +2,8 @@
 // "Rehearse it now" (the coach plays the other side) and a one-page prep sheet.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
-import { isLive } from '../platform/backend.js'
+import { isLive, backend } from '../platform/backend.js'
+import { COACH_VERSION, DOWN_REASONS } from './feedback.js'
 import { readJSON, writeJSON } from '../platform/storage.js'
 import { retrieve, formatExcerpts } from './knowledge.js'
 import { COACH_RULES, REHEARSE_RULES, REHEARSE_FEEDBACK, PREP_PROMPT } from './prompts.js'
@@ -13,42 +14,41 @@ import { useCoachPlan, usedOneMessage, CoachPaywall, PlanNote } from './plan.jsx
 import { loadChats, saveChat, deleteChat, loadProfile, saveProfile, newId } from './store.js'
 import { useKb, useSample, noteError, errorText, Rich, VoiceToggle, MicButton, PlayButton, Unavailable, SUGGESTIONS } from './Coach.jsx'
 import { PrepSheet } from './PrepSheet.jsx'
+import { Icon } from '../ui/icons.jsx'
 
 // ---- Profile ---------------------------------------------------------------
 
 export const PROFILE_FIELDS = [
-  { id: 'role', label: 'Your role', type: 'one', options: ['Individual contributor', 'Team lead', 'Manager', 'Senior manager or director', 'Executive or C-level', 'Business owner or founder', 'Freelancer or consultant', 'Early career'] },
-  { id: 'industry', label: 'Your industry or field', type: 'text', placeholder: 'e.g. automotive, IT services, healthcare' },
-  { id: 'with', label: 'Who you negotiate with most', type: 'many', options: ['My manager', 'My team or colleagues', 'Clients', 'Suppliers', 'Business partners', 'HR or recruiters', 'People from other cultures'] },
-  { id: 'challenge', label: 'What you find hardest', type: 'many', options: ['Giving in under pressure', 'Staying calm', 'Finding the right words', 'Handling tough tactics', 'Preparing well', 'Closing the deal', 'Keeping the relationship'] },
-  { id: 'goal', label: 'What you want from the coach', type: 'text', placeholder: 'e.g. prepare my salary review, win back a key client' },
-  { id: 'note', label: 'Anything else the coach should know (optional)', type: 'text', placeholder: 'e.g. I work across Germany and India' },
+  { id: 'role', label: 'Your role', hint: 'e.g. team lead, sales manager, founder' },
+  { id: 'industry', label: 'Your industry or field', hint: 'e.g. automotive, IT services, healthcare' },
+  { id: 'with', label: 'Who you negotiate with most', hint: 'e.g. clients, suppliers, my manager' },
+  { id: 'challenge', label: 'What you find hardest', hint: 'e.g. staying calm, giving in under pressure' },
+  { id: 'goal', label: 'What you want from the coach', hint: 'e.g. prepare my salary review, win back a key client' },
+  { id: 'note', label: 'Anything else the coach should know', hint: 'e.g. I work across Germany and India' },
 ]
+
+// Older profiles stored some answers as lists of tapped options; show and send them as text.
+const asText = (x) => (Array.isArray(x) ? x.join(', ') : String(x || ''))
 
 export function profileText(p) {
   if (!p) return ''
-  const v = (id) => (Array.isArray(p[id]) ? p[id].join(', ') : String(p[id] || '').trim())
+  const v = (id) => asText(p[id]).trim()
   return [['Role', 'role'], ['Industry', 'industry'], ['Usually negotiates with', 'with'], ['Finds hardest', 'challenge'], ['Wants from the coach', 'goal'], ['Also', 'note']]
     .filter(([, id]) => v(id)).map(([l, id]) => `${l}: ${v(id).slice(0, 300)}`).join('. ')
 }
 
 function ProfileForm({ profile, onSave, onCancel }) {
-  const [vals, setVals] = useState(() => ({ ...(profile || {}) }))
+  const [vals, setVals] = useState(() => Object.fromEntries(PROFILE_FIELDS.map((f) => [f.id, asText(profile?.[f.id])])))
   const set = (id, x) => setVals((v) => ({ ...v, [id]: x }))
   return (
-    <form className="coach-profile" onSubmit={(e) => { e.preventDefault(); onSave({ ...vals, skipped: false, at: new Date().toISOString() }) }}>
+    <form className="coach-profile" onSubmit={(e) => { e.preventDefault(); onSave({ ...(profile || {}), ...vals, skipped: false, at: new Date().toISOString() }) }}>
       <h4>About you</h4>
-      <p className="small muted">Six quick answers so the coach can fit its advice to your role and your situations. All optional, and you can change them any time.</p>
+      <p className="small muted">A few words on each helps the coach fit its advice to you. Everything is optional, and you can change it any time.</p>
       {PROFILE_FIELDS.map((f) => (
-        <fieldset key={f.id}>
-          <legend>{f.label}</legend>
-          {f.type === 'text' ? <input type="text" value={vals[f.id] || ''} maxLength={200} placeholder={f.placeholder} onChange={(e) => set(f.id, e.target.value)} />
-            : <div className="coach-chips">{f.options.map((o) => {
-              const on = f.type === 'one' ? vals[f.id] === o : (vals[f.id] || []).includes(o)
-              return <button type="button" key={o} className={'coach-chip' + (on ? ' on' : '')} aria-pressed={on}
-                onClick={() => set(f.id, f.type === 'one' ? (on ? '' : o) : on ? vals[f.id].filter((x) => x !== o) : [...(vals[f.id] || []), o])}>{o}</button>
-            })}</div>}
-        </fieldset>
+        <label key={f.id} className="coach-profile-field">
+          <span className="coach-profile-label">{f.label} <span className="coach-profile-hint">{f.hint}</span></span>
+          <input type="text" value={vals[f.id]} maxLength={200} onChange={(e) => set(f.id, e.target.value)} />
+        </label>
       ))}
       <div className="row" style={{ gap: '.5rem' }}>
         <button className="btn btn-primary btn-sm">Save</button>
@@ -94,7 +94,7 @@ function Diagnosis({ qs, active, onSend, onSkip }) {
       {qs.map((x, i) => (
         <div key={i} className="coach-q">
           <p className="coach-q-text">{x.q}</p>
-          {x.opts.length > 0 && <div className="coach-chips">{[...x.opts, OTHER].map((o) => (
+          {x.opts.length > 0 && <div className="coach-chips">{(fit ? x.opts : [...x.opts, OTHER]).map((o) => (
             <button type="button" key={o} className={'coach-chip' + (o === OTHER ? ' other' : '') + (picks[i] === o ? ' on' : '')} aria-pressed={picks[i] === o} onClick={() => tap(i, o)}>{o === OTHER ? 'Something else…' : o}</button>
           ))}</div>}
           {open(i) && (
@@ -110,6 +110,27 @@ function Diagnosis({ qs, active, onSend, onSkip }) {
         {!showSend && <span className="small muted">Tap an answer, or type in your own words below.</span>}
         {!fit && <button type="button" className="linklike small" onClick={onSkip}>Skip the questions</button>}
       </div>
+    </div>
+  )
+}
+
+// Thumbs under a plan. A rating sends the conversation once for an anonymous analysis (see
+// src/coach/feedback.js); only that analysis is kept, never the chat.
+function Rate({ rated, onRate }) {
+  const [asking, setAsking] = useState(false)
+  if (rated) return <p className="coach-rate small muted">{rated === 'up' ? 'Thanks! Glad it helped.' : 'Thanks, this helps us improve the coach.'}</p>
+  if (asking) return (
+    <div className="coach-rate">
+      <span className="small muted">What was off? (optional)</span>
+      <div className="coach-chips">{DOWN_REASONS.map((r) => <button key={r} type="button" className="coach-chip" onClick={() => onRate('down', r)}>{r}</button>)}</div>
+      <button type="button" className="linklike small" onClick={() => onRate('down', null)}>Just send</button>
+    </div>
+  )
+  return (
+    <div className="coach-rate">
+      <span className="small muted">Was this plan helpful?</span>
+      <button type="button" className="coach-thumb" aria-label="Helpful" title="Helpful" onClick={() => onRate('up', null)}><Icon.thumbUp /></button>
+      <button type="button" className="coach-thumb" aria-label="Not helpful" title="Not helpful" onClick={() => setAsking(true)}><Icon.thumbDown /></button>
     </div>
   )
 }
@@ -243,6 +264,14 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     return next
   }
 
+  function rate(i, rating, reason) {
+    const cur = chat
+    const messages = cur.messages.map((m, j) => (j === i ? { ...m, rated: rating } : m))
+    store({ ...cur, messages })
+    const upTo = cur.messages.slice(0, i + 1).filter(say).map((m) => ({ role: m.role, content: m.content }))
+    backend.coachFeedback?.({ rating, reason, version: COACH_VERSION, messages: upTo }).catch(() => {})
+  }
+
   function openChat(id) { setActiveId(id); setScreen('chat'); setErr(''); scrollMode.current = 'end'; setScrollTick((n) => n + 1) }
   function newChat() { ctl.current?.abort(); setFresh(blank()); setActiveId(null); setScreen('chat'); setErr(''); setDraft('') }
   async function removeChat(id) {
@@ -351,7 +380,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     for (const k of ['role', 'industry', 'with']) {
       const v = String(l[k] || '').trim().slice(0, 120)
       const cur = Array.isArray(next[k]) ? next[k].join(', ') : String(next[k] || '').trim()
-      if (v && !cur) { next[k] = k === 'with' ? [v] : v; changed = true }
+      if (v && !cur) { next[k] = v; changed = true }
     }
     if (!changed) return
     next.learnedAt = new Date().toISOString()
@@ -431,6 +460,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
               {text && <Rich text={text} onLesson={() => onLesson?.(full)} />}
               {qs.length > 0 && <Diagnosis qs={qs} active={i === lastAssistant && i === msgs.length - 1 && !busy} onSend={ask} onSkip={() => ask('Please skip the questions and give me your advice with what you know so far, and tell me what you assumed.')} />}
               <PlayButton voice={voice} text={lessonsAsText(text, modules)} />
+              {chat.kind === 'coach' && isPlan(t.content) && <Rate rated={t.rated} onRate={(r, why) => rate(i, r, why)} />}
               {i === lastPlan && (
                 <NextStep busy={busy} hasPrep={!!chat.prep} onRehearse={() => rehearse(chat)} onPrep={() => (chat.prep ? setScreen('prep') : makePrep(chat))} onAsk={() => inputRef.current?.focus()} />
               )}

@@ -5,6 +5,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { env, requireUser, readJson, fail, chargeCoach } from './_lib.js'
 import { soundsLikeCrisis, safetyReply } from '../src/coach/safety.js'
+import { feedback } from './_coach-feedback.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
 const MAX_CHARS = 120_000
@@ -38,6 +39,8 @@ export default async function handler(req, res) {
   let messages, tier, practice
   try {
     const body = await readJson(req)
+    // A thumbs up or down on a coach plan (Vercel's plan limits the number of API files, so it lives here).
+    if (body.action === 'feedback') return await feedback(req, res, user, body)
     tier = body.modelTier === 'quick' ? 'quick' : 'default'
     practice = body.purpose === 'practice' // an Arena role-play (or its feedback report)
     messages = (Array.isArray(body.messages) ? body.messages : [{ role: 'user', content: String(body.messages || '') }])

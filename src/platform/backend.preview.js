@@ -105,4 +105,6 @@ export const previewBackend = {
   async coachPlan() { return { paid: true, subscribed: true, preview: true, left: Infinity } },
   async subscribeCoach() { await wait(300); return { alreadySubscribed: true } },
   async coachPortal() { await wait(300) },
+  // The preview has no server: keep the ratings in this browser so the flow can be tried.
+  async coachFeedback({ rating, reason, version }) { const k = 'hit.coach.feedback'; try { const l = JSON.parse(localStorage.getItem(k) || '[]'); l.push({ rating, reason, version, at: new Date().toISOString() }); localStorage.setItem(k, JSON.stringify(l)) } catch { /* storage blocked */ } },
 }

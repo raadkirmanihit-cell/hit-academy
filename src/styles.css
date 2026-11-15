@@ -1106,6 +1106,10 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .coach-q-text { font-weight: 650; }
 .coach-qs input, .coach-profile input { width: 100%; padding: .45rem .6rem; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 400 .88rem/1.35 var(--f-body); }
 .coach-qs-foot { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; }
+.coach-rate { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; margin-top: .5rem; }
+.coach-rate .coach-chips { flex-basis: 100%; }
+.coach-thumb { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--navy-2, var(--ink)); cursor: pointer; }
+.coach-thumb:hover, .coach-thumb:focus-visible { border-color: var(--orange); color: var(--orange); }
 .coach-next { display: grid; gap: .35rem; justify-items: start; padding-top: .3rem; }
 .coach-next .coach-next-btn { min-height: 28px; padding: 0 .7rem; font-size: .8rem; gap: .3rem; }
 .coach-next-menu { list-style: none; margin: 0; padding: .3rem; display: grid; gap: .2rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); width: 100%; }
@@ -1127,6 +1131,9 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .coach-profile h4, .coach-prep h4 { margin: 0; }
 .coach-profile p { margin: 0; }
 .coach-profile fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.coach-profile-field { display: grid; gap: .35rem; }
+.coach-profile-label { font-weight: 650; font-size: .9rem; color: var(--ink); }
+.coach-profile-hint { font-weight: 400; font-size: .78rem; color: var(--muted); margin-left: .35rem; }
 .coach-profile legend { font-weight: 650; font-size: .9rem; margin-bottom: .35rem; }
 .coach-prep { display: grid; gap: .6rem; }
 .coach-prep dl { margin: 0; display: grid; }

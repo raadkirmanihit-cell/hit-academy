@@ -7,6 +7,8 @@ export const Icon = {
   play: (p) => <svg viewBox="0 0 24 24" width="18" height="18" {...P} {...p}><path d="M8 5.5v13l10-6.5z" /></svg>,
   menu: (p) => <svg viewBox="0 0 24 24" width="20" height="20" {...P} {...p}><path d="M4 7h16M4 12h16M4 17h16" /></svg>,
   close: (p) => <svg viewBox="0 0 24 24" width="20" height="20" {...P} {...p}><path d="M6 6l12 12M18 6L6 18" /></svg>,
+  thumbUp: (p) => <svg viewBox="0 0 24 24" width="16" height="16" {...P} {...p}><path d="M7 11v9H4v-9h3zM7 11l4-7c1.3 0 2.2 1 2 2.3L12.5 10H18a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7" /></svg>,
+  thumbDown: (p) => <svg viewBox="0 0 24 24" width="16" height="16" {...P} {...p}><path d="M7 13V4H4v9h3zM7 13l4 7c1.3 0 2.2-1 2-2.3l-.5-3.7H18a2 2 0 0 0 2-2.3l-1.2-6A2 2 0 0 0 16.8 4H7" /></svg>,
   download: (p) => <svg viewBox="0 0 24 24" width="18" height="18" {...P} {...p}><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>,
   award: (p) => <svg viewBox="0 0 48 48" width="48" height="48" {...p}><circle cx="24" cy="19" r="13" style={{ fill: 'var(--orange)' }} /><circle cx="24" cy="19" r="8.5" fill="none" stroke="#fff" strokeWidth="2" /><path d="M16 29l-4 14 7-3 4 6 3-14M32 29l4 14-7-3-4 6" style={{ fill: 'var(--navy-2)' }} /></svg>,
   layers: (p) => <svg viewBox="0 0 24 24" {...P} {...p}><path d="M12 3l9 5-9 5-9-5 9-5z" /><path d="M3 13l9 5 9-5" /></svg>,
