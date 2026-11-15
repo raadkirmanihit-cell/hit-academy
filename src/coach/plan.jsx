@@ -152,7 +152,7 @@ export function CoachTile() {
       <button className="btn btn-primary btn-sm" onClick={ask}>Ask the coach</button>
       {plan.status === 'past_due' && <button className="btn btn-sm" disabled={busy} onClick={portal}>Update card</button>}
       {/* The cancel button the law asks for (§ 312k BGB): it opens Stripe's page, where one more click cancels. */}
-      <button className="btn btn-sm btn-ghost" disabled={busy} onClick={portal}>{busy ? 'Opening…' : plan.cancelAtPeriodEnd ? 'Restart or manage' : 'Cancel subscription here'}</button>
+      <button className="btn btn-sm" disabled={busy} onClick={portal}>{busy ? 'Opening…' : plan.cancelAtPeriodEnd ? 'Restart or manage' : 'Cancel subscription'}</button>
     </>
   } else {
     status = plan.left > 0 ? `${plural(plan.left, 'free message')} left` : plan.included ? 'Included months ended' : 'Free messages used up'
