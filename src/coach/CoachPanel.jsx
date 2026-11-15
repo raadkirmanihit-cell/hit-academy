@@ -174,6 +174,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   // Scrolling: never follow the reply as it streams, so the learner can read from the top.
   useEffect(() => {
     const body = bodyRef.current; if (!body) return
+    if (screen !== 'chat') { body.scrollTop = 0; return }
     if (scrollMode.current === 'start' && lastUser.current) lastUser.current.scrollIntoView({ block: 'start', behavior: 'smooth' })
     else body.scrollTop = body.scrollHeight
   }, [scrollTick, activeId, screen])

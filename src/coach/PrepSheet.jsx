@@ -24,13 +24,18 @@ function rows(s) {
     ['Questions to ask', arr(s.questions)],
   ].filter(([, v]) => (Array.isArray(v) ? v.length : v))
 }
+const situation = (s) => [['People', txt(s.situation?.people)], ['Problem', txt(s.situation?.problem)], ['Environment', txt(s.situation?.environment)]].filter(([, v]) => v)
 const pushback = (s) => (Array.isArray(s.pushback) ? s.pushback.filter((p) => p && (p.they || p.me)) : [])
 
 export function prepAsText(s) {
   const out = [txt(s.title) || 'My prep sheet', '']
+  const sm = situation(s)
+  if (sm.length) out.push('Situation map:\n' + sm.map(([l, v]) => `- ${l}: ${v}`).join('\n'))
+  if (txt(s.attention)) out.push(`Needs attention first: ${txt(s.attention)}`)
   for (const [l, v] of rows(s)) out.push(Array.isArray(v) ? `${l}:\n${v.map((x) => `- ${x}`).join('\n')}` : `${l}: ${v}`)
   const pb = pushback(s)
   if (pb.length) out.push('If they push back:\n' + pb.map((p) => `- They: ${txt(p.they)}\n  Me: ${txt(p.me)}`).join('\n'))
+  if (txt(s.testQuestion)) out.push(`Test question: ${txt(s.testQuestion)}`)
   if (txt(s.reminder)) out.push(`Remember: ${txt(s.reminder)}`)
   return out.join('\n\n')
 }
@@ -57,12 +62,18 @@ ul { margin: 0; padding-left: 4mm; }
 .pb { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 4mm; break-inside: avoid; }
 .pb div { padding: 1.5mm 2mm; border-radius: 1.5mm; }
 .they { background: #f3f5fa; } .me { background: #fff0e1; }
+.sm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2mm; margin: 1mm 0 2mm; }
+.sm div { border: 1px solid #c9cfdf; border-top: 2.5px solid #f7861b; border-radius: 1.5mm; padding: 1.8mm 2.2mm; }
+.att { background: #fff0e1; border-radius: 1.5mm; padding: 2mm 3mm; margin-bottom: 2mm; }
 .rem { margin-top: 4mm; background: #0b1a44; color: #fff; border-radius: 2mm; padding: 3mm 4mm; font-weight: 600; }
 .foot { margin-top: 5mm; font-size: 7.5pt; color: #8a93b0; display: flex; justify-content: space-between; }
 </style></head><body>
 <div class="head"><img src="${logo}" alt=""><div><div class="eyebrow">Prep sheet · H.I.T. Negotiation Coach</div><h1>${esc(txt(s.title) || 'My prep sheet')}</h1><div class="eyebrow">${user?.name ? esc(user.name) + ' · ' : ''}${date}</div></div></div>
+${situation(s).length ? `<h2>Situation map</h2><div class="sm">${situation(s).map(([l, v]) => `<div><b>${l}</b><br>${esc(v)}</div>`).join('')}</div>` : ''}
+${txt(s.attention) ? `<div class="att"><b>Needs attention first:</b> ${esc(s.attention)}</div>` : ''}
 ${rows(s).map(row).join('')}
 ${pb.length ? `<h2>If they push back</h2><div class="pb">${pb.map((p) => `<div class="they"><b>They:</b> ${esc(p.they)}</div><div class="me"><b>Me:</b> ${esc(p.me)}</div>`).join('')}</div>` : ''}
+${txt(s.testQuestion) ? `<div class="r"><div class="l">Test question</div><div class="v">${esc(s.testQuestion)}</div></div>` : ''}
 ${txt(s.reminder) ? `<div class="rem">Remember: ${esc(s.reminder)}</div>` : ''}
 <div class="foot"><span>Human Interactions Translated · Negotiation &amp; Conflict Resolution</span><span>humaninteractionstranslated.com</span></div>
 </body></html>`
@@ -93,6 +104,13 @@ export function PrepSheet({ sheet, user, onBack, onRehearse }) {
     <div className="coach-prep">
       <span className="eyebrow">Your prep sheet</span>
       <h4>{txt(sheet.title) || 'My prep sheet'}</h4>
+      {situation(sheet).length > 0 && (
+        <div className="coach-sm">
+          <strong>Situation map</strong>
+          <div className="coach-sm-grid">{situation(sheet).map(([l, v]) => <div key={l}><b>{l}</b><p>{v}</p></div>)}</div>
+        </div>
+      )}
+      {txt(sheet.attention) && <p className="coach-sm-att"><b>Needs attention first:</b> {txt(sheet.attention)}</p>}
       <dl>
         {rows(sheet).map(([l, v]) => (
           <div key={l} className="coach-prep-row">
@@ -107,6 +125,7 @@ export function PrepSheet({ sheet, user, onBack, onRehearse }) {
           {pb.map((p, i) => <div key={i} className="coach-prep-pair"><p><b>They:</b> {txt(p.they)}</p><p><b>You:</b> {txt(p.me)}</p></div>)}
         </div>
       )}
+      {txt(sheet.testQuestion) && <p className="small"><b>Test question:</b> {txt(sheet.testQuestion)}</p>}
       {txt(sheet.reminder) && <p className="coach-prep-rem">Remember: {txt(sheet.reminder)}</p>}
       <p className="small muted">Lines starting with "To decide:" are yours to fill in before the meeting.</p>
       <div className="coach-actions">
