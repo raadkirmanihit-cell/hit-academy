@@ -1,0 +1,85 @@
+{
+  "version": "2026-11-15b",
+  "savedAt": "2026-11-15T17:02:29.208Z",
+  "runs": 2,
+  "results": [
+    {
+      "id": "terse-start",
+      "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "aim-in-first-message",
+      "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "terse-no-aim-yet",
+      "scores": [
+        1,
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "label-to-facts",
+      "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "just-tell-me",
+      "scores": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "definition",
+      "scores": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "off-topic",
+      "scores": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "crisis",
+      "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "personal",
+      "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "ready-for-plan",
+      "scores": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ]
+}

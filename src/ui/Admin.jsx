@@ -48,7 +48,7 @@ export default function AdminPage() {
         <button className="btn btn-ghost btn-sm" onClick={() => { setData(null); load() }}>Refresh</button>
       </div>
       <div className="tabs" role="tablist">
-        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['practice', 'The Arena'], ['community', 'Community'], ['reviews', 'Reviews'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
+        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['feedback', 'Coach feedback'], ['practice', 'The Arena'], ['community', 'Community'], ['reviews', 'Reviews'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
           <button key={id} className="tab" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -56,6 +56,7 @@ export default function AdminPage() {
       {tab === 'students' && <Students data={data} act={act} />}
       {tab === 'payments' && <Payments data={data} act={act} />}
       {tab === 'coach' && <CoachSubs data={data} />}
+      {tab === 'feedback' && <CoachFeedback rows={data.coachFeedback} notify={notify} />}
       {tab === 'practice' && <Practice data={data} />}
       {tab === 'community' && <CommunityAdmin />}
       {tab === 'reviews' && <ReviewsAdmin notify={notify} />}
@@ -559,6 +560,81 @@ function ReviewsAdmin({ notify }) {
       <h3>Waiting for approval ({pending.length})</h3>
       {pending.length ? pending.map((r) => <Row key={r.id} r={r} />) : <p className="muted">Nothing waiting.</p>}
       {rest.length > 0 && <><h3>Decided</h3>{rest.map((r) => <Row key={r.id} r={r} />)}</>}
+    </div>
+  )
+}
+
+// Anonymous ratings of the coach's plans (database update 12). No chats and no names: only the
+// rating and the AI's short analysis. Used for the rule reviews in scripts/coach-eval/README.md.
+const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '–')
+function countBy(rows, key) {
+  const m = new Map()
+  for (const r of rows) { const k = r[key] || 'unknown'; m.set(k, (m.get(k) || 0) + 1) }
+  return [...m.entries()].sort((a, b) => b[1] - a[1])
+}
+function CoachFeedback({ rows, notify }) {
+  const [only, setOnly] = useState('down')
+  if (!rows) return <p className="muted">Run database update 12 (supabase/update-12-coach-feedback.sql) in Supabase to see coach feedback here.</p>
+  const ups = rows.filter((r) => r.rating === 'up').length
+  const recent = rows.filter((r) => Date.now() - new Date(r.created_at) < 30 * 864e5)
+  const downs = rows.filter((r) => r.rating === 'down')
+  const versions = [...new Set(rows.map((r) => r.version || 'unknown'))].map((v) => {
+    const vr = rows.filter((r) => (r.version || 'unknown') === v)
+    return [v, vr.length, vr.filter((r) => r.rating === 'up').length, vr.at(-1)?.created_at]
+  })
+  const list = rows.filter((r) => only === 'all' || r.rating === only).slice(0, 60)
+  function copy() {
+    const text = [
+      `Coach feedback: ${rows.length} ratings, ${pct(ups, rows.length)} helpful.`,
+      `By rules version: ${versions.map(([v, n, u]) => `${v} ${pct(u, n)} of ${n}`).join('; ')}`,
+      `Thumbs-down reasons: ${countBy(downs, 'reason').map(([k, n]) => `${k} ${n}`).join(', ')}`,
+      `Thumbs-down areas: ${countBy(downs, 'area').map(([k, n]) => `${k} ${n}`).join(', ')}`,
+      '', 'Lessons (thumbs down):', ...downs.slice(0, 80).map((r) => `- [${r.situation}, ${r.area}] ${r.lesson || ''}${r.went_wrong?.length ? ` (wrong: ${r.went_wrong.join('; ')})` : ''}`),
+      '', 'Lessons (thumbs up, keep doing):', ...rows.filter((r) => r.rating === 'up').slice(0, 40).map((r) => `- [${r.situation}] ${r.lesson || ''}`),
+    ].join('\n')
+    navigator.clipboard.writeText(text).then(() => notify?.('Copied. Paste it into a chat with Claude for the rule review.'), () => {})
+  }
+  return (
+    <div className="stack" style={{ gap: '1.5rem' }}>
+      <p className="small muted">Learners rate the coach's plans with a thumbs up or down. The AI then writes a short, anonymous note on how the conversation went. Only that note is stored: no chat, no names, no learner id.</p>
+      <div className="admin-stats">
+        <Stat label="Ratings" value={rows.length} sub={`${recent.length} in the last 30 days`} />
+        <Stat label="Helpful" value={pct(ups, rows.length)} sub={`${ups} up, ${downs.length} down`} />
+        <Stat label="Top reason for thumbs down" value={countBy(downs, 'reason')[0]?.[0] || '–'} />
+        <Stat label="Weakest area" value={countBy(downs, 'area')[0]?.[0] || '–'} />
+      </div>
+      <div className="card">
+        <h3>By version of the coach's rules</h3>
+        <p className="small muted">After a rule change, the new version should be at least as helpful as the one before. If it is clearly worse, undo the change.</p>
+        <table className="admin-table"><thead><tr><th>Version</th><th>Ratings</th><th>Helpful</th><th>Since</th></tr></thead>
+          <tbody>{versions.map(([v, n, u, since]) => <tr key={v}><td>{v}</td><td className="tnum">{n}</td><td className="tnum">{pct(u, n)}</td><td>{since ? new Date(since).toLocaleDateString('en-GB') : ''}</td></tr>)}</tbody></table>
+      </div>
+      <div className="admin-stats">
+        <div className="card"><h3>Thumbs-down reasons</h3><ul className="small">{countBy(downs, 'reason').map(([k, n]) => <li key={k}>{k}: {n}</li>)}</ul></div>
+        <div className="card"><h3>Areas behind a thumbs down</h3><ul className="small">{countBy(downs, 'area').map(([k, n]) => <li key={k}>{k}: {n}</li>)}</ul></div>
+        <div className="card"><h3>Situations</h3><ul className="small">{countBy(rows, 'situation').map(([k, n]) => <li key={k}>{k}: {n}</li>)}</ul></div>
+      </div>
+      <div className="card">
+        <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '.5rem' }}>
+          <h3>Notes</h3>
+          <div className="row" style={{ gap: '.4rem' }}>
+            {[['down', 'Thumbs down'], ['up', 'Thumbs up'], ['all', 'All']].map(([k, l]) => <button key={k} className={'btn btn-sm' + (only === k ? ' btn-primary' : '')} onClick={() => setOnly(k)}>{l}</button>)}
+            <button className="btn btn-sm" onClick={copy}>Copy notes for a rule review</button>
+          </div>
+        </div>
+        {list.length === 0 ? <p className="muted small">No ratings yet.</p> : (
+          <ul className="stack" style={{ gap: '.8rem', listStyle: 'none', padding: 0 }}>
+            {list.map((r) => (
+              <li key={r.id} className="small">
+                <strong>{r.rating === 'up' ? 'Helpful' : 'Not helpful'}{r.reason ? ` · ${r.reason}` : ''}</strong> <span className="muted">· {r.situation} · {r.area} · {new Date(r.created_at).toLocaleDateString('en-GB')} · {r.version}</span>
+                {r.summary && <div className="muted">{r.summary}</div>}
+                {r.lesson && <div>{r.lesson}</div>}
+                {r.went_wrong?.length > 0 && <div className="muted">Missed: {r.went_wrong.join('; ')}</div>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }

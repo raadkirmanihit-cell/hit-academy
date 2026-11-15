@@ -11,7 +11,7 @@ import { SPAR_RULES, FEEDBACK_PROMPT } from '../src/coach/prompts.js'
 import { scenarioById } from '../src/coach/scenarios.js'
 import { buildChunks, retrieve, formatExcerpts, library } from '../src/coach/knowledge.js'
 import { computeScore, SKILLS, LEVELS } from '../src/coach/scoring.js'
-import { soundsLikeCrisis, SAFETY_REPLY, SAFETY_TOKEN } from '../src/coach/safety.js'
+import { soundsLikeCrisis, safetyReply, SAFETY_TOKEN } from '../src/coach/safety.js'
 import { modules } from '../src/content/index.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
@@ -82,7 +82,7 @@ async function turn(req, res, user, body) {
   // no model call, no token used, and the line is not added to the role-play.
   if (soundsLikeCrisis(message)) {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Safety': '1', ...(body.sessionId ? { 'X-Session-Id': String(body.sessionId) } : {}) })
-    return res.end(`${SAFETY_TOKEN} ${SAFETY_REPLY}`)
+    return res.end(`${SAFETY_TOKEN} ${safetyReply(req.headers['x-vercel-ip-country'])}`)
   }
   const secs = Number(body.delivery?.secs)
   const delivery = secs > 0 && secs < 600 ? { secs, ...(voiceOf(body.delivery.voice) ? { voice: voiceOf(body.delivery.voice) } : {}) } : undefined

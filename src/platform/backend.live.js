@@ -167,6 +167,8 @@ export const liveBackend = {
     const { error } = await client().from('coach_profiles').upsert({ user_id: userId, data, updated_at: new Date().toISOString() })
     if (error) throw error
   },
+  // A thumbs up or down on a coach plan (anonymous analysis on the server, src/coach/feedback.js).
+  async coachFeedback(payload) { return api('/api/coach', { action: 'feedback', ...payload }) },
   async isAdmin() { return !!(await api('/api/admin-students?check=1')).admin },
   async listStudents() { return (await api('/api/admin-students')).students },
   async adminData() { return api('/api/admin-students') },
