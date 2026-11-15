@@ -116,7 +116,7 @@ function NextStep({ busy, hasPrep, onRehearse, onPrep, onAsk }) {
   }, [open])
   return (
     <div className="coach-next" ref={box}>
-      <button type="button" className="btn btn-primary btn-sm" aria-expanded={open} disabled={!!busy} onClick={() => setOpen((o) => !o)}>
+      <button type="button" className="btn btn-primary btn-sm coach-next-btn" aria-expanded={open} disabled={!!busy} onClick={() => setOpen((o) => !o)}>
         {busy === 'prep' ? 'Making your prep sheet…' : 'Next step'} <span aria-hidden="true">{open ? '▴' : '▾'}</span>
       </button>
       {open && (
