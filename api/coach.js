@@ -4,7 +4,7 @@
 // Subscribers have a monthly fair-use cap, and everyone has a daily limit.
 import Anthropic from '@anthropic-ai/sdk'
 import { env, requireUser, readJson, fail, chargeCoach } from './_lib.js'
-import { soundsLikeCrisis, SAFETY_REPLY } from '../src/coach/safety.js'
+import { soundsLikeCrisis, safetyReply } from '../src/coach/safety.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
 const MAX_CHARS = 120_000
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
   // Only for coach chats, where the last message is the learner's own words (the first holds the rules).
   if (!practice && messages.length > 1 && soundsLikeCrisis(messages[messages.length - 1].content)) {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Safety': '1' })
-    return res.end(SAFETY_REPLY)
+    return res.end(safetyReply(req.headers['x-vercel-ip-country']))
   }
 
   try {
