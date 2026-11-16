@@ -136,7 +136,7 @@ function Rate({ rated, onRate }) {
 }
 
 // Under a finished plan: one button that opens what the learner can do next.
-function NextStep({ busy, hasPrep, onRehearse, onPrep, onAsk }) {
+function NextStep({ busy, hasPrep, prepOld, onRehearse, onPrep, onAsk }) {
   const [open, setOpen] = useState(false)
   const box = useRef(null)
   const pick = (fn) => { setOpen(false); fn() }
@@ -155,7 +155,7 @@ function NextStep({ busy, hasPrep, onRehearse, onPrep, onAsk }) {
       {open && (
         <ul className="coach-next-menu">
           <li><button type="button" onClick={() => pick(onRehearse)}><strong>Rehearse it now</strong><span>The coach plays the other side, then gives you a debrief.</span></button></li>
-          <li><button type="button" onClick={() => pick(onPrep)}><strong>{hasPrep ? 'Open my prep sheet' : 'Make my prep sheet'}</strong><span>A one-page plan to take into the meeting.</span></button></li>
+          <li><button type="button" onClick={() => pick(onPrep)}><strong>{prepOld ? 'Update my prep sheet' : hasPrep ? 'Open my prep sheet' : 'Make my prep sheet'}</strong><span>{prepOld ? 'Your plan changed since the last sheet. This makes a new one.' : 'A one-page plan to take into the meeting.'}</span></button></li>
           <li><button type="button" onClick={() => pick(onAsk)}><strong>Ask something else</strong><span>Follow up on this plan or add a detail.</span></button></li>
         </ul>
       )}
@@ -363,7 +363,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     try {
       const sheet = await sample.json(PREP_PROMPT(chatText(from), profileText(profile)), { cache: false, signal: ctl.current.signal })
       usedOneMessage()
-      store({ ...from, prep: { ...sheet, at: new Date().toISOString() } })
+      store({ ...from, prep: { ...sheet, at: new Date().toISOString(), upTo: from.messages.length } })
       setActiveId(from.id); setScreen('prep')
     } catch (e) {
       noteError(e)
@@ -396,6 +396,8 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   const msgs = chat.messages
   const lastAssistant = msgs.map((m) => m.role).lastIndexOf('assistant')
   const lastPlan = chat.kind === 'coach' ? msgs.map((m, i) => (m.role === 'assistant' && isPlan(m.content) ? i : -1)).filter((i) => i >= 0).at(-1) : -1
+  // A prep sheet made before the latest plan is out of date (sheets from before this check count as current).
+  const prepOld = !!chat.prep?.upTo && lastPlan >= chat.prep.upTo
   const lastUserIdx = msgs.map((m) => m.role).lastIndexOf('user')
   const rehearsing = chat.kind === 'rehearsal'
   const learnerTurns = msgs.filter((m) => m.role === 'user').length
@@ -460,9 +462,9 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
               {text && <Rich text={text} onLesson={() => onLesson?.(full)} />}
               {qs.length > 0 && <Diagnosis qs={qs} active={i === lastAssistant && i === msgs.length - 1 && !busy} onSend={ask} onSkip={() => ask('Please skip the questions and give me your advice with what you know so far, and tell me what you assumed.')} />}
               <PlayButton voice={voice} text={lessonsAsText(text, modules)} />
-              {chat.kind === 'coach' && isPlan(t.content) && <Rate rated={t.rated} onRate={(r, why) => rate(i, r, why)} />}
+              {i === lastPlan && <Rate rated={t.rated} onRate={(r, why) => rate(i, r, why)} />}
               {i === lastPlan && (
-                <NextStep busy={busy} hasPrep={!!chat.prep} onRehearse={() => rehearse(chat)} onPrep={() => (chat.prep ? setScreen('prep') : makePrep(chat))} onAsk={() => inputRef.current?.focus()} />
+                <NextStep busy={busy} hasPrep={!!chat.prep} prepOld={prepOld} onRehearse={() => rehearse(chat)} onPrep={() => (chat.prep && !prepOld ? setScreen('prep') : makePrep(chat))} onAsk={() => inputRef.current?.focus()} />
               )}
             </div>
           )

@@ -6,7 +6,7 @@
 
 // Raise this whenever the coach's rules (src/coach/prompts.js) change, so ratings can be compared
 // before and after a change, and a change that makes the coach worse can be spotted and undone.
-export const COACH_VERSION = '2026-11-15b'
+export const COACH_VERSION = '2026-11-16'
 
 export const DOWN_REASONS = ['Asked too much', 'Too generic', 'Missed my point', "Doesn't sound like me", 'Something else']
 

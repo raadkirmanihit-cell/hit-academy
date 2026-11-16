@@ -121,7 +121,8 @@ export function Rich({ text, onLesson }) {
     if (ol || /^\s*[-•]\s+/.test(line)) {
       const kind = ol ? 'ol' : 'ul'
       if (list && list.kind !== kind) flush()
-      ;(list ||= { kind, items: [] }).items.push(line.replace(/^\s*(\d+[.)]|[-•])\s+/, ''))
+      // A numbered list keeps the coach's own numbers, so "Step 6" still matches when a plan is split into phases.
+      ;(list ||= { kind, items: [], start: ol ? parseInt(line, 10) || 1 : undefined }).items.push(line.replace(/^\s*(\d+[.)]|[-•])\s+/, ''))
       continue
     }
     flush()
@@ -129,7 +130,7 @@ export function Rich({ text, onLesson }) {
   }
   flush()
   return blocks.map((b, i) => b.items
-    ? <b.kind key={i}>{b.items.map((x, j) => <li key={j}><WithLessons text={x} onLesson={onLesson} /></li>)}</b.kind>
+    ? <b.kind key={i} start={b.start > 1 ? b.start : undefined}>{b.items.map((x, j) => <li key={j}><WithLessons text={x} onLesson={onLesson} /></li>)}</b.kind>
     : <p key={i} className={/^Review:/.test(b.p) ? 'coach-review' : /\[\[/.test(b.p) ? 'coach-pointer' : /^\*\*[^*]+\*\*:?\s*$/.test(b.p.trim()) ? 'coach-label' : ''}><WithLessons text={b.p} onLesson={onLesson} /></p>)
 }
 

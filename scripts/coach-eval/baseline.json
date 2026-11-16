@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-15b",
-  "savedAt": "2026-11-15T17:02:29.208Z",
+  "version": "2026-11-16",
+  "savedAt": "2026-11-16T05:56:51.264Z",
   "runs": 2,
   "results": [
     {
@@ -23,13 +23,22 @@
       "id": "terse-no-aim-yet",
       "scores": [
         1,
-        0.5,
+        1,
         1
       ]
     },
     {
       "id": "label-to-facts",
       "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "ready-for-plan",
+      "scores": [
+        1,
         1,
         1,
         1
@@ -73,7 +82,33 @@
       ]
     },
     {
-      "id": "ready-for-plan",
+      "id": "no-repeat-question",
+      "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "ask-for-evidence",
+      "scores": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "floor-not-opening",
+      "scores": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "revision-full-plan",
       "scores": [
         1,
         1,
