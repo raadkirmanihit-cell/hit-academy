@@ -103,7 +103,7 @@
     "criteria": [
       "Gives a plan with the bold labels What's really going on, Your game plan, What to say and If they push back.",
       "The plan is specific to this situation (mentions the alternative supplier or the size of the account, and the 5% limit or CFO approval).",
-      "Ends with a plain confidence line and the fit check line starting with '? Does this plan fit your situation?'.",
+      "Has a plain confidence line near the end and ends with the fit check line starting with '? Does this plan fit your situation?' (a short 'Lessons behind this plan' list between them is fine).",
       "Does not invent facts the learner did not give, and does not coach deception."
     ]
   },
@@ -177,6 +177,205 @@
       "Helps with brief, general guidance rather than refusing.",
       "Mentions once, briefly, that the coach focuses on professional negotiations.",
       "Does not run a long question sequence."
+    ]
+  },
+  {
+    "id": "no-repeat-question",
+    "note": "From Raad's salary test (2026-11-16): an emotional answer must not trigger the same question again.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "I have a salary negotiation that I need to do with my boss since the year end is approaching and the salary will be revised starting next year and I need to get at least 6%"
+      },
+      {
+        "role": "assistant",
+        "content": "Having a clear floor of 6% is a strong starting point. Year-end reviews often run on a set budget, so the real question is usually who controls that budget and how your case reaches them. I'll ask a few quick questions first so the plan fits your situation rather than a template.\n\n? Walk me through it in your own words: what's behind the 6% for you, and how have past salary conversations with your boss gone?"
+      },
+      {
+        "role": "user",
+        "content": "beginning of this year I was given 1% under the promise that I will be promoted with a significant raise in the mid of the same year. However, we did not land on the promotion since the level of responsiblity of the new role vs the salary increase offered were not aligning so we jointly decided not go forward with the promotion. Now for the new revision of my current salary, I am expecting they also consider the missed hike in the early parts of this year to be compensated. Average increase year over year is around 3%."
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds frustrating: you accepted 1% in good faith, and the raise it was meant to lead to never arrived. Your 6% is really a normal 3% plus catching up on the gap from this year, which is a fair and explainable ask. One thing to check is how your boss remembers the promotion: as a promise not kept, or as something you both chose to drop. Those lead to quite different conversations.\n\n? Who decides the final percentage for your raise? | My boss alone | Boss proposes, HR approves | HR or a committee\n? Has your boss ever said anything about making up for this year's 1%? | Yes, he promised | Hinted at it | Never mentioned it"
+      },
+      {
+        "role": "user",
+        "content": "Who decides: boss proposes, HR approves. Making up for the 1%: I was the one who said that it should be considered when we finally decided that the promotion will not be going forward. Not sure how much heed he gave to it."
+      },
+      {
+        "role": "assistant",
+        "content": "That makes sense: you raised the catch-up point once, at a moment that was probably more about closing the promotion chapter than about your next raise. It may not be on his radar when he drafts his proposal. And because HR approves his number, he'll need a reason HR will accept, not just goodwill, to argue for double the usual increase.\n\n? How have things been with your boss since the promotion was dropped? | Good, no tension | A bit awkward | Tense\n? If the raise comes in at the usual 3%, what would you realistically do? | Accept it | Push back | Start looking elsewhere"
+      },
+      {
+        "role": "user",
+        "content": "Things are good, no tension. At 3%: I would not like it at all. Would feel a bit taken advantage of. This will put a bad feeling in my work ethics."
+      }
+    ],
+    "criteria": [
+      "Does NOT give a plan yet (no 'What to say' section).",
+      "Does NOT ask again what the learner would do at 3% in the same broad form already asked; if it follows up on that answer, it acknowledges the feeling and asks only a narrower missing part (e.g. stay, raise it later, or look elsewhere).",
+      "Asks at most 2 questions, none of which repeats a question already asked earlier in the conversation."
+    ]
+  },
+  {
+    "id": "ask-for-evidence",
+    "note": "From Raad's salary test: a merit-based case needs the learner's results before the plan.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "I have a salary negotiation that I need to do with my boss since the year end is approaching and the salary will be revised starting next year and I need to get at least 6%"
+      },
+      {
+        "role": "assistant",
+        "content": "Having a clear floor of 6% is a strong starting point. Year-end reviews often run on a set budget, so the real question is usually who controls that budget and how your case reaches them. I'll ask a few quick questions first so the plan fits your situation rather than a template.\n\n? Walk me through it in your own words: what's behind the 6% for you, and how have past salary conversations with your boss gone?"
+      },
+      {
+        "role": "user",
+        "content": "beginning of this year I was given 1% under the promise that I will be promoted with a significant raise in the mid of the same year. However, we did not land on the promotion since the level of responsiblity of the new role vs the salary increase offered were not aligning so we jointly decided not go forward with the promotion. Now for the new revision of my current salary, I am expecting they also consider the missed hike in the early parts of this year to be compensated. Average increase year over year is around 3%."
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds frustrating: you accepted 1% in good faith, and the raise it was meant to lead to never arrived. Your 6% is really a normal 3% plus catching up on the gap from this year, which is a fair and explainable ask. One thing to check is how your boss remembers the promotion: as a promise not kept, or as something you both chose to drop. Those lead to quite different conversations.\n\n? Who decides the final percentage for your raise? | My boss alone | Boss proposes, HR approves | HR or a committee\n? Has your boss ever said anything about making up for this year's 1%? | Yes, he promised | Hinted at it | Never mentioned it"
+      },
+      {
+        "role": "user",
+        "content": "Who decides: boss proposes, HR approves. Making up for the 1%: I was the one who said that it should be considered when we finally decided that the promotion will not be going forward. Not sure how much heed he gave to it."
+      },
+      {
+        "role": "assistant",
+        "content": "That makes sense: you raised the catch-up point once, at a moment that was probably more about closing the promotion chapter than about your next raise. It may not be on his radar when he drafts his proposal. And because HR approves his number, he'll need a reason HR will accept, not just goodwill, to argue for double the usual increase.\n\n? How have things been with your boss since the promotion was dropped? | Good, no tension | A bit awkward | Tense\n? If the raise comes in at the usual 3%, what would you realistically do? | Accept it | Push back | Start looking elsewhere"
+      },
+      {
+        "role": "user",
+        "content": "Things are good, no tension. At 3%: I would not like it at all. Would feel a bit taken advantage of. This will put a bad feeling in my work ethics."
+      },
+      {
+        "role": "assistant",
+        "content": "Feeling taken advantage of makes sense: you accepted 1% on a promise, and if 3% follows, the gap becomes permanent. Your good relationship with your boss is a real asset here.\n\n? If it stayed at 3%, what would you most likely do? | Stay and accept it | Raise it again later | Start looking elsewhere\n? When does your boss usually send his raise proposals to HR? | December | January | Not sure"
+      },
+      {
+        "role": "user",
+        "content": "Stay, less motivated, which may eventually lead to me looking for something else. Proposals go to HR in January."
+      }
+    ],
+    "criteria": [
+      "Does NOT give the full plan yet; instead asks for the learner's results or achievements this year (the evidence for the raise).",
+      "Does NOT repeat a question already asked in the conversation.",
+      "Gives a short insight before the question(s) and asks at most 2 questions."
+    ]
+  },
+  {
+    "id": "floor-not-opening",
+    "note": "From Raad's salary test: 'at least 6%' is the floor; the plan must open higher, in phases, with strong pushback and a lessons list.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "I have a salary negotiation that I need to do with my boss since the year end is approaching and the salary will be revised starting next year and I need to get at least 6%"
+      },
+      {
+        "role": "assistant",
+        "content": "Having a clear floor of 6% is a strong starting point. Year-end reviews often run on a set budget, so the real question is usually who controls that budget and how your case reaches them. I'll ask a few quick questions first so the plan fits your situation rather than a template.\n\n? Walk me through it in your own words: what's behind the 6% for you, and how have past salary conversations with your boss gone?"
+      },
+      {
+        "role": "user",
+        "content": "beginning of this year I was given 1% under the promise that I will be promoted with a significant raise in the mid of the same year. However, we did not land on the promotion since the level of responsiblity of the new role vs the salary increase offered were not aligning so we jointly decided not go forward with the promotion. Now for the new revision of my current salary, I am expecting they also consider the missed hike in the early parts of this year to be compensated. Average increase year over year is around 3%."
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds frustrating: you accepted 1% in good faith, and the raise it was meant to lead to never arrived. Your 6% is really a normal 3% plus catching up on the gap from this year, which is a fair and explainable ask. One thing to check is how your boss remembers the promotion: as a promise not kept, or as something you both chose to drop. Those lead to quite different conversations.\n\n? Who decides the final percentage for your raise? | My boss alone | Boss proposes, HR approves | HR or a committee\n? Has your boss ever said anything about making up for this year's 1%? | Yes, he promised | Hinted at it | Never mentioned it"
+      },
+      {
+        "role": "user",
+        "content": "Who decides: boss proposes, HR approves. Making up for the 1%: I was the one who said that it should be considered when we finally decided that the promotion will not be going forward. Not sure how much heed he gave to it."
+      },
+      {
+        "role": "assistant",
+        "content": "That makes sense: you raised the catch-up point once, at a moment that was probably more about closing the promotion chapter than about your next raise. It may not be on his radar when he drafts his proposal. And because HR approves his number, he'll need a reason HR will accept, not just goodwill, to argue for double the usual increase.\n\n? How have things been with your boss since the promotion was dropped? | Good, no tension | A bit awkward | Tense\n? If the raise comes in at the usual 3%, what would you realistically do? | Accept it | Push back | Start looking elsewhere"
+      },
+      {
+        "role": "user",
+        "content": "Things are good, no tension. At 3%: I would not like it at all. Would feel a bit taken advantage of. This will put a bad feeling in my work ethics."
+      },
+      {
+        "role": "assistant",
+        "content": "Feeling taken advantage of makes sense: you accepted 1% on a promise, and if 3% follows, the gap becomes permanent. Your good relationship with your boss is a real asset here.\n\n? If it stayed at 3%, what would you most likely do? | Stay and accept it | Raise it again later | Start looking elsewhere\n? When does your boss usually send his raise proposals to HR? | December | January | Not sure"
+      },
+      {
+        "role": "user",
+        "content": "Stay, less motivated, which may eventually lead to me looking for something else. Proposals go to HR in January."
+      },
+      {
+        "role": "assistant",
+        "content": "January proposals mean December is when your case has to land, before he drafts his number. What you've delivered will carry the part above the catch-up.\n\n? What are your two or three strongest results this year? Numbers help (revenue, savings, deadlines)."
+      },
+      {
+        "role": "user",
+        "content": "I led the migration of our billing system two months early, saving about 120k a year, and I took over the onboarding of two new team members after a colleague left. The meeting would be in early December."
+      }
+    ],
+    "criteria": [
+      "Gives a plan with the bold labels What's really going on, Your game plan, What to say and If they push back.",
+      "Does NOT tell the learner to ask for 6% as their opening; it opens above 6% with a number explained from parts (e.g. the usual 3%, this year's gap, results) and keeps 6% private as the floor.",
+      "The game plan is grouped into phases (e.g. prepare, set up the meeting, open, handle the response, close, follow up) and uses the learner's actual results.",
+      "Lists at least 3 pushback replies, and most of them end with a 'what' or 'how' question or a no-oriented question.",
+      "Includes a 'Lessons behind this plan' list with 2 to 4 lesson tokens like [[m6/l3-how]], each tied to a step or phase, and ends with the fit check line starting with '? Does this plan fit your situation?'."
+    ]
+  },
+  {
+    "id": "revision-full-plan",
+    "note": "From Raad's salary test: improving one section must return the complete plan and keep earlier parts.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "I have a salary negotiation that I need to do with my boss since the year end is approaching and the salary will be revised starting next year and I need to get at least 6%"
+      },
+      {
+        "role": "assistant",
+        "content": "Having a clear floor of 6% is a strong starting point. Year-end reviews often run on a set budget, so the real question is usually who controls that budget and how your case reaches them. I'll ask a few quick questions first so the plan fits your situation rather than a template.\n\n? Walk me through it in your own words: what's behind the 6% for you, and how have past salary conversations with your boss gone?"
+      },
+      {
+        "role": "user",
+        "content": "beginning of this year I was given 1% under the promise that I will be promoted with a significant raise in the mid of the same year. However, we did not land on the promotion since the level of responsiblity of the new role vs the salary increase offered were not aligning so we jointly decided not go forward with the promotion. Now for the new revision of my current salary, I am expecting they also consider the missed hike in the early parts of this year to be compensated. Average increase year over year is around 3%."
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds frustrating: you accepted 1% in good faith, and the raise it was meant to lead to never arrived. Your 6% is really a normal 3% plus catching up on the gap from this year, which is a fair and explainable ask. One thing to check is how your boss remembers the promotion: as a promise not kept, or as something you both chose to drop. Those lead to quite different conversations.\n\n? Who decides the final percentage for your raise? | My boss alone | Boss proposes, HR approves | HR or a committee\n? Has your boss ever said anything about making up for this year's 1%? | Yes, he promised | Hinted at it | Never mentioned it"
+      },
+      {
+        "role": "user",
+        "content": "Who decides: boss proposes, HR approves. Making up for the 1%: I was the one who said that it should be considered when we finally decided that the promotion will not be going forward. Not sure how much heed he gave to it."
+      },
+      {
+        "role": "assistant",
+        "content": "That makes sense: you raised the catch-up point once, at a moment that was probably more about closing the promotion chapter than about your next raise. It may not be on his radar when he drafts his proposal. And because HR approves his number, he'll need a reason HR will accept, not just goodwill, to argue for double the usual increase.\n\n? How have things been with your boss since the promotion was dropped? | Good, no tension | A bit awkward | Tense\n? If the raise comes in at the usual 3%, what would you realistically do? | Accept it | Push back | Start looking elsewhere"
+      },
+      {
+        "role": "user",
+        "content": "Things are good, no tension. At 3%: I would not like it at all. Would feel a bit taken advantage of. This will put a bad feeling in my work ethics."
+      },
+      {
+        "role": "assistant",
+        "content": "Feeling taken advantage of makes sense: you accepted 1% on a promise, and if 3% follows, the gap becomes permanent. Your good relationship with your boss is a real asset here.\n\n? If it stayed at 3%, what would you most likely do? | Stay and accept it | Raise it again later | Start looking elsewhere\n? When does your boss usually send his raise proposals to HR? | December | January | Not sure"
+      },
+      {
+        "role": "user",
+        "content": "Stay, less motivated, which may eventually lead to me looking for something else. Proposals go to HR in January."
+      },
+      {
+        "role": "assistant",
+        "content": "What's really going on: What needs attention first is the Process. You raised the catch-up point once, months ago, and your boss drafts his proposal in January, so December is when your case has to land. Fairness is your best lever because your story is a fairness story: you accepted 1% for a promotion that you both agreed not to pursue. It is also the language HR understands. Keep 6% to yourself as your floor and open higher. The traps are letting \"taken advantage of\" come out as a grievance, and meeting in the middle at 4 or 5%.\nYour game plan:\nPrepare your fairness baseline (now to early December)\nGather the standards your number rests on: the usual 3%, this year's 1%, and market pay data for your role if you can find it.\nList your two or three strongest results with numbers.\nBuild your note: 3% standard + 2-point gap + 2.5 points for results = 7.5% (7% if your results are thinner). Never mention 6%.\nDecide now whether a one-off payment counts toward your 6%, and prepare your trades: a one-off payment or a dated mid-year review.\nBook the meeting (first week of December)\n\"Could we set up 30 minutes before the year-end revision? I'd like to talk about next year's salary.\"\nOpen with fairness\nIf you genuinely see him as fair-minded, say so briefly before your request. Skip this if it wouldn't feel true.\nRecap the history and check his memory: \"How do you remember where we left the catch-up when we closed the promotion?\"\nName 7.5% as the fair figure, show how you built it, then stop talking.\nHandle a low offer with fairness, not confrontation\nAcknowledge his number, compare it calmly with the standard, and ask what would feel fair to him.\nMove down slowly (7.5, then 7, then 6.5), and only in exchange for his commitment to put that figure to HR.\nClose and follow up\nAgree on his figure, send the note, and set a date to hear back. Email a summary the same day.\nIf you've heard nothing by mid-January, check in. If the result is below 6%, ask what would close the gap and get a review date in writing.\nWhat to say:\n\"I've always found you fair in how you handle things, which is why I wanted to raise this with you directly.\"\n\"Earlier this year I accepted 1% because a promotion was expected. We agreed together not to go ahead, and I stand by that. To make this fair, I'm asking for 7.5%: the usual 3%, the 2 points I gave up, and what I've delivered.\"\n\"I want this to be fair for both of us, and easy for you to explain to HR. What would help you make that case?\"\nIf they push back:\nThey say: \"I can do 4%.\" → You say: \"I want to make sure we're both treated fairly. 4% still leaves this year's gap open compared with a normal year. What would feel fair to you?\"\nThey say: \"7.5% won't get through HR.\" → You say: \"Which part would HR question, the catch-up or the results? Let's make that part stronger together.\"\nThey say: \"Let's meet in the middle.\" → You say: \"I'd rather land on what's fair than average the numbers. If I come down to 7%, would you be willing to put that to HR as it stands?\"\nI'm fairly confident about this. Your actual results will decide whether 7.5% or 7% is your fair opening.\nIf you'd like the fairness move to feel natural in the room, Module 6 · The fairness play shows how to use it at each stage of the conversation.\n\n**Lessons behind this plan**\n- Open with fairness: [[m6/l4-how]] to appeal to fairness without confrontation.\n- Step 3: [[m6/l3-how]] to set your first number and hold it.\n\n? Does this plan fit your situation? | Yes, it fits | Not quite | They'd react differently"
+      },
+      {
+        "role": "user",
+        "content": "The 'If they push back' section needs to be improved more. It needs to sound more convincing with the strategic approaches we are using."
+      }
+    ],
+    "criteria": [
+      "Replies with the COMPLETE updated plan (all four bold labels What's really going on, Your game plan, What to say and If they push back), not only the pushback section.",
+      "Briefly says what changed near the start.",
+      "Keeps the fairness approach and the 7.5% opening from the previous version.",
+      "Most rewritten pushback replies acknowledge his position, bring it back to a fair standard and end with a 'what'/'how' or no-oriented question (a reply to a stall like 'let me see what I can do' may instead be a commitment check on what, when and who)."
     ]
   }
 ]
