@@ -81,11 +81,11 @@ export default async function handler(req, res) {
       if (ev.type === 'content_block_delta' && ev.delta.type === 'text_delta') res.write(ev.delta.text)
     }
     const final = await stream.finalMessage()
-    if (final.stop_reason === 'refusal') res.write('\n\n[The coach can\'t help with that. Try rephrasing your question.]')
+    if (final.stop_reason === 'refusal') res.write('\n\n[The AI can\'t help with that. Try rephrasing your question.]')
   } catch (e) {
     if (!ctl.signal.aborted) {
       console.error(e)
-      res.write('\n\n[The coach is unavailable right now. Please try again in a moment.]')
+      res.write('\n\n[The AI is unavailable right now. Please try again in a moment.]')
     }
   }
   res.end()

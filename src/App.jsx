@@ -101,7 +101,7 @@ export default function App() {
       const startView = fromHash(window.location.hash)
       const checkout = params.get('checkout')
       const item = params.get('item') // what they just paid for: 'bundle' or a module id
-      const coach = params.get('coach') // back from the coach subscription checkout or Stripe's subscription page
+      const coach = params.get('coach') // back from the HIT Mentor subscription checkout or Stripe's subscription page
       // Sign in first: links from confirmation and reset emails carry the login in the URL.
       backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
@@ -149,7 +149,7 @@ export default function App() {
           if (!plan?.subscribed) await new Promise((r) => setTimeout(r, 1500))
         }
         await refreshCoachPlan()
-        notify(plan?.subscribed ? 'Your AI coach subscription is active. Ask away!' : 'Payment received. The coach unlocks in a minute: please reload this page shortly.', 6000)
+        notify(plan?.subscribed ? 'Your HIT Mentor subscription is active. Ask away!' : 'Payment received. HIT Mentor unlocks in a minute: please reload this page shortly.', 6000)
       }
       if (u && coach === 'portal') refreshCoachPlan()
       if (u && checkout === 'success' && !unlocked(u, item)) notify('Payment received. Unlocking can take a minute: please reload this page shortly.', 8000)

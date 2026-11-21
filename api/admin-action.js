@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       const sub = await getCoachSubscription(id)
       if (sub?.stripe_subscription_id && ['active', 'trialing', 'past_due', 'unpaid'].includes(sub.status)) {
         try { await new Stripe(env('STRIPE_SECRET_KEY')).subscriptions.cancel(sub.stripe_subscription_id) } catch (e) {
-          if (!/No such subscription|canceled/i.test(e.message || '')) return res.status(400).json({ error: `Stripe couldn't cancel the coach subscription, so nothing was deleted: ${e.message}` })
+          if (!/No such subscription|canceled/i.test(e.message || '')) return res.status(400).json({ error: `Stripe couldn't cancel the HIT Mentor subscription, so nothing was deleted: ${e.message}` })
         }
       }
       // Deleting the sign-in account removes their profile, progress, Arena role-plays, usage and posts
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       const { error } = await db().auth.admin.deleteUser(id)
       if (error) return res.status(400).json({ error: error.message })
       if (u.email) await sendEmail(u.email, 'Your H.I.T. Academy account has been deleted', [
-        'Hello,', '', 'As you asked, we have deleted your H.I.T. Academy account and the personal data that belongs to it: your profile, course progress, Arena role-plays and community posts. Any AI coach subscription has been cancelled.', '',
+        'Hello,', '', 'As you asked, we have deleted your H.I.T. Academy account and the personal data that belongs to it: your profile, course progress, Arena role-plays and community posts. Any HIT Mentor subscription has been cancelled.', '',
         'We keep payment and invoice records only for as long as German tax law requires.', '', 'Thank you for learning with us.', 'Human Interactions Translated',
       ]).catch((e) => console.error(e))
       return res.status(200).json({ ok: true })

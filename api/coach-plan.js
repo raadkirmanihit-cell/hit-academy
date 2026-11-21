@@ -20,13 +20,13 @@ export default async function handler(req, res) {
     const sub = await getCoachSubscription(user.id)
 
     if (body.action === 'portal') {
-      if (!sub?.stripe_customer_id) return res.status(400).json({ error: 'You don\'t have a coach subscription yet.' })
+      if (!sub?.stripe_customer_id) return res.status(400).json({ error: 'You don\'t have a HIT Mentor subscription yet.' })
       const portal = await stripe.billingPortal.sessions.create({ customer: sub.stripe_customer_id, return_url: `${base}/?coach=portal` })
       return res.status(200).json({ url: portal.url })
     }
 
     if (body.action === 'subscribe') {
-      if (!body.consent) return res.status(400).json({ error: 'Please confirm the box about starting the coach right away first.' })
+      if (!body.consent) return res.status(400).json({ error: 'Please confirm the box about starting HIT Mentor right away first.' })
       const access = await coachAccess(user)
       if (access.subscribed && !access.included) return res.status(200).json({ alreadySubscribed: true })
       // Still in the coach months included with the course: the subscription starts when they end.
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         mode: 'subscription',
         line_items: [priceId
           ? { price: priceId, quantity: 1 }
-          : { quantity: 1, price_data: { currency: 'eur', unit_amount: COACH_PRICE_CENTS, recurring: { interval: 'month' }, product_data: { name: 'H.I.T. AI Negotiation Coach (monthly)' } } }],
+          : { quantity: 1, price_data: { currency: 'eur', unit_amount: COACH_PRICE_CENTS, recurring: { interval: 'month' }, product_data: { name: 'HIT Mentor (monthly)' } } }],
         // One Stripe customer per student (reused, so the portal shows everything in one place),
         // carrying the § 19 UStG footer for the first invoice and every monthly renewal.
         customer: await stripeCustomerFor(stripe, user, sub?.stripe_customer_id),

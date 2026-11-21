@@ -23,8 +23,8 @@ export const PROFILE_FIELDS = [
   { id: 'industry', label: 'Your industry or field', hint: 'e.g. automotive, IT services, healthcare' },
   { id: 'with', label: 'Who you negotiate with most', hint: 'e.g. clients, suppliers, my manager' },
   { id: 'challenge', label: 'What you find hardest', hint: 'e.g. staying calm, giving in under pressure' },
-  { id: 'goal', label: 'What you want from the coach', hint: 'e.g. prepare my salary review, win back a key client' },
-  { id: 'note', label: 'Anything else the coach should know', hint: 'e.g. I work across Germany and India' },
+  { id: 'goal', label: 'What you want from HIT Mentor', hint: 'e.g. prepare my salary review, win back a key client' },
+  { id: 'note', label: 'Anything else HIT Mentor should know', hint: 'e.g. I work across Germany and India' },
 ]
 
 // Older profiles stored some answers as lists of tapped options; show and send them as text.
@@ -33,7 +33,7 @@ const asText = (x) => (Array.isArray(x) ? x.join(', ') : String(x || ''))
 export function profileText(p) {
   if (!p) return ''
   const v = (id) => asText(p[id]).trim()
-  return [['Role', 'role'], ['Industry', 'industry'], ['Usually negotiates with', 'with'], ['Finds hardest', 'challenge'], ['Wants from the coach', 'goal'], ['Also', 'note']]
+  return [['Role', 'role'], ['Industry', 'industry'], ['Usually negotiates with', 'with'], ['Finds hardest', 'challenge'], ['Wants from HIT Mentor', 'goal'], ['Also', 'note']]
     .filter(([, id]) => v(id)).map(([l, id]) => `${l}: ${v(id).slice(0, 300)}`).join('. ')
 }
 
@@ -43,7 +43,7 @@ function ProfileForm({ profile, onSave, onCancel }) {
   return (
     <form className="coach-profile" onSubmit={(e) => { e.preventDefault(); onSave({ ...(profile || {}), ...vals, skipped: false, at: new Date().toISOString() }) }}>
       <h4>About you</h4>
-      <p className="small muted">A few words on each helps the coach fit its advice to you. Everything is optional, and you can change it any time.</p>
+      <p className="small muted">A few words on each helps HIT Mentor fit its advice to you. Everything is optional, and you can change it any time.</p>
       {PROFILE_FIELDS.map((f) => (
         <label key={f.id} className="coach-profile-field">
           <span className="coach-profile-label">{f.label} <span className="coach-profile-hint">{f.hint}</span></span>
@@ -118,7 +118,7 @@ function Diagnosis({ qs, active, onSend, onSkip }) {
 // src/coach/feedback.js); only that analysis is kept, never the chat.
 function Rate({ rated, onRate }) {
   const [asking, setAsking] = useState(false)
-  if (rated) return <p className="coach-rate small muted">{rated === 'up' ? 'Thanks! Glad it helped.' : 'Thanks, this helps us improve the coach.'}</p>
+  if (rated) return <p className="coach-rate small muted">{rated === 'up' ? 'Thanks! Glad it helped.' : 'Thanks, this helps us improve HIT Mentor.'}</p>
   if (asking) return (
     <div className="coach-rate">
       <span className="small muted">What was off? (optional)</span>
@@ -154,7 +154,7 @@ function NextStep({ busy, hasPrep, prepOld, onRehearse, onPrep, onAsk }) {
       </button>
       {open && (
         <ul className="coach-next-menu">
-          <li><button type="button" onClick={() => pick(onRehearse)}><strong>Rehearse it now</strong><span>The coach plays the other side, then gives you a debrief.</span></button></li>
+          <li><button type="button" onClick={() => pick(onRehearse)}><strong>Rehearse it now</strong><span>HIT Mentor plays the other side, then gives you a debrief.</span></button></li>
           <li><button type="button" onClick={() => pick(onPrep)}><strong>{prepOld ? 'Update my prep sheet' : hasPrep ? 'Open my prep sheet' : 'Make my prep sheet'}</strong><span>{prepOld ? 'Your plan changed since the last sheet. This makes a new one.' : 'A one-page plan to take into the meeting.'}</span></button></li>
           <li><button type="button" onClick={() => pick(onAsk)}><strong>Ask something else</strong><span>Follow up on this plan or add a detail.</span></button></li>
         </ul>
@@ -405,7 +405,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   const coachChats = useMemo(() => chats.filter((c) => c.messages.length > 0), [chats])
 
   const list = (
-    <nav className="coach-list" aria-label="Your coach chats">
+    <nav className="coach-list" aria-label="Your HIT Mentor chats">
       <button type="button" className="btn btn-primary btn-sm coach-new" onClick={newChat}>+ New chat</button>
       {!loaded ? <p className="small muted">Loading your chats…</p> : coachChats.length === 0 ? <p className="small muted">Your chats are saved here, so you can come back to them any time.</p> : (
         <ul>
@@ -433,7 +433,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     </nav>
   )
 
-  const body = !ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : showPaywall ? <CoachPaywall compact />
+  const body = !ready ? <p className="small muted">Starting HIT Mentor…</p> : !sample ? <Unavailable /> : showPaywall ? <CoachPaywall compact />
     : screen === 'profile' ? <ProfileForm profile={profile} onSave={keepProfile} onCancel={() => setScreen('chat')} />
     : screen === 'prep' && chat.prep ? <PrepSheet sheet={chat.prep} user={user} onBack={() => setScreen('chat')} onRehearse={() => rehearse(chat)} />
     : screen === 'list' ? list
@@ -448,8 +448,8 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
         )}
         {rehearsing && (
           <div className="coach-rehearse-note small">
-            <strong>Rehearsal.</strong> The coach now plays the other side of your situation. Answer as you would in the real conversation. Each reply uses one coach message.
-            {parent && <> <button type="button" className="linklike" onClick={() => openChat(parent.id)}>Back to the coaching chat</button></>}
+            <strong>Rehearsal.</strong> HIT Mentor now plays the other side of your situation. Answer as you would in the real conversation. Each reply uses one HIT Mentor message.
+            {parent && <> <button type="button" className="linklike" onClick={() => openChat(parent.id)}>Back to the HIT Mentor chat</button></>}
           </div>
         )}
         {msgs.map((t, i) => {
@@ -480,7 +480,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
         {rehearsing && hasDebrief && parent && (
           <div className="coach-actions">
             <button type="button" className="btn btn-primary btn-sm" disabled={!!busy} onClick={() => rehearse(parent)}>Rehearse again</button>
-            <button type="button" className="btn btn-sm" onClick={() => openChat(parent.id)}>Back to the coaching chat</button>
+            <button type="button" className="btn btn-sm" onClick={() => openChat(parent.id)}>Back to the HIT Mentor chat</button>
           </div>
         )}
         {err && <p className="small coach-err" role="alert">{err}</p>}
@@ -490,20 +490,20 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
 
   const canType = sample && !showPaywall && screen === 'chat' && !(rehearsing && (chat.ended || hasDebrief))
   return (
-    <aside className={'coach-panel fade-in' + (full ? ' full' : '')} aria-label="AI coach" hidden={hidden}>
+    <aside className={'coach-panel fade-in' + (full ? ' full' : '')} aria-label="HIT Mentor" hidden={hidden}>
       <header className="coach-head">
         <div className="coach-title-row">
           <div>
             <span className="eyebrow">{isLive ? 'Premium' : 'Premium · prototype'}</span>
-            <h3>H.I.T. Negotiation Coach</h3>
+            <h3>HIT Mentor</h3>
           </div>
-          <button className="btn btn-sm" onClick={() => { voice.stopSpeaking(); onClose() }} aria-label="Close the coach">Close</button>
+          <button className="btn btn-sm" onClick={() => { voice.stopSpeaking(); onClose() }} aria-label="Close HIT Mentor">Close</button>
         </div>
         <div className="coach-tools">
           {sample && !showPaywall && <>
             <button type="button" className={'btn btn-sm coach-chats-btn' + (screen === 'list' ? ' on' : '')} onClick={() => setScreen(screen === 'list' ? 'chat' : 'list')}>Chats</button>
             <button type="button" className="btn btn-sm coach-new-btn" onClick={newChat} aria-label="New chat">+ New</button>
-            <button type="button" className={'btn btn-sm' + (screen === 'profile' ? ' on' : '')} onClick={() => setScreen(screen === 'profile' ? 'chat' : 'profile')} aria-label="About you (coach profile)">About you</button>
+            <button type="button" className={'btn btn-sm' + (screen === 'profile' ? ' on' : '')} onClick={() => setScreen(screen === 'profile' ? 'chat' : 'profile')} aria-label="About you (HIT Mentor profile)">About you</button>
           </>}
           {sample && <VoiceToggle voice={voice} />}
           <button type="button" className="btn btn-sm coach-full-btn" onClick={toggleFull} aria-pressed={full} aria-label={full ? 'Exit full screen' : 'Full screen'} title={full ? 'Exit full screen' : 'Full screen'}>
@@ -525,7 +525,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
                 : <button className="btn btn-primary btn-sm" disabled={!draft.trim()}>Send</button>}
             </form>
           )}
-          <p className="coach-fine">AI coach based on the course modules. Your chats are saved to your account; delete any of them under Chats. Educational guidance, not legal, financial or psychological advice.</p>
+          <p className="coach-fine">HIT Mentor is based on the course modules. Your chats are saved to your account; delete any of them under Chats. Educational guidance, not legal, financial or psychological advice.</p>
         </div>
       </div>
     </aside>

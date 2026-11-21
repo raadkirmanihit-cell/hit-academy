@@ -41,7 +41,7 @@ export const safetyReply = (country) => `I'm going to pause here, because what y
 
 Please talk to someone who can help right now. ${helpLines(country)}
 
-If you can, reach out to someone you trust and tell them how you're feeling. I'm an AI coach for negotiation, so I can't give you the support you deserve, but a person on a helpline can. This message did not use up any of your messages.`
+If you can, reach out to someone you trust and tell them how you're feeling. I'm HIT Mentor, an AI mentor, so I can't give you the support you deserve, but a person on a helpline can. This message did not use up any of your messages.`
 
 // Clear statements only. Everyday phrases such as "this deal is killing me" or "I could kill him"
 // are not matched; the prompts handle anything subtler.

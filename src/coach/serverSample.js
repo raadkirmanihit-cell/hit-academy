@@ -8,7 +8,7 @@ const err = (code, message, text) => Object.assign(new Error(message), { code, t
 export function makeServerSample() {
   async function sample(input, opts = {}) {
     const token = await backend.getToken()
-    if (!token) throw err('not_granted', 'Please sign in to use the coach.')
+    if (!token) throw err('not_granted', 'Please sign in first.')
     let r
     try {
       r = await fetch('/api/coach', {
