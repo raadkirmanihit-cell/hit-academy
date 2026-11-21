@@ -48,7 +48,7 @@ export default function AdminPage() {
         <button className="btn btn-ghost btn-sm" onClick={() => { setData(null); load() }}>Refresh</button>
       </div>
       <div className="tabs" role="tablist">
-        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'AI coach'], ['feedback', 'Coach feedback'], ['practice', 'The Arena'], ['community', 'Community'], ['reviews', 'Reviews'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
+        {[['overview', 'Overview'], ['students', `Students (${data.students.length})`], ['payments', 'Payments & refunds'], ['coach', 'HIT Mentor'], ['feedback', 'HIT Mentor feedback'], ['practice', 'The Arena'], ['community', 'Community'], ['reviews', 'Reviews'], ['messages', `Messages${unread ? ` (${unread} new)` : ''}`]].map(([id, label]) => (
           <button key={id} className="tab" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -98,10 +98,10 @@ function Overview({ data, unread, setTab }) {
         <Stat label="Paid students" value={paidStudents} sub={students.length ? `${Math.round((paidStudents / students.length) * 100)}% of registered` : ''} />
         <Stat label="Active this week" value={active7} />
         <Stat label="Finished all 7 modules" value={finished} />
-        <button className="card admin-stat-btn" onClick={() => setTab('coach')}><span className="small muted">AI coach subscribers</span><strong className="tnum">{(data.coach?.subscriptions || []).filter((c) => c.live && ACTIVE.has(c.status)).length}</strong></button>
+        <button className="card admin-stat-btn" onClick={() => setTab('coach')}><span className="small muted">HIT Mentor subscribers</span><strong className="tnum">{(data.coach?.subscriptions || []).filter((c) => c.live && ACTIVE.has(c.status)).length}</strong></button>
         <button className="card admin-stat-btn" onClick={() => setTab('messages')}><span className="small muted">New messages</span><strong>{unread}</strong></button>
       </div>
-      <p className="small muted">Revenue here is course sales only; AI coach subscriptions are on the AI coach tab. It counts real payments only, before Stripe's fees.{testCount ? ` ${testCount} test payment${testCount > 1 ? 's are' : ' is'} left out.` : ''}</p>
+      <p className="small muted">Revenue here is course sales only; HIT Mentor subscriptions are on the HIT Mentor tab. It counts real payments only, before Stripe's fees.{testCount ? ` ${testCount} test payment${testCount > 1 ? 's are' : ' is'} left out.` : ''}</p>
       <div className="stack" style={{ gap: '.6rem' }}>
         <h3>Revenue by month</h3>
         <div className="card admin-scroll" style={{ padding: 0 }}>
@@ -187,7 +187,7 @@ function Students({ data, act }) {
                           if (window.confirm(`Send ${r.email} an email with a link to choose a new password?`)) act('reset', { email: r.email }, 'Password-reset email sent.')
                         }}>Send password-reset email</button>
                         <button className="btn btn-ghost btn-sm" style={{ color: 'var(--b-aggressive)' }} onClick={() => {
-                          const typed = window.prompt(`Delete ${r.name || r.email}'s account for good?\n\nThis cancels their AI coach subscription in Stripe and deletes their account, progress, Arena role-plays and community posts. It can't be undone. Payment records stay for tax purposes.\n\nType their email address to confirm:`)
+                          const typed = window.prompt(`Delete ${r.name || r.email}'s account for good?\n\nThis cancels their HIT Mentor subscription in Stripe and deletes their account, progress, Arena role-plays and community posts. It can't be undone. Payment records stay for tax purposes.\n\nType their email address to confirm:`)
                           if (typed == null) return
                           if (typed.trim().toLowerCase() !== String(r.email).toLowerCase()) return notify('The email didn\'t match, so nothing was deleted.', 5000)
                           act('delete-user', { userId: r.id }, 'Account deleted.')
@@ -273,19 +273,19 @@ function CoachSubs({ data }) {
     return [...m.entries()].sort((a, b) => b[0].localeCompare(a[0]))
   }, [live])
 
-  if (!ready) return <p className="muted">Run database update 4 (supabase/update-4-coach-subscription.sql) in Supabase to see AI coach subscriptions here.</p>
+  if (!ready) return <p className="muted">Run database update 4 (supabase/update-4-coach-subscription.sql) in Supabase to see HIT Mentor subscriptions here.</p>
   return (
     <div className="stack" style={{ gap: '1.5rem' }}>
       <div className="admin-stats">
         <Stat label="Active subscribers" value={activeLive.length} sub={`${activeLive.filter((c) => c.cancelAtPeriodEnd).length} cancelled, running to month end`} />
         <Stat label="Monthly recurring revenue" value={money(mrr)} sub="from subscribers who haven't cancelled" />
-        <Stat label="Coach revenue so far (after refunds)" value={money(gross - refunded)} />
-        <Stat label="Coach included with course" value={includedLive.length} sub="3 free months, not paying yet" />
+        <Stat label="HIT Mentor revenue so far (after refunds)" value={money(gross - refunded)} />
+        <Stat label="HIT Mentor included with course" value={includedLive.length} sub="3 free months, not paying yet" />
         <Stat label="Ended subscriptions" value={subscriptions.filter((c) => c.live && c.status === 'canceled').length} />
       </div>
-      <p className="small muted">Real payments only, before Stripe's fees. To refund a coach payment or end a subscription early, open the customer in your Stripe dashboard; this board updates by itself.</p>
+      <p className="small muted">Real payments only, before Stripe's fees. To refund a HIT Mentor payment or end a subscription early, open the customer in your Stripe dashboard; this board updates by itself.</p>
       <div className="stack" style={{ gap: '.6rem' }}>
-        <h3>Coach revenue by month</h3>
+        <h3>HIT Mentor revenue by month</h3>
         <div className="card admin-scroll" style={{ padding: 0 }}>
           <table className="admin-table">
             <thead><tr><th>Month</th><th>Payments</th><th>Earned</th><th>Refunded</th><th>Net</th></tr></thead>
@@ -293,7 +293,7 @@ function CoachSubs({ data }) {
               {months.map(([k, r]) => (
                 <tr key={k}><td>{monthName(k)}</td><td className="tnum">{r.n}</td><td className="tnum">{money(r.gross)}</td><td className="tnum">{money(r.refunds)}</td><td className="tnum"><b>{money(r.gross - r.refunds)}</b></td></tr>
               ))}
-              {!months.length && <tr><td colSpan={5} className="muted">No real coach payments yet.</td></tr>}
+              {!months.length && <tr><td colSpan={5} className="muted">No real HIT Mentor payments yet.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -592,7 +592,7 @@ function FbBreakdown({ title, items, empty }) {
 }
 function CoachFeedback({ rows, notify }) {
   const [only, setOnly] = useState('all')
-  if (!rows) return <p className="muted">Run database update 12 (supabase/update-12-coach-feedback.sql) in Supabase to see coach feedback here.</p>
+  if (!rows) return <p className="muted">Run database update 12 (supabase/update-12-coach-feedback.sql) in Supabase to see HIT Mentor feedback here.</p>
   const ups = rows.filter((r) => r.rating === 'up').length
   const recent = rows.filter((r) => Date.now() - new Date(r.created_at) < 30 * 864e5)
   const downs = rows.filter((r) => r.rating === 'down')
@@ -607,7 +607,7 @@ function CoachFeedback({ rows, notify }) {
   const date = (d) => new Date(d).toLocaleDateString('en-GB')
   function copy() {
     const text = [
-      `Coach feedback: ${rows.length} ratings, ${pct(ups, rows.length)} helpful.`,
+      `HIT Mentor feedback: ${rows.length} ratings, ${pct(ups, rows.length)} helpful.`,
       `By rules version: ${versions.map(([v, n, u]) => `${v} ${pct(u, n)} of ${n}`).join('; ')}`,
       `Thumbs-down reasons: ${reasons.map(([k, n]) => `${k} ${n}`).join(', ')}`,
       `Thumbs-down areas: ${areas.map(([k, n]) => `${k} ${n}`).join(', ')}`,
@@ -620,13 +620,13 @@ function CoachFeedback({ rows, notify }) {
     return (
       <div className="card fb-card fb-empty">
         <h3>No ratings yet</h3>
-        <p className="small muted">When learners rate a coach plan with a thumbs up or down, the AI writes a short, anonymous note about the conversation. Those notes and the totals will appear here. No chat, no names and no learner id are ever stored.</p>
+        <p className="small muted">When learners rate a HIT Mentor plan with a thumbs up or down, the AI writes a short, anonymous note about the conversation. Those notes and the totals will appear here. No chat, no names and no learner id are ever stored.</p>
       </div>
     )
   }
   return (
     <div className="stack" style={{ gap: '1.25rem' }}>
-      <p className="small muted" style={{ maxWidth: '80ch' }}>Learners rate the coach's plans with a thumbs up or down. The AI then writes a short, anonymous note on how the conversation went. Only that note is stored: no chat, no names, no learner id.</p>
+      <p className="small muted" style={{ maxWidth: '80ch' }}>Learners rate HIT Mentor's plans with a thumbs up or down. The AI then writes a short, anonymous note on how the conversation went. Only that note is stored: no chat, no names, no learner id.</p>
       <div className="admin-stats">
         <Stat label="Ratings" value={rows.length} sub={`${recent.length} in the last 30 days`} />
         <Stat label="Helpful" value={pct(ups, rows.length)} sub={`${ups} up, ${downs.length} down`} />
@@ -636,7 +636,7 @@ function CoachFeedback({ rows, notify }) {
 
       <section className="card fb-card">
         <header className="fb-head">
-          <h3>By version of the coach's rules</h3>
+          <h3>By version of HIT Mentor's rules</h3>
           <p className="small muted">After a rule change, the new version should be at least as helpful as the one before. If it is clearly worse, undo the change.</p>
         </header>
         <div className="admin-scroll">

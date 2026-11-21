@@ -166,7 +166,7 @@ export async function requireAdmin(req) {
 // ---- AI coach subscription -------------------------------------------------
 
 export const COACH_PRICE_CENTS = 2100 // €21 a month (used when STRIPE_COACH_PRICE_ID isn't set)
-export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free coach messages for every account (coach only)
+export const COACH_TASTER = Number(process.env.COACH_TASTER || 10) // free HIT Mentor messages for every account (coach only)
 export const ARENA_FREE_TOKENS = Number(process.env.ARENA_FREE_TOKENS || 0) // free Arena tokens for every account (off: the Arena is paid)
 export const COACH_MONTHLY_LIMIT = Number(process.env.COACH_MONTHLY_LIMIT || 300) // fair use per month
 // past_due: Stripe is still retrying a failed renewal, so access stays on until it gives up.
@@ -279,7 +279,7 @@ export async function saveSubscription(sub, { userId, consentAt } = {}) {
   const start = item?.current_period_start ?? sub.current_period_start
   const end = item?.current_period_end ?? sub.current_period_end
   const uid = userId || sub.metadata?.user_id
-  if (!uid) { console.error('Coach subscription without user id', sub.id); return null }
+  if (!uid) { console.error('HIT Mentor subscription without user id', sub.id); return null }
   const row = {
     user_id: uid,
     stripe_customer_id: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
@@ -298,7 +298,7 @@ export async function saveSubscription(sub, { userId, consentAt } = {}) {
   }
   const { error } = await db().from('coach_subscriptions').upsert(row, { onConflict: 'user_id' })
   // The account was deleted (Stripe tells us about the cancellation afterwards): nothing to keep.
-  if (error?.code === '23503') { console.warn('Coach subscription for a deleted account', sub.id); return null }
+  if (error?.code === '23503') { console.warn('HIT Mentor subscription for a deleted account', sub.id); return null }
   if (error) throw error
   return row
 }
@@ -319,8 +319,8 @@ export async function chargeCoach(user, { practice = false } = {}) {
     ;({ data: count, error } = await db().rpc('bump_practice_usage', { p_user: userId }))
   } else {
     if (access.left <= 0) return access.subscribed
-      ? { status: 429, body: { error: `You have used this month's ${access.limit} coach messages. ${access.periodEnd ? `They renew on ${new Date(access.periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.` : 'They renew with your next monthly payment.'}`, code: 'monthly_limit' } }
-      : { status: 402, body: { error: 'Your free coach messages are used up. Subscribe to keep coaching.', code: 'needs_subscription' } }
+      ? { status: 429, body: { error: `You have used this month's ${access.limit} HIT Mentor messages. ${access.periodEnd ? `They renew on ${new Date(access.periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.` : 'They renew with your next monthly payment.'}`, code: 'monthly_limit' } }
+      : { status: 402, body: { error: 'Your free HIT Mentor messages are used up. Subscribe to keep using HIT Mentor.', code: 'needs_subscription' } }
     ;({ data: count, error } = await db().rpc('bump_coach_usage', { p_user: userId }))
   }
   if (error) throw error

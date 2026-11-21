@@ -89,7 +89,7 @@ export default function Topbar() {
 // GDPR right to erasure (Art. 17): the request goes to Raad, who deletes the account from the
 // control board within 30 days (Privacy Policy, section 6).
 async function requestDeletion(user, notify) {
-  const ok = window.confirm('Delete your account?\n\nWe will delete your account, progress, Arena role-plays and community posts within 30 days, and cancel any AI coach subscription. You will lose access to everything you bought. Payment records are kept as tax law requires.\n\nPress OK to send the request.')
+  const ok = window.confirm('Delete your account?\n\nWe will delete your account, progress, Arena role-plays and community posts within 30 days, and cancel any HIT Mentor subscription. You will lose access to everything you bought. Payment records are kept as tax law requires.\n\nPress OK to send the request.')
   if (!ok) return
   try {
     await backend.sendMessage({ subject: 'Account deletion request', body: `Please delete my account (${user.email}) and my personal data, as described in the Privacy Policy.` })

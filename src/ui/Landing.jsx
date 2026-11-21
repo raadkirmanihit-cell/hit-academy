@@ -37,7 +37,7 @@ export default function Landing() {
             <div className="stack" style={{ gap: '.9rem' }}>
               <div className="row" style={{ gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button className="btn btn-primary" onClick={cta}>{user ? 'Go to my course' : 'Start the first module free'} <Icon.arrowR /></button>
-                {!user && <span style={{ color: '#7fb2ff', fontWeight: 700, fontSize: '1.05rem' }}>Includes 10 AI coach messages</span>}
+                {!user && <span style={{ color: '#7fb2ff', fontWeight: 700, fontSize: '1.05rem' }}>Includes 10 HIT Mentor messages</span>}
               </div>
               {!user && <p style={{ margin: '0 0 1rem', fontSize: '1rem', lineHeight: 1.6, color: '#fff' }}>Sign up with your email, no card needed.</p>}
               <div className="price-tag"><strong>{euro(bundle)}</strong><span className="muted" style={{ color: '#9aa5c6' }}>{launch.launch ? <><s>{euro(BUNDLE_PRICE)}</s> launch price · </> : null}complete course: all 7 modules + the Arena for AI role-plays ({BUNDLE_PRACTICE_MESSAGES} tokens) + certificate of completion · or {euro(MODULE_PRICE)} per module</span></div>

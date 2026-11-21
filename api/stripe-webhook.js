@@ -89,8 +89,8 @@ async function coachCheckoutDone(stripe, s) {
   if (customer) await stripe.customers.update(customer, { invoice_settings: { footer: INVOICE_FOOTER } }).catch((e) => console.error('Invoice footer not set', e.message))
   const row = await saveSubscription(sub, { userId: s.client_reference_id || sub.metadata.user_id })
   const p = row && await userName(row.user_id)
-  await notifyOwner(`New AI coach subscriber: ${p?.name || s.customer_details?.name || 'a student'}`, [
-    `${p?.name || ''} <${p?.email || s.customer_details?.email || ''}> subscribed to the AI coach.`,
+  await notifyOwner(`New HIT Mentor subscriber: ${p?.name || s.customer_details?.name || 'a student'}`, [
+    `${p?.name || ''} <${p?.email || s.customer_details?.email || ''}> subscribed to HIT Mentor.`,
     `Amount: ${((s.amount_total || 0) / 100).toFixed(2)} ${String(s.currency || 'eur').toUpperCase()} per month`,
     `Stripe subscription: ${subId}`,
   ])
@@ -111,17 +111,17 @@ async function coachSubscriptionChanged(sub, type, base) {
   if (newlyCancelled || endedNow) {
     const p = await userName(row.user_id)
     const end = sub.cancel_at ? new Date(sub.cancel_at * 1000).toISOString() : row.current_period_end
-    if (p?.email) await sendEmail(p.email, 'Your AI coach subscription is cancelled', [
+    if (p?.email) await sendEmail(p.email, 'Your HIT Mentor subscription is cancelled', [
       `Hello ${p.name?.split(' ')[0] || 'there'},`, '',
-      `We have received your cancellation of the H.I.T. AI coach subscription on ${day(new Date().toISOString())}.`,
-      endedNow ? 'Your subscription has ended and you will not be charged again.' : `The coach stays on until ${day(end)}. After that the subscription ends and you will not be charged again.`, '',
+      `We have received your cancellation of the HIT Mentor subscription on ${day(new Date().toISOString())}.`,
+      endedNow ? 'Your subscription has ended and you will not be charged again.' : `HIT Mentor stays on until ${day(end)}. After that the subscription ends and you will not be charged again.`, '',
       `Changed your mind? You can restart it any time from your dashboard: ${base}`, '',
       'Human Interactions Translated',
     ])
   }
   if (row && type === 'customer.subscription.deleted') {
     const p = await userName(row.user_id)
-    await notifyOwner(`AI coach subscription ended: ${p?.name || 'a student'}`, [`${p?.name || ''} <${p?.email || ''}>'s coach subscription has ended (${sub.cancellation_details?.reason || sub.status}).`])
+    await notifyOwner(`HIT Mentor subscription ended: ${p?.name || 'a student'}`, [`${p?.name || ''} <${p?.email || ''}>'s HIT Mentor subscription has ended (${sub.cancellation_details?.reason || sub.status}).`])
   }
 }
 
@@ -163,9 +163,9 @@ async function coachFirstChargeReminder(sub, base) {
   const p = await userName(sub.metadata.user_id)
   if (!p?.email) return
   const amount = ((sub.items?.data?.[0]?.price?.unit_amount || 0) / 100).toFixed(2)
-  await sendEmail(p.email, 'Reminder: your AI coach subscription starts soon', [
+  await sendEmail(p.email, 'Reminder: your HIT Mentor subscription starts soon', [
     `Hello ${p.name?.split(' ')[0] || 'there'},`, '',
-    `The AI coach time included with your course ends on ${day(new Date(sub.trial_end * 1000).toISOString())}. On that day your AI coach subscription starts and we will charge €${amount}, then the same every month (up to ${COACH_MONTHLY_LIMIT} coach messages a month).`, '',
+    `The HIT Mentor time included with your course ends on ${day(new Date(sub.trial_end * 1000).toISOString())}. On that day your HIT Mentor subscription starts and we will charge €${amount}, then the same every month (up to ${COACH_MONTHLY_LIMIT} HIT Mentor messages a month).`, '',
     `If you don't want to continue, cancel before then on your dashboard ("Cancel subscription here"): ${base}`, '',
     'Human Interactions Translated',
   ])

@@ -68,7 +68,7 @@ ul { margin: 0; padding-left: 4mm; }
 .rem { margin-top: 4mm; background: #0b1a44; color: #fff; border-radius: 2mm; padding: 3mm 4mm; font-weight: 600; }
 .foot { margin-top: 5mm; font-size: 7.5pt; color: #8a93b0; display: flex; justify-content: space-between; }
 </style></head><body>
-<div class="head"><img src="${logo}" alt=""><div><div class="eyebrow">Prep sheet · H.I.T. Negotiation Coach</div><h1>${esc(txt(s.title) || 'My prep sheet')}</h1><div class="eyebrow">${user?.name ? esc(user.name) + ' · ' : ''}${date}</div></div></div>
+<div class="head"><img src="${logo}" alt=""><div><div class="eyebrow">Prep sheet · HIT Mentor</div><h1>${esc(txt(s.title) || 'My prep sheet')}</h1><div class="eyebrow">${user?.name ? esc(user.name) + ' · ' : ''}${date}</div></div></div>
 ${situation(s).length ? `<h2>Situation map</h2><div class="sm">${situation(s).map(([l, v]) => `<div><b>${l}</b><br>${esc(v)}</div>`).join('')}</div>` : ''}
 ${txt(s.attention) ? `<div class="att"><b>Needs attention first:</b> ${esc(s.attention)}</div>` : ''}
 ${rows(s).map(row).join('')}

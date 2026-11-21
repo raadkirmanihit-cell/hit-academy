@@ -177,7 +177,7 @@ export default function SayItAloud({ b, module }) {
           : locked && !fb ? <CoachPaywall compact /> : (
           <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
             <button className="btn btn-dark" disabled={!text.trim() || asking || phase === 'recording'} onClick={getFeedback}>{asking ? 'Listening to your words…' : fb ? 'Check my new wording' : 'Get AI feedback on my wording'}</button>
-            <span className="small muted">Uses one coach message.</span>
+            <span className="small muted">Uses one HIT Mentor message.</span>
           </div>
         )}
         {sample && !locked && <PlanNote />}

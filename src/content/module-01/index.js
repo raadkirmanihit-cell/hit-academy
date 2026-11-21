@@ -215,7 +215,7 @@ const m1 = {
         {
           id: 'l3-voice', title: 'Say it out loud: hold your anchor',
           blocks: [
-            { t: 'p', text: 'Assertiveness is not only *what* you say but *how* it sounds. Practise out loud: record your answer, and the app measures your pace, your pauses, whether your voice drops at the end of your phrases, and any hedges ("just", "maybe", "I guess") that soften your position. Then ask the AI coach for feedback on your wording, and compare with a model answer.' },
+            { t: 'p', text: 'Assertiveness is not only *what* you say but *how* it sounds. Practise out loud: record your answer, and the app measures your pace, your pauses, whether your voice drops at the end of your phrases, and any hedges ("just", "maybe", "I guess") that soften your position. Then ask HIT Mentor for feedback on your wording, and compare with a model answer.' },
             P.sayAnchor,
           ],
         },

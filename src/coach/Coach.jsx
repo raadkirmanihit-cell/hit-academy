@@ -69,11 +69,11 @@ export function useSample() {
 }
 
 const ERRORS = {
-  not_granted: 'The coach needs your permission to use Claude. Reload the page and choose Allow to try again.',
+  not_granted: 'The AI needs your permission to use Claude. Reload the page and choose Allow to try again.',
   sampling_disabled: 'Claude is not available for this account.',
-  rate_limited: 'The coach is busy. Please wait a minute and try again.',
+  rate_limited: 'The AI is busy. Please wait a minute and try again.',
   session_expired: 'Your session has expired. Please sign in to claude.ai again.',
-  refused: 'The coach can\'t help with that. Try rephrasing your question.',
+  refused: 'The AI can\'t help with that. Try rephrasing your question.',
   network: 'Connection problem. Please check your internet and try again.',
 }
 // Server says the free messages are used up: switch the coach to the subscribe card.
@@ -135,7 +135,7 @@ export function Rich({ text, onLesson }) {
 }
 
 export function Unavailable() {
-  return <p className="small muted coach-off">The AI coach works when the course is opened on claude.ai. In this view it is switched off.</p>
+  return <p className="small muted coach-off">HIT Mentor works when the course is opened on claude.ai. In this view it is switched off.</p>
 }
 
 export const SUGGESTIONS = [
@@ -172,7 +172,7 @@ export function CoachLauncher() {
   }
   return (
     <>
-      {here && (!open || mini) && <button className="coach-fab" onClick={() => { setMini(false); setOpen(true) }} aria-label={mini ? 'Back to your coach chat' : 'Ask the AI coach'}><span className="coach-dot" aria-hidden="true">AI</span> {mini ? 'Back to the coach' : 'Ask the coach'}</button>}
+      {here && (!open || mini) && <button className="coach-fab" onClick={() => { setMini(false); setOpen(true) }} aria-label={mini ? 'Back to your HIT Mentor chat' : 'Ask HIT Mentor'}><span className="coach-dot" aria-hidden="true">AI</span> {mini ? 'Back to HIT Mentor' : 'Ask HIT Mentor'}</button>}
       {open && <CoachPanel ctx={ctx} subscribe={subscribe} hidden={!here || mini} onClose={() => { setMini(false); setOpen(false) }}
         onLesson={(full) => { if (full || window.matchMedia?.('(max-width: 640px)').matches) setMini(true) }} />}
     </>
@@ -310,7 +310,7 @@ export function Spar({ scenarioId, compact }) {
   const canHandsFree = voice.canListen && voice.canSpeak
   return (
     <div className={'activity spar' + (compact ? ' compact' : '')}>
-      <span className="eyebrow" style={{ color: 'var(--orange-ink)' }}>Live sparring partner · AI coach{isLive ? '' : ' (premium prototype)'} · {sc.level}</span>
+      <span className="eyebrow" style={{ color: 'var(--orange-ink)' }}>Live sparring partner · AI role-play{isLive ? '' : ' (premium prototype)'} · {sc.level}</span>
       <h4>{sc.title}</h4>
       <div className="spar-brief">
         <img src={sc.img} alt="" />
@@ -331,7 +331,7 @@ export function Spar({ scenarioId, compact }) {
         </div>
       )}
       {history.length > 0 && <ScoreHistory attempts={history} />}
-      {!ready ? <p className="small muted">Starting the coach…</p> : !sample ? <Unavailable /> : locked && !report ? (arenaAccess ? <TopUpCard /> : <ArenaUnlockCard compact />) : !turns ? (
+      {!ready ? <p className="small muted">Starting…</p> : !sample ? <Unavailable /> : locked && !report ? (arenaAccess ? <TopUpCard /> : <ArenaUnlockCard compact />) : !turns ? (
         <div className="row" style={{ gap: '.6rem', flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={start}>Start the negotiation</button>
           <VoiceToggle voice={voice} />
