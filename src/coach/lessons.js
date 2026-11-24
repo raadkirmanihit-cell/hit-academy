@@ -4,6 +4,8 @@
 // in this list are dropped, so the coach can never send a learner to a page that doesn't exist.
 // Every id is "moduleId/stepId" from the module content (checked by scripts/check-coach-lessons.mjs).
 
+import { movesAsText } from './moves.js'
+
 export const LESSONS = [
   // Module 1: The Negotiator's Blueprint
   ['m1/l1-criteria', 'what a good negotiation is; the three tests of a good outcome'],
@@ -111,7 +113,7 @@ export function lessonOf(modules, id) {
   return { moduleId, stepId, label: `Module ${m.number} · ${lesson}`, page: step.title }
 }
 
-// Plain text for read-aloud: tokens become the lesson's name; unknown tokens disappear.
+// Plain text for read-aloud: tokens become the lesson's or move's name; unknown tokens disappear.
 export function lessonsAsText(text, modules) {
-  return String(text).replace(TOKEN, (_, id) => lessonOf(modules, id)?.label || '').replace(/\s+([.,!?])/g, '$1')
+  return movesAsText(String(text).replace(TOKEN, (_, id) => lessonOf(modules, id)?.label || '')).replace(/\s+([.,!?])/g, '$1')
 }

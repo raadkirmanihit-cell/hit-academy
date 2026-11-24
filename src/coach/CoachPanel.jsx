@@ -8,13 +8,16 @@ import { readJSON, writeJSON } from '../platform/storage.js'
 import { retrieve, formatExcerpts } from './knowledge.js'
 import { COACH_RULES, REHEARSE_RULES, REHEARSE_FEEDBACK, PREP_PROMPT } from './prompts.js'
 import { lessonList, lessonsAsText } from './lessons.js'
+import { movesAsText } from './moves.js'
 import { SAFETY_TOKEN } from './safety.js'
 import { useVoice } from './voice.js'
 import { useCoachPlan, usedOneMessage, CoachPaywall, PlanNote } from './plan.jsx'
 import { loadChats, saveChat, deleteChat, loadProfile, saveProfile, newId } from './store.js'
-import { useKb, useSample, noteError, errorText, Rich, VoiceToggle, MicButton, PlayButton, Unavailable, SUGGESTIONS } from './Coach.jsx'
+import { useKb, useSample, noteError, errorText, Rich, MovesContext, VoiceToggle, MicButton, PlayButton, Unavailable, SUGGESTIONS } from './Coach.jsx'
 import { PrepSheet } from './PrepSheet.jsx'
 import { Icon } from '../ui/icons.jsx'
+
+const NO_MOVES = { lines: null, onTry: null }
 
 // ---- Profile ---------------------------------------------------------------
 
@@ -184,7 +187,7 @@ const titleOf = (q) => { const t = q.replace(/\s+/g, ' ').trim(); return t.lengt
 const when = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
 function chatText(chat) {
-  return chat.messages.filter(say).map((m) => `${m.role === 'user' ? 'LEARNER' : 'COACH'}: ${stripCase(m.content)}`).join('\n\n').slice(-14000)
+  return chat.messages.filter(say).map((m) => `${m.role === 'user' ? 'LEARNER' : 'COACH'}: ${movesAsText(stripCase(m.content))}`).join('\n\n').slice(-14000)
 }
 function rehearsalText(chat) {
   return chat.messages.filter(say).map((m) => `${m.role === 'user' ? 'LEARNER' : 'OTHER SIDE'}: ${m.content}`).join('\n').slice(-12000)
@@ -273,6 +276,8 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   }
 
   function openChat(id) { setActiveId(id); setScreen('chat'); setErr(''); scrollMode.current = 'end'; setScrollTick((n) => n + 1) }
+  // "Try it with HIT Mentor" on a move card: start the learner's attempt in the input box.
+  function tryMove(name) { setDraft(`Let me try ${name}: `); setTimeout(() => { const el = inputRef.current; if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length) } }, 0) }
   function newChat() { ctl.current?.abort(); setFresh(blank()); setActiveId(null); setScreen('chat'); setErr(''); setDraft('') }
   async function removeChat(id) {
     setConfirmDel(null)
@@ -459,7 +464,11 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
           const { qs, text } = rehearsing ? { qs: [], text: t.content } : splitQuestions(stripCase(t.content))
           return (
             <div key={i} className={'coach-msg assistant' + (rehearsing ? ' counterpart' : '')}>
-              {text && <Rich text={text} onLesson={() => onLesson?.(full)} />}
+              {text && (
+                <MovesContext.Provider value={rehearsing ? NO_MOVES : { lines: caseOf(t.content)?.moves || null, onTry: tryMove }}>
+                  <Rich text={text} onLesson={() => onLesson?.(full)} />
+                </MovesContext.Provider>
+              )}
               {qs.length > 0 && <Diagnosis qs={qs} active={i === lastAssistant && i === msgs.length - 1 && !busy} onSend={ask} onSkip={() => ask('Please skip the questions and give me your advice with what you know so far, and tell me what you assumed.')} />}
               <PlayButton voice={voice} text={lessonsAsText(text, modules)} />
               {i === lastPlan && <Rate rated={t.rated} onRate={(r, why) => rate(i, r, why)} />}

@@ -377,5 +377,167 @@
       "Keeps the fairness approach and the 7.5% opening from the previous version.",
       "Most rewritten pushback replies acknowledge his position, bring it back to a fair standard and end with a 'what'/'how' or no-oriented question (a reply to a stall like 'let me see what I can do' may instead be a commitment check on what, when and who)."
     ]
+  },
+  {
+    "id": "course-sharp-question",
+    "note": "Raad's benchmark (2026-11-24): questions are Mentor's strength; they should test a course pattern a generic chatbot would not look for.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "One of my direct reports is under performing and I might have to fire him. How can I give him the feedback in a way that expresses the seriousness of the situation without beating around the bush but also without being unnecessarily harsh"
+      },
+      {
+        "role": "assistant",
+        "content": "This is a heavy conversation to carry, and wanting it to be both honest and humane is a good place to start. Seriousness usually comes from concrete facts and clear stakes, not from a harder tone. So I'd like to understand the specifics first, so the wording fits your situation rather than a template.\n? Walk me through what's been happening: what he has actually done or not done, what's already been said to him about it, and what you'd most like to come out of this conversation."
+      },
+      {
+        "role": "user",
+        "content": "He has trouble finishing his tasks. At first when the task is assigned, he doesn't ask any questions to better understand the task. He acts like he understood everything but his final output is usually not what was asked for. The work itself, he uses AI to do it. We can tell this because his pull requests always have unrelated changes. He is also unable to explain certain lines of code that he supposedly wrote. After multiple conversations, nothing has changed. Using AI is not a problem but using it in a way that cannot be explained is worrisome. I'd like to express the seriousness of the situation and explain the repercussions"
+      }
+    ],
+    "criteria": [
+      "Does NOT give a plan yet (no 'What to say' section).",
+      "At least one question or the short insight tests a course pattern behind 'acts like he understood everything', e.g. asks what he actually says or does when a task is handed over, or names a yes that isn't real understanding (a counterfeit yes) as a reading to verify.",
+      "Asks at most 2 questions and does not ask for anything the learner already said."
+    ]
+  },
+  {
+    "id": "distinct-plan",
+    "note": "Raad's benchmark (2026-11-24): the plan must read as H.I.T., not generic advice, and be followable without the course. Turns extended 2026-11-24: Mentor asks one sharper round (what he said back, has he heard the stakes) before the plan, which Raad wants.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "One of my direct reports is under performing and I might have to fire him. How can I give him the feedback in a way that expresses the seriousness of the situation without beating around the bush but also without being unnecessarily harsh"
+      },
+      {
+        "role": "assistant",
+        "content": "This is a heavy conversation to carry, and wanting it to be both honest and humane is a good place to start. Seriousness usually comes from concrete facts and clear stakes, not from a harder tone. So I'd like to understand the specifics first, so the wording fits your situation rather than a template.\n? Walk me through what's been happening: what he has actually done or not done, what's already been said to him about it, and what you'd most like to come out of this conversation."
+      },
+      {
+        "role": "user",
+        "content": "He has trouble finishing his tasks. At first when the task is assigned, he doesn't ask any questions to better understand the task. He acts like he understood everything but his final output is usually not what was asked for. The work itself, he uses AI to do it. We can tell this because his pull requests always have unrelated changes. He is also unable to explain certain lines of code that he supposedly wrote. After multiple conversations, nothing has changed. Using AI is not a problem but using it in a way that cannot be explained is worrisome. I'd like to express the seriousness of the situation and explain the repercussions"
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds frustrating, especially after several conversations with no change. The two patterns you describe, not asking questions up front and not being able to explain his own code, may come from the same place: reluctance to admit when he doesn't understand something. That's a reading to verify, not a conclusion.\n? What would a good outcome of this conversation be for you?\n? What formal step is actually on the table if nothing changes?"
+      },
+      {
+        "role": "user",
+        "content": "What would a good outcome of this conversation be for you?\nPrepare a fair exit\n\nWhat formal step is actually on the table if nothing changes?\nTermination"
+      },
+      {
+        "role": "assistant",
+        "content": "That's a clear-eyed aim. A fair exit usually depends on two things: he hears the stakes in plain words, possibly for the first time, and the process around him is clean enough that nobody, including you, can later call it a surprise.\n? Is the door still genuinely open, or is the decision mostly made?\n? Where do HR and documentation stand so far?"
+      },
+      {
+        "role": "user",
+        "content": "Is the door still genuinely open, or is the decision mostly made?\nReal last chance, set deadline\n\nWhere do HR and documentation stand so far?\nHR involved, talks documented"
+      },
+      {
+        "role": "assistant",
+        "content": "A real last chance with a set deadline, HR involved and talks documented: that gives you a clean base, and it means this conversation has two jobs: a fair shot at change, and a fair exit if it doesn't come. His quick \"got it\" may be a [[move:counterfeit-yes]]: a yes that hides that he hasn't understood.\n? When you raised this before, what did he actually say back? | Agreed, promised to improve | Got defensive or explained | Said very little\n? Has he heard in plain words that his job is at risk? | Yes, clearly | Hinted, not said outright | No, not yet"
+      },
+      {
+        "role": "user",
+        "content": "When you raised this before, what did he actually say back?\nAgreed, promised to improve\n\nHas he heard in plain words that his job is at risk?\nHinted, not said outright"
+      }
+    ],
+    "criteria": [
+      "Has a 'How I read this' section with People, Problem and Environment bullets and a 'Start with' bullet naming one lens.",
+      "Has a 'Translation' section with at least one bullet in the form They say \"...\" → may mean ... → need ...",
+      "The game plan contains at least 3 move tokens written like [[move:...]], and each step that has one also says in plain words what to do.",
+      "Reads the 'acts like he understood' / 'promised to improve' pattern as a yes without real understanding (counterfeit yes), and the plan turns it into a commitment check where he says what he will deliver and by when (at task handover, as a standard, or at the close of the meeting).",
+      "Each line under 'What to say' has a delivery note in brackets starting with 'How:' (voice, pace or pause).",
+      "Covers the fair exit too: at least one step or phase on what happens and what to say if the deadline passes without change.",
+      "Standard steps such as checking with HR, a private room or a written summary appear on a single 'Basics' line rather than as several numbered steps."
+    ]
+  },
+  {
+    "id": "try-a-move",
+    "note": "Practising a move from a move card gets short feedback, not a new plan.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "One of my direct reports is under performing and I might have to fire him. How can I give him the feedback in a way that expresses the seriousness of the situation without beating around the bush but also without being unnecessarily harsh"
+      },
+      {
+        "role": "assistant",
+        "content": "This is a heavy conversation to carry, and wanting it to be both honest and humane is a good place to start. Seriousness usually comes from concrete facts and clear stakes, not from a harder tone. So I'd like to understand the specifics first, so the wording fits your situation rather than a template.\n? Walk me through what's been happening: what he has actually done or not done, what's already been said to him about it, and what you'd most like to come out of this conversation."
+      },
+      {
+        "role": "user",
+        "content": "He has trouble finishing his tasks. At first when the task is assigned, he doesn't ask any questions to better understand the task. He acts like he understood everything but his final output is usually not what was asked for. The work itself, he uses AI to do it. We can tell this because his pull requests always have unrelated changes. He is also unable to explain certain lines of code that he supposedly wrote. After multiple conversations, nothing has changed. Using AI is not a problem but using it in a way that cannot be explained is worrisome. I'd like to express the seriousness of the situation and explain the repercussions"
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds frustrating, especially after several conversations with no change. The two patterns you describe, not asking questions up front and not being able to explain his own code, may come from the same place: reluctance to admit when he doesn't understand something. That's a reading to verify, not a conclusion.\n? What would a good outcome of this conversation be for you?\n? What formal step is actually on the table if nothing changes?"
+      },
+      {
+        "role": "user",
+        "content": "What would a good outcome of this conversation be for you?\nPrepare a fair exit\n\nWhat formal step is actually on the table if nothing changes?\nTermination"
+      },
+      {
+        "role": "assistant",
+        "content": "That's a clear-eyed aim. A fair exit usually depends on two things: he hears the stakes in plain words, possibly for the first time, and the process around him is clean enough that nobody, including you, can later call it a surprise.\n? Is the door still genuinely open, or is the decision mostly made?\n? Where do HR and documentation stand so far?"
+      },
+      {
+        "role": "user",
+        "content": "Is the door still genuinely open, or is the decision mostly made?\nReal last chance, set deadline\n\nWhere do HR and documentation stand so far?\nHR involved, talks documented"
+      },
+      {
+        "role": "assistant",
+        "content": "**How I read this**\n- People: he likely avoids looking slow; trust in his output is low\n- Problem: no shared check of what 'done' means at handover\n- Environment: HR involved, talks documented, formal last chance\n- Start with: Process, nobody checks understanding at handover\n\n**Your game plan**\n1. At every handover, ask him to say back what he'll deliver, by when, and how you'll both check it ([[move:commitment-yes]]).\n\n**What to say**\n- \"Before you start, walk me through what you'll deliver and by when.\" (How: [[move:midnight-voice]], slow; then pause)\n\n? Does this plan fit your situation? | Yes, it fits | Not quite | They'd react differently"
+      },
+      {
+        "role": "user",
+        "content": "Let me try Commitment yes (what, when, who): Ok so do you understand the task and can you do it by Friday?"
+      }
+    ],
+    "criteria": [
+      "Replies in under 150 words with feedback on the attempt, not a new plan (no 'Your game plan' or 'What to say' sections, no question round).",
+      "Points out that the attempt is still a yes/no question (or otherwise does not make him say back what, when and who) and gives a stronger version in quotation marks."
+    ]
+  },
+  {
+    "id": "start-issue-last-chance",
+    "note": "Start check (manual v3, Example 5): low trust in his yes is not a Relationship block; Issue blocks.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "I manage a developer. At task handover he asks no questions and says he understands, but his work often doesn't match the request, his pull requests have unrelated changes and he couldn't explain some of his own code. After several talks he promised to improve and nothing changed. I've only hinted that his job is at risk. HR is involved and the talks are documented. I want to give him a real last chance with a deadline, and prepare a fair exit if it fails. Please skip the questions and give me your plan with what you know."
+      }
+    ],
+    "criteria": [
+      "Gives a plan with a 'How I read this' section whose 'Start with' bullet names Issue as the first lens.",
+      "The first numbered step works on the standard he must meet or on stating the consequence plainly (not on repairing the relationship)."
+    ]
+  },
+  {
+    "id": "start-other-email",
+    "note": "Start check (manual v3, Example 6): an untested reading that every response depends on means Other blocks.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "A colleague from another team replied to my status update, copying both our managers: 'This is not what we agreed. Please stop changing the scope.' I don't recall changing the scope. We've worked well together for a year. I want to sort this out without a public fight. Please skip the questions and give me your plan with what you know."
+      }
+    ],
+    "criteria": [
+      "Gives a plan with a 'How I read this' section whose 'Start with' bullet names Other as the first lens.",
+      "The first step that involves the colleague is to find out which change they mean (ask or clarify) before defending anything; moving to a call or a private message for that question is fine."
+    ]
+  },
+  {
+    "id": "start-relationship-client",
+    "note": "Start check (manual v3, Example 7): an unacknowledged broken commitment and 'I won't discuss this with you' means Relationship blocks.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "I'm an account manager. We missed a delivery date that I had personally confirmed twice. The client's operations head told me: 'Every time we talk, you promise something. I'm not discussing a new timeline with you.' We've fixed the cause on our side. I need to agree a new timeline and keep the account. Please skip the questions and give me your plan with what you know."
+      }
+    ],
+    "criteria": [
+      "Gives a plan with a 'How I read this' section whose 'Start with' bullet names Relationship as the first lens.",
+      "Acknowledging the missed commitments and their impact on the client comes before any new timeline or date is proposed to them (a message that only asks for a meeting may come first)."
+    ]
   }
 ]

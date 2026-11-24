@@ -1,13 +1,14 @@
 import { isLive } from '../platform/backend.js'
 import { makeServerSample } from './serverSample.js'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { Icon } from '../ui/icons.jsx'
 import { flatSteps } from '../platform/progress.js'
 import { Md } from '../ui/md.jsx'
 import { buildChunks, retrieve, formatExcerpts, library } from './knowledge.js'
 import { COACH_RULES, SPAR_RULES, FEEDBACK_PROMPT } from './prompts.js'
-import { lessonOf, TOKEN } from './lessons.js'
+import { lessonOf } from './lessons.js'
+import { moveOf } from './moves.js'
 import { CoachPanel } from './CoachPanel.jsx'
 import { SAFETY_TOKEN } from './safety.js'
 import { scenarios, scenarioById } from './scenarios.js'
@@ -95,23 +96,96 @@ export function LessonLink({ id, onOpen }) {
     </a>
   )
 }
+// Lesson tokens ([[m5/l3-what]]) and move tokens ([[move:allegation-assessment]]) in one pass.
+const ANY_TOKEN = /\[\[\s*(m\d\/[a-z0-9-]+|move:[a-z0-9-]+)\s*\]\]/g
+const HAS_LESSON = /\[\[\s*m\d\//
+
+// What a reply's move chips can use: the learner's own line per move (from the hidden case file)
+// and a way to start practising a move in the chat.
+export const MovesContext = createContext({ lines: null, onTry: null })
+
+// A course move named in a reply: a chip that opens a mini lesson. Layer 1 is the plain words in the
+// plan; the card is layer 2 (what, why, your line, try it); the module lesson is layer 3.
+function MoveChip({ id, open, onToggle }) {
+  const m = moveOf(id)
+  if (!m) return null
+  return <button type="button" className={'coach-move' + (open ? ' open' : '')} aria-expanded={open} onClick={onToggle}
+    title={open ? 'Hide the explanation' : `What is ${m.name}?`}>{m.name}</button>
+}
+export function MoveCard({ id, onClose, onLesson }) {
+  const { lines, onTry } = useContext(MovesContext)
+  const m = moveOf(id)
+  if (!m) return null
+  const mine = lines && typeof lines[id] === 'string' ? lines[id].trim() : ''
+  return (
+    <span className="coach-move-card" role="region" aria-label={m.name}>
+      <span className="coach-move-name">{m.name}</span>
+      <span className="coach-move-row"><b>What it is</b> {m.what}</span>
+      <span className="coach-move-row"><b>Why it works</b> {m.why}</span>
+      {mine && <span className="coach-move-row mine"><b>Your line</b> {mine}</span>}
+      <span className="coach-move-row"><b>Try it</b> {m.tryIt}</span>
+      <span className="coach-move-foot">
+        {onTry && <button type="button" className="btn btn-primary btn-sm" onClick={() => { onClose(); onTry(m.name) }}>Try it with HIT Mentor</button>}
+        <span className="small">Go deeper: <LessonLink id={m.lesson} onOpen={onLesson} /></span>
+      </span>
+    </span>
+  )
+}
+
+// A lesson token becomes a link to that page, a move token a chip whose card opens below the line.
+// Unknown tokens are dropped. "(… [[move:x]])" loses its brackets: the chip stands on its own.
 export function WithLessons({ text, onLesson }) {
+  const [openId, setOpenId] = useState(null)
   if (!/\[\[/.test(text)) return <Md text={text} />
+  text = text.replace(/\s*\(\s*(\[\[\s*move:[a-z0-9-]+\s*\]\])\s*\)/g, ' $1')
   const out = []
   let last = 0, m, i = 0
-  TOKEN.lastIndex = 0
-  while ((m = TOKEN.exec(text))) {
+  ANY_TOKEN.lastIndex = 0
+  while ((m = ANY_TOKEN.exec(text))) {
     if (m.index > last) out.push(<Md key={i++} text={text.slice(last, m.index)} />)
-    out.push(<LessonLink key={i++} id={m[1]} onOpen={onLesson} />)
+    const id = m[1].startsWith('move:') ? m[1].slice(5) : null
+    out.push(id ? <MoveChip key={i++} id={id} open={openId === id} onToggle={() => setOpenId((o) => (o === id ? null : id))} /> : <LessonLink key={i++} id={m[1]} onOpen={onLesson} />)
     last = m.index + m[0].length
   }
   // A half-streamed token ("[[m5/l3-") stays hidden until it is complete.
   const rest = text.slice(last).replace(/\[\[[^\]]*$/, '')
   if (rest) out.push(<Md key={i++} text={rest} />)
+  if (openId) out.push(<MoveCard key="card" id={openId} onClose={() => setOpenId(null)} onLesson={onLesson} />)
   return out
 }
 
-// Coach replies use **bold**, "- " bullets and "1. " steps only, plus lesson tokens.
+// "How I read this": the coach's reading of the situation by field, with the lens to start with highlighted.
+const FIELD_OF = { self: 'People', other: 'People', relationship: 'People', issue: 'Problem', process: 'Problem', context: 'Environment', system: 'Environment' }
+const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1)
+function ReadCard({ items, onLesson }) {
+  const rows = items.map((x) => x.match(/^\s*\**\s*(People|Problem|Environment|Start with)\s*\**\s*:\s*\**\s*(.*)$/i)).filter(Boolean)
+  const start = rows.find((r) => /^start/i.test(r[1]))
+  const lens = start && Object.keys(FIELD_OF).find((k) => new RegExp('^\\W*' + k + '\\b', 'i').test(start[2]))
+  const hot = lens && FIELD_OF[lens]
+  // The field to start with carries the "Start here" note; the lens word stays as a label for course learners.
+  const why = lens ? start[2].replace(new RegExp('^\\W*' + lens + '\\b[\\s.,:;–-]*', 'i'), '').replace(/^because\s+/i, '') : ''
+  return (
+    <div className="coach-read">
+      <span className="eyebrow">How I read this</span>
+      {rows.filter((r) => !/^start/i.test(r[1])).map((r, k) => {
+        const field = r[1][0].toUpperCase() + r[1].slice(1).toLowerCase()
+        const isHot = field === hot
+        return (
+          <div key={k} className={'coach-read-row' + (isHot ? ' hot' : '')}>
+            <b>{field}{isHot && <span className="coach-read-tag">Start here</span>}</b>
+            <span>
+              <WithLessons text={cap(r[2])} onLesson={onLesson} />
+              {isHot && why && <span className="coach-read-why"><b>{cap(lens)}:</b> <WithLessons text={cap(why)} onLesson={onLesson} /></span>}
+            </span>
+          </div>
+        )
+      })}
+      {start && !hot && <div className="coach-read-start"><b>Start with</b><span><WithLessons text={start[2]} onLesson={onLesson} /></span></div>}
+    </div>
+  )
+}
+
+// Coach replies use **bold**, "- " bullets and "1. " steps only, plus lesson and move tokens.
 export function Rich({ text, onLesson }) {
   const blocks = []
   let list = null
@@ -129,9 +203,20 @@ export function Rich({ text, onLesson }) {
     if (line.trim()) blocks.push({ p: line })
   }
   flush()
-  return blocks.map((b, i) => b.items
-    ? <b.kind key={i} start={b.start > 1 ? b.start : undefined}>{b.items.map((x, j) => <li key={j}><WithLessons text={x} onLesson={onLesson} /></li>)}</b.kind>
-    : <p key={i} className={/^Review:/.test(b.p) ? 'coach-review' : /\[\[/.test(b.p) ? 'coach-pointer' : /^\*\*[^*]+\*\*:?\s*$/.test(b.p.trim()) ? 'coach-label' : ''}><WithLessons text={b.p} onLesson={onLesson} /></p>)
+  // A "How I read this" label followed by its bullets becomes the reading card; a "Translation" list gets its own style.
+  const label = (b, re) => b?.p && re.test(b.p.trim())
+  const shaped = []
+  for (let k = 0; k < blocks.length; k++) {
+    const b = blocks[k], next = blocks[k + 1]
+    if (label(b, /^\*\*How I read this\*\*:?$/i) && next?.kind === 'ul') { shaped.push({ read: next.items }); k++; continue }
+    if (label(b, /^\*\*Translation\*\*:?$/i) && next?.kind === 'ul') { shaped.push(b, { ...next, cls: 'coach-translate' }); k++; continue }
+    shaped.push(b)
+  }
+  return shaped.map((b, i) => b.read
+    ? <ReadCard key={i} items={b.read} onLesson={onLesson} />
+    : b.items
+      ? <b.kind key={i} className={b.cls} start={b.start > 1 ? b.start : undefined}>{b.items.map((x, j) => <li key={j}><WithLessons text={x} onLesson={onLesson} /></li>)}</b.kind>
+      : <p key={i} className={/^Review:/.test(b.p) ? 'coach-review' : HAS_LESSON.test(b.p) ? 'coach-pointer' : /^\*\*[^*]+\*\*:?\s*$/.test(b.p.trim()) ? 'coach-label' : ''}><WithLessons text={b.p} onLesson={onLesson} /></p>)
 }
 
 export function Unavailable() {
