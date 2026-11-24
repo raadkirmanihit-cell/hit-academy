@@ -68,6 +68,7 @@ async function loadUser(authUser) {
     id: authUser.id,
     email: authUser.email,
     name: profile?.name || authUser.user_metadata?.name || '',
+    callName: authUser.user_metadata?.call_name || '', // "what should we call you?" (optional)
     createdAt: profile?.created_at || authUser.created_at,
     // Terms acceptance: from the database (update 3), else from the sign-up details.
     termsVersion: profile?.terms_version || authUser.user_metadata?.terms_version || null,
@@ -173,13 +174,15 @@ export const liveBackend = {
     if (error && e2) throw new Error(friendly(e2))
     return this.refreshUser()
   },
-  async updateName(name) {
+  // name: full name for the certificate. callName: what greetings call them (blank = first word of name).
+  async updateName(name, callName = '') {
     name = name.trim().replace(/\s+/g, ' ')
+    callName = callName.trim().replace(/\s+/g, ' ')
     if (name.length < 2) throw new Error('Enter your full name.')
     const sbc = client()
     const { data: { user } } = await sbc.auth.getUser()
     const { error } = await sbc.from('profiles').update({ name }).eq('id', user.id)
-    const { error: e2 } = await sbc.auth.updateUser({ data: { name } })
+    const { error: e2 } = await sbc.auth.updateUser({ data: { name, call_name: callName } })
     if (error && e2) throw new Error(friendly(error))
     return this.refreshUser()
   },

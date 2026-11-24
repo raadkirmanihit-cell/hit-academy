@@ -55,10 +55,10 @@ export const previewBackend = {
   async requestPasswordReset() { await wait(400) },
   async setNewPassword() { await wait(300) },
   async refreshUser() { return current() },
-  async updateName(name) {
+  async updateName(name, callName = '') {
     name = name.trim().replace(/\s+/g, ' ')
     if (name.length < 2) throw new Error('Enter your full name.')
-    return save({ ...current(), name })
+    return save({ ...current(), name, callName: callName.trim().replace(/\s+/g, ' ') })
   },
   async acceptTerms(user) {
     return save({ ...current(), termsVersion: TERMS_VERSION, termsAcceptedAt: new Date().toISOString() })

@@ -6,6 +6,7 @@ import { emptyProgress, update } from './platform/progress.js'
 import Topbar from './ui/Topbar.jsx'
 import Landing from './ui/Landing.jsx'
 import AuthScreen from './ui/Auth.jsx'
+import AccountName from './ui/AccountName.jsx'
 import Checkout from './ui/Checkout.jsx'
 import Dashboard from './ui/Dashboard.jsx'
 import Player from './ui/Player.jsx'
@@ -195,7 +196,7 @@ export default function App() {
     },
     socialProviders: () => backend.socialProviders(),
     // The name on the certificate (Google/Facebook names can be nicknames, and typos happen).
-    async updateName(name) { setUser(await backend.updateName(name)) },
+    async updateName(name, callName) { setUser(await backend.updateName(name, callName)) },
     signInWithProvider: (provider, opts) => backend.signInWithProvider(provider, opts),
     async acceptTerms() {
       const u = await backend.acceptTerms(user)
@@ -270,6 +271,7 @@ export default function App() {
   else if (view.name === 'reviews') screen = <ReviewsPage />
   else if (view.name === 'selfeval') screen = <SelfEvalPage key={view.phase} phase={view.phase} />
   else if (view.name === 'certificate') screen = <CertificatePage />
+  else if (view.name === 'account' && user) screen = <AccountName />
   else if (view.name === 'practice') screen = <PracticeStudio />
   else if (view.name === 'admin' && admin) screen = <AdminPage />
   else screen = <Dashboard />

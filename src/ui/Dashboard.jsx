@@ -1,3 +1,4 @@
+import { firstName } from '../platform/names.js'
 import { useApp } from '../App.jsx'
 import { courseStats, flatSteps, moduleStats } from '../platform/progress.js'
 import { Icon } from './icons.jsx'
@@ -18,7 +19,7 @@ export default function Dashboard() {
   const resumeSteps = flatSteps(resumeModule)
   const resumeStep = resumeSteps.find((s) => s.id === last?.stepId) || resumeSteps[0]
   const rs = moduleStats(resumeModule, progress)
-  const first = user.name.split(' ')[0]
+  const first = firstName(user)
   const [buying, setBuying] = useState(false)
 
   return (

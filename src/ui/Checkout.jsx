@@ -1,3 +1,4 @@
+import { firstName } from '../platform/names.js'
 import { useState } from 'react'
 import { useApp } from '../App.jsx'
 import { Icon } from './icons.jsx'
@@ -40,7 +41,7 @@ export default function Checkout({ choice }) {
       <div className="checkout-grid fade-in">
         <div className="card" style={{ padding: '2rem', display: 'grid', gap: '1.2rem', alignContent: 'start' }}>
           <span className="eyebrow">Unlock more of the course</span>
-          <h2>{tryingModule ? `${title(choice).split(':')[0]} is locked` : `Keep going, ${user.name.split(' ')[0]}`}</h2>
+          <h2>{tryingModule ? `${title(choice).split(':')[0]} is locked` : `Keep going, ${firstName(user)}`}</h2>
           <p className="muted small">Module 1 is free. Unlock the other six one at a time, or all at once.</p>
           <div className="buy-options" role="radiogroup" aria-label="What would you like to unlock?">
             {o.bundle && (

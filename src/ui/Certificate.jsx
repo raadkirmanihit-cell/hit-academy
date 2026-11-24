@@ -1,3 +1,4 @@
+import { firstName } from '../platform/names.js'
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { courseStats } from '../platform/progress.js'
@@ -113,7 +114,7 @@ export default function CertificatePage() {
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'end' }}>
         <div className="stack" style={{ gap: '.4rem' }}>
           <span className="eyebrow">Certificate</span>
-          <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>{stats.eligible ? 'Congratulations, ' + user.name.split(' ')[0] : 'Your certificate'}</h1>
+          <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>{stats.eligible ? 'Congratulations, ' + firstName(user) : 'Your certificate'}</h1>
           <p className="muted">{stats.eligible ? `Verified completion · ID ${id}` : `To unlock it: complete ${course.certificate.requires === 'all' ? 'all modules' : 'every released module'} and pass each quiz (${stats.completeCount} of ${stats.required} done)${stats.practiceLevels.length ? `, and pass one Arena role-play at each level (${stats.practicePassed.length} of ${stats.practiceLevels.length} done)` : ''}.`}</p>
         </div>
         <div className="row">
@@ -153,37 +154,14 @@ export default function CertificatePage() {
   )
 }
 
-// Lets the student check and correct the name printed on the certificate
+// Lets the student check the name printed on the certificate, and change it on the "My name" screen
 // (a Google or Facebook account can carry a nickname or a short name).
 function CertName() {
-  const { user, updateName, notify } = useApp()
-  const [editing, setEditing] = useState(false)
-  const [name, setName] = useState(user.name)
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState('')
-  if (!editing) {
-    return (
-      <div className="card cert-name row">
-        <span className="small"><span className="muted">Name on your certificate:</span> <strong>{user.name || 'not set yet'}</strong></span>
-        <button className="btn btn-ghost btn-sm" onClick={() => { setName(user.name); setErr(''); setEditing(true) }}>Change name</button>
-      </div>
-    )
-  }
+  const { user, go } = useApp()
   return (
-    <form className="card cert-name stack" onSubmit={async (e) => {
-      e.preventDefault()
-      if (name.trim().length < 2) return setErr('Enter your full name, as it should appear on your certificate.')
-      setBusy(true); setErr('')
-      try { await updateName(name); setEditing(false); notify('Your name is updated.') } catch (x) { setErr(x.message) }
-      setBusy(false)
-    }}>
-      <div className="field"><label htmlFor="cert-name">Full name, as it should appear on your certificate</label>
-        <input id="cert-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} autoFocus /></div>
-      {err && <p className="error" role="alert">{err}</p>}
-      <div className="row" style={{ gap: '.5rem' }}>
-        <button className="btn btn-primary btn-sm" disabled={busy}>{busy ? 'Saving…' : 'Save name'}</button>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(false)}>Cancel</button>
-      </div>
-    </form>
+    <div className="card cert-name row">
+      <span className="small"><span className="muted">Name on your certificate:</span> <strong>{user.name || 'not set yet'}</strong></span>
+      <button className="btn btn-ghost btn-sm" onClick={() => go('account')}>Change name</button>
+    </div>
   )
 }
