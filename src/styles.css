@@ -1810,3 +1810,21 @@ p.pitch-identity.small { font-size: .95rem; margin-top: .35rem; display: flex; f
 .fb-note-top { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .fb-label { font: 500 .66rem/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-right: .5rem; }
 .pill.bad { background: var(--bad-soft); color: var(--bad); }
+
+/* HIT Mentor: course moves as chips with a mini lesson, the "How I read this" card, translations */
+.coach-move { display: inline; font: inherit; font-weight: 650; font-size: .86em; color: var(--orange-ink); background: var(--orange-soft); border: 1px solid transparent; border-radius: 999px; padding: .05rem .5rem; cursor: pointer; white-space: nowrap; }
+.coach-move:hover, .coach-move.open { border-color: var(--orange); }
+.coach-move:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.coach-move-card { display: grid; gap: .35rem; margin: .4rem 0 .2rem; padding: .6rem .75rem; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--orange); border-radius: 10px; font-size: .9rem; color: var(--ink); }
+.coach-move-row b { display: block; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.coach-move-row.mine { background: var(--orange-soft); border-radius: 8px; padding: .35rem .5rem; }
+.coach-move-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; }
+.coach-read { display: grid; gap: .3rem; padding: .6rem .75rem; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.coach-read-row, .coach-read-start { display: grid; grid-template-columns: 6.5rem 1fr; gap: .5rem; padding: .3rem .45rem; border-radius: 8px; }
+.coach-read-row b, .coach-read-start b { font-size: .8rem; color: var(--ink-2); }
+.coach-read-row.hot { background: var(--orange-soft); box-shadow: inset 3px 0 0 var(--orange); }
+.coach-read-start { border-top: 1px solid var(--line); border-radius: 0; padding-top: .45rem; }
+.coach-msg ul.coach-translate { list-style: none; padding-left: 0; }
+.coach-msg ul.coach-translate li { padding: .35rem .55rem; background: var(--surface); border: 1px dashed var(--line); border-radius: 8px; }
+@media (max-width: 640px) { .coach-read-row, .coach-read-start { grid-template-columns: 1fr; gap: .1rem; } }
+.coach-move-name { font-weight: 700; color: var(--ink); }
