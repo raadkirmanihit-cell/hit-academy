@@ -194,6 +194,8 @@ export default function App() {
       await enter(u)
     },
     socialProviders: () => backend.socialProviders(),
+    // The name on the certificate (Google/Facebook names can be nicknames, and typos happen).
+    async updateName(name) { setUser(await backend.updateName(name)) },
     signInWithProvider: (provider, opts) => backend.signInWithProvider(provider, opts),
     async acceptTerms() {
       const u = await backend.acceptTerms(user)

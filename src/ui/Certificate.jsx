@@ -130,6 +130,7 @@ export default function CertificatePage() {
           <button className="btn btn-primary btn-sm" onClick={() => go('reviews')}>Write a review</button>
         </div>
       )}
+      <CertName />
       <div className="cert-frame"><canvas ref={ref} style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 8 }} aria-label={`Certificate of completion for ${user.name}`} /></div>
       {stats.modulesOk && (() => {
         const se = selfEvalOf(progress)
@@ -149,5 +150,40 @@ export default function CertificatePage() {
         )
       })()}
     </div>
+  )
+}
+
+// Lets the student check and correct the name printed on the certificate
+// (a Google or Facebook account can carry a nickname or a short name).
+function CertName() {
+  const { user, updateName, notify } = useApp()
+  const [editing, setEditing] = useState(false)
+  const [name, setName] = useState(user.name)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  if (!editing) {
+    return (
+      <div className="card cert-name row">
+        <span className="small"><span className="muted">Name on your certificate:</span> <strong>{user.name || 'not set yet'}</strong></span>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setName(user.name); setErr(''); setEditing(true) }}>Change name</button>
+      </div>
+    )
+  }
+  return (
+    <form className="card cert-name stack" onSubmit={async (e) => {
+      e.preventDefault()
+      if (name.trim().length < 2) return setErr('Enter your full name, as it should appear on your certificate.')
+      setBusy(true); setErr('')
+      try { await updateName(name); setEditing(false); notify('Your name is updated.') } catch (x) { setErr(x.message) }
+      setBusy(false)
+    }}>
+      <div className="field"><label htmlFor="cert-name">Full name, as it should appear on your certificate</label>
+        <input id="cert-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} autoFocus /></div>
+      {err && <p className="error" role="alert">{err}</p>}
+      <div className="row" style={{ gap: '.5rem' }}>
+        <button className="btn btn-primary btn-sm" disabled={busy}>{busy ? 'Saving…' : 'Save name'}</button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(false)}>Cancel</button>
+      </div>
+    </form>
   )
 }

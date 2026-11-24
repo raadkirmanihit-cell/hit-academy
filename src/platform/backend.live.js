@@ -173,6 +173,16 @@ export const liveBackend = {
     if (error && e2) throw new Error(friendly(e2))
     return this.refreshUser()
   },
+  async updateName(name) {
+    name = name.trim().replace(/\s+/g, ' ')
+    if (name.length < 2) throw new Error('Enter your full name.')
+    const sbc = client()
+    const { data: { user } } = await sbc.auth.getUser()
+    const { error } = await sbc.from('profiles').update({ name }).eq('id', user.id)
+    const { error: e2 } = await sbc.auth.updateUser({ data: { name } })
+    if (error && e2) throw new Error(friendly(error))
+    return this.refreshUser()
+  },
   async refreshUser() {
     const { data } = await client().auth.getUser()
     return loadUser(data.user)
