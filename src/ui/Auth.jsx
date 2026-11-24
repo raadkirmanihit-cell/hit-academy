@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { TermsCheckbox } from './Terms.jsx'
 
@@ -10,7 +10,7 @@ const COPY = {
 }
 
 export default function AuthScreen({ mode }) {
-  const { signUp, signIn, requestPasswordReset, setNewPassword, go } = useApp()
+  const { signUp, signIn, requestPasswordReset, setNewPassword, socialProviders, signInWithProvider, go } = useApp()
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [terms, setTerms] = useState(false)
   const [err, setErr] = useState('')
@@ -22,6 +22,21 @@ export default function AuthScreen({ mode }) {
   const needsEmail = mode !== 'newpass'
   const needsPassword = mode !== 'reset'
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value })
+  const [providers, setProviders] = useState([])
+  const showSocial = mode === 'signup' || mode === 'signin'
+  useEffect(() => {
+    if (!showSocial) return
+    let live = true
+    socialProviders().then((p) => { if (live) setProviders(p || []) }, () => {})
+    return () => { live = false }
+  }, [showSocial, socialProviders])
+
+  async function social(provider) {
+    setErr('')
+    setBusy(provider)
+    // A ticked Terms box on the sign-up page is recorded once they come back; otherwise they are asked then.
+    try { await signInWithProvider(provider, { acceptTerms: isUp && terms }) } catch (x) { setErr(x.message); setBusy(false) }
+  }
 
   async function submit(e) {
     e.preventDefault()
@@ -69,6 +84,17 @@ export default function AuthScreen({ mode }) {
           <h2>{c.title}</h2>
           <p className="muted small">{c.sub}</p>
         </div>
+        {showSocial && providers.length > 0 && (
+          <div className="social-auth">
+            {providers.map((p) => (
+              <button key={p} type="button" className="btn social-btn" disabled={!!busy} onClick={() => social(p)}>
+                {p === 'google' ? <GoogleLogo /> : <FacebookLogo />}
+                <span>{busy === p ? 'One moment…' : `Continue with ${p === 'google' ? 'Google' : 'Facebook'}`}</span>
+              </button>
+            ))}
+            <div className="or-line" role="separator"><span>or {isUp ? 'sign up' : 'sign in'} with email</span></div>
+          </div>
+        )}
         {isUp && (
           <div className="field"><label htmlFor="f-name">Full name</label>
             <input id="f-name" autoComplete="name" value={form.name} onChange={set('name')} placeholder="As it should appear on your certificate" /></div>
@@ -92,8 +118,9 @@ export default function AuthScreen({ mode }) {
           </div>
         )}
         {isUp && <TermsCheckbox checked={terms} onChange={setTerms} />}
+        {isUp && providers.length > 0 && <p className="small muted" style={{ marginTop: '-.6rem' }}>Using {providers.map((p) => p === 'google' ? 'Google' : 'Facebook').join(' or ')}? Tick the box first, or we'll ask you right after.</p>}
         {err && <p className="error" role="alert">{err}</p>}
-        <button className="btn btn-primary" disabled={busy}>{busy ? 'One moment…' : c.button}</button>
+        <button className="btn btn-primary" disabled={!!busy}>{busy === true ? 'One moment…' : c.button}</button>
         {mode !== 'newpass' && (
           <p className="small muted" style={{ textAlign: 'center' }}>
             {isUp ? 'Already enrolled? ' : 'New here? '}
@@ -119,6 +146,27 @@ function EyeOff() {
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94" />
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19" />
       <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  )
+}
+
+// Official provider marks, as their brand guidelines ask for on sign-in buttons.
+function GoogleLogo() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
+    </svg>
+  )
+}
+
+function FacebookLogo() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="12" fill="#1877F2" />
+      <path fill="#fff" d="M16.67 15.47 17.2 12h-3.33V9.75c0-.95.47-1.87 1.96-1.87h1.51V4.92s-1.37-.23-2.68-.23c-2.74 0-4.53 1.66-4.53 4.66V12H7.08v3.47h3.05v8.4a12.1 12.1 0 0 0 3.74 0v-8.4h2.8z" />
     </svg>
   )
 }

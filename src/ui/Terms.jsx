@@ -60,7 +60,9 @@ export default function TermsPage({ page = 'terms' }) {
 // Shown once to a signed-in student who has not yet accepted the current Terms
 // (accounts created before the Terms existed, or after the Terms change).
 export function AcceptTerms() {
-  const { acceptTerms, signOut } = useApp()
+  const { acceptTerms, signOut, user } = useApp()
+  // A brand-new account (e.g. just made with Google or Facebook) sees a welcome, not a "terms changed" note.
+  const fresh = user?.createdAt && Date.now() - new Date(user.createdAt).getTime() < 24 * 3600e3
   const [ok, setOk] = useState(false)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -72,9 +74,9 @@ export function AcceptTerms() {
         setBusy(true); setErr('')
         try { await acceptTerms() } catch (x) { setErr(x.message); setBusy(false) }
       }}>
-        <span className="eyebrow">Before you continue</span>
+        <span className="eyebrow">{fresh ? 'One last step' : 'Before you continue'}</span>
         <h2>Our Terms and Conditions</h2>
-        <p className="muted small">Please read and accept our Terms and Conditions to keep using the course.</p>
+        <p className="muted small">{fresh ? 'Please read and accept our Terms and Conditions to start Module 1 for free.' : 'Please read and accept our Terms and Conditions to keep using the course.'}</p>
         <TermsCheckbox checked={ok} onChange={setOk} />
         {err && <p className="error" role="alert">{err}</p>}
         <button className="btn btn-primary" disabled={busy}>{busy ? 'One moment…' : 'Accept and continue'}</button>

@@ -45,6 +45,13 @@ export const previewBackend = {
     return user
   },
   async signOut() { remove(K.session) },
+  takeAuthError() { return null },
+  // The preview shows the buttons so the page can be checked, but cannot reach Google or Facebook.
+  async socialProviders() { return ['google', 'facebook'] },
+  async signInWithProvider(provider) {
+    await wait(200)
+    throw new Error(`${provider === 'google' ? 'Google' : 'Facebook'} sign-in works on the live site only. Use your email in this preview.`)
+  },
   async requestPasswordReset() { await wait(400) },
   async setNewPassword() { await wait(300) },
   async refreshUser() { return current() },

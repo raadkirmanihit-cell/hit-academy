@@ -105,7 +105,9 @@ export default function App() {
       // Sign in first: links from confirmation and reset emails carry the login in the URL.
       backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
-      if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
+      const authError = backend.takeAuthError?.()
+      if (checkout || coach || params.get('code') || params.get('error') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
+      if (authError) notify(authError, 7000)
       // Back from buying Arena tokens: wait until the server has counted the new pack.
       if (u && checkout === 'success' && item === 'practice') {
         const had = Number(params.get('had') || 0)
@@ -140,6 +142,7 @@ export default function App() {
           go(name, extra, { replace: true })
         }
       }
+      if (authError && !u) go('signin', {}, { replace: true })
       if (checkout === 'cancel' || coach === 'cancel') notify('Payment cancelled. You have not been charged.')
       if (u && coach === 'success') {
         // Stripe confirms the subscription to our server a few seconds after the redirect.
@@ -190,6 +193,8 @@ export default function App() {
       const u = await backend.signIn(data)
       await enter(u)
     },
+    socialProviders: () => backend.socialProviders(),
+    signInWithProvider: (provider, opts) => backend.signInWithProvider(provider, opts),
     async acceptTerms() {
       const u = await backend.acceptTerms(user)
       await enter(u)
