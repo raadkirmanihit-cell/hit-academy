@@ -102,7 +102,7 @@ const HAS_LESSON = /\[\[\s*m\d\//
 
 // What a reply's move chips can use: the learner's own line per move (from the hidden case file)
 // and a way to start practising a move in the chat.
-export const MovesContext = createContext({ lines: null, onTry: null })
+export const MovesContext = createContext({ lines: null, onTry: null, onExplain: null })
 
 // A course move named in a reply: a chip that opens a mini lesson. Layer 1 is the plain words in the
 // plan; the card is layer 2 (what, why, your line, try it); the module lesson is layer 3.
@@ -113,19 +113,23 @@ function MoveChip({ id, open, onToggle }) {
     title={open ? 'Hide the explanation' : `What is ${m.name}?`}>{m.name}</button>
 }
 export function MoveCard({ id, onClose, onLesson }) {
-  const { lines, onTry } = useContext(MovesContext)
+  const { lines, onTry, onExplain } = useContext(MovesContext)
   const m = moveOf(id)
   if (!m) return null
   const mine = lines && typeof lines[id] === 'string' ? lines[id].trim() : ''
+  // A pattern to spot (e.g. a counterfeit yes): how to recognise it, then HIT Mentor explains it for this situation.
+  const spot = m.kind === 'spot'
   return (
     <span className="coach-move-card" role="region" aria-label={m.name}>
       <span className="coach-move-name">{m.name}</span>
       <span className="coach-move-row"><b>What it is</b> {m.what}</span>
-      <span className="coach-move-row"><b>Why it works</b> {m.why}</span>
-      {mine && <span className="coach-move-row mine"><b>Your line</b> {mine}</span>}
-      <span className="coach-move-row"><b>Try it</b> {m.tryIt}</span>
+      {spot ? <span className="coach-move-row"><b>How to spot it</b> {m.spot}</span> : <span className="coach-move-row"><b>Why it works</b> {m.why}</span>}
+      {mine && <span className="coach-move-row mine"><b>{spot ? 'In your situation' : 'Your line'}</b> {mine}</span>}
+      {!spot && <span className="coach-move-row"><b>Try it</b> {m.tryIt}</span>}
       <span className="coach-move-foot">
-        {onTry && <button type="button" className="btn btn-primary btn-sm" onClick={() => { onClose(); onTry(m.name) }}>Try it with HIT Mentor</button>}
+        {spot
+          ? onExplain && <button type="button" className="btn btn-primary btn-sm" onClick={() => { onClose(); onExplain(m.name) }}>Explain it for my situation</button>
+          : onTry && <button type="button" className="btn btn-primary btn-sm" onClick={() => { onClose(); onTry(m.name) }}>Try it with HIT Mentor</button>}
         <span className="small">Go deeper: <LessonLink id={m.lesson} onOpen={onLesson} /></span>
       </span>
     </span>

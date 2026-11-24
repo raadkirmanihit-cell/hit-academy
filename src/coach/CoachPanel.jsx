@@ -17,7 +17,7 @@ import { useKb, useSample, noteError, errorText, Rich, MovesContext, VoiceToggle
 import { PrepSheet } from './PrepSheet.jsx'
 import { Icon } from '../ui/icons.jsx'
 
-const NO_MOVES = { lines: null, onTry: null }
+const NO_MOVES = { lines: null, onTry: null, onExplain: null }
 
 // ---- Profile ---------------------------------------------------------------
 
@@ -278,6 +278,8 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   function openChat(id) { setActiveId(id); setScreen('chat'); setErr(''); scrollMode.current = 'end'; setScrollTick((n) => n + 1) }
   // "Try it with HIT Mentor" on a move card: start the learner's attempt in the input box.
   function tryMove(name) { setDraft(`Let me try ${name}: `); setTimeout(() => { const el = inputRef.current; if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length) } }, 0) }
+  // "Explain it for my situation" on a pattern card: HIT Mentor explains it with this chat's details (one message).
+  function explainMove(name) { if (!busy) ask(`Explain ${name} in my situation: how do I spot it, and what do I do when I hear it?`) }
   function newChat() { ctl.current?.abort(); setFresh(blank()); setActiveId(null); setScreen('chat'); setErr(''); setDraft('') }
   async function removeChat(id) {
     setConfirmDel(null)
@@ -465,7 +467,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
           return (
             <div key={i} className={'coach-msg assistant' + (rehearsing ? ' counterpart' : '')}>
               {text && (
-                <MovesContext.Provider value={rehearsing ? NO_MOVES : { lines: caseOf(t.content)?.moves || null, onTry: tryMove }}>
+                <MovesContext.Provider value={rehearsing ? NO_MOVES : { lines: caseOf(t.content)?.moves || null, onTry: tryMove, onExplain: explainMove }}>
                   <Rich text={text} onLesson={() => onLesson?.(full)} />
                 </MovesContext.Provider>
               )}
