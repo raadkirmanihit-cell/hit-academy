@@ -162,14 +162,25 @@ function ReadCard({ items, onLesson }) {
   const start = rows.find((r) => /^start/i.test(r[1]))
   const lens = start && Object.keys(FIELD_OF).find((k) => new RegExp('^\\W*' + k + '\\b', 'i').test(start[2]))
   const hot = lens && FIELD_OF[lens]
+  // The field to start with carries the "Start here" note; the lens word stays as a label for course learners.
+  const why = lens ? start[2].replace(new RegExp('^\\W*' + lens + '\\b[\\s.,:;–-]*', 'i'), '').replace(/^because\s+/i, '') : ''
   return (
     <div className="coach-read">
       <span className="eyebrow">How I read this</span>
       {rows.filter((r) => !/^start/i.test(r[1])).map((r, k) => {
         const field = r[1][0].toUpperCase() + r[1].slice(1).toLowerCase()
-        return <div key={k} className={'coach-read-row' + (field === hot ? ' hot' : '')}><b>{field}</b><span><WithLessons text={cap(r[2])} onLesson={onLesson} /></span></div>
+        const isHot = field === hot
+        return (
+          <div key={k} className={'coach-read-row' + (isHot ? ' hot' : '')}>
+            <b>{field}{isHot && <span className="coach-read-tag">Start here</span>}</b>
+            <span>
+              <WithLessons text={cap(r[2])} onLesson={onLesson} />
+              {isHot && why && <span className="coach-read-why"><b>{cap(lens)}:</b> <WithLessons text={cap(why)} onLesson={onLesson} /></span>}
+            </span>
+          </div>
+        )
       })}
-      {start && <div className="coach-read-start"><b>Start with</b><span><WithLessons text={start[2]} onLesson={onLesson} /></span></div>}
+      {start && !hot && <div className="coach-read-start"><b>Start with</b><span><WithLessons text={start[2]} onLesson={onLesson} /></span></div>}
     </div>
   )
 }
