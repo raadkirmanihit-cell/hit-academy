@@ -1,7 +1,7 @@
 {
   "version": "2026-11-24",
-  "savedAt": "2026-11-24T07:33:55.690Z",
-  "runs": 2,
+  "savedAt": "2026-11-24T13:57:57.643Z",
+  "runs": 3,
   "results": [
     {
       "id": "terse-start",
@@ -138,6 +138,27 @@
     },
     {
       "id": "try-a-move",
+      "scores": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "start-issue-last-chance",
+      "scores": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "start-other-email",
+      "scores": [
+        1,
+        0.6666666666666666
+      ]
+    },
+    {
+      "id": "start-relationship-client",
       "scores": [
         1,
         1
