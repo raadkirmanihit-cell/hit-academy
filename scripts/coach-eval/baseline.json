@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-16",
-  "savedAt": "2026-11-16T05:56:51.264Z",
+  "version": "2026-11-24",
+  "savedAt": "2026-11-24T07:33:55.690Z",
   "runs": 2,
   "results": [
     {
@@ -112,6 +112,33 @@
       "scores": [
         1,
         1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "course-sharp-question",
+      "scores": [
+        1,
+        1,
+        0.5
+      ]
+    },
+    {
+      "id": "distinct-plan",
+      "scores": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "try-a-move",
+      "scores": [
         1,
         1
       ]
