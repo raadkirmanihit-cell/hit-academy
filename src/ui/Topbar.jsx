@@ -65,6 +65,7 @@ export default function Topbar() {
                     <div className="small muted">{user.email}</div>
                   </div>
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('dashboard') }}>My dashboard</button>}
+                  <button role="menuitem" onClick={() => { setOpen(false); go('account') }}>My name</button>
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('certificate') }}>My certificate</button>}
                   <button role="menuitem" onClick={() => { setOpen(false); go('community') }}>Community</button>
                   {paid && <button role="menuitem" onClick={() => { setOpen(false); go('reviews') }}>Review the course</button>}

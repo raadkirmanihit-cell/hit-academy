@@ -6,6 +6,7 @@ import { emptyProgress, update } from './platform/progress.js'
 import Topbar from './ui/Topbar.jsx'
 import Landing from './ui/Landing.jsx'
 import AuthScreen from './ui/Auth.jsx'
+import AccountName from './ui/AccountName.jsx'
 import Checkout from './ui/Checkout.jsx'
 import Dashboard from './ui/Dashboard.jsx'
 import Player from './ui/Player.jsx'
@@ -105,7 +106,9 @@ export default function App() {
       // Sign in first: links from confirmation and reset emails carry the login in the URL.
       backend.launchStatus().then(setLaunch, () => {})
       let u = await backend.init().catch(() => null)
-      if (checkout || coach || params.get('code') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
+      const authError = backend.takeAuthError?.()
+      if (checkout || coach || params.get('code') || params.get('error') || /access_token|error_description/.test(window.location.hash)) window.history.replaceState({}, '', window.location.pathname)
+      if (authError) notify(authError, 7000)
       // Back from buying Arena tokens: wait until the server has counted the new pack.
       if (u && checkout === 'success' && item === 'practice') {
         const had = Number(params.get('had') || 0)
@@ -140,6 +143,7 @@ export default function App() {
           go(name, extra, { replace: true })
         }
       }
+      if (authError && !u) go('signin', {}, { replace: true })
       if (checkout === 'cancel' || coach === 'cancel') notify('Payment cancelled. You have not been charged.')
       if (u && coach === 'success') {
         // Stripe confirms the subscription to our server a few seconds after the redirect.
@@ -190,6 +194,10 @@ export default function App() {
       const u = await backend.signIn(data)
       await enter(u)
     },
+    socialProviders: () => backend.socialProviders(),
+    // The name on the certificate (Google/Facebook names can be nicknames, and typos happen).
+    async updateName(name, callName) { setUser(await backend.updateName(name, callName)) },
+    signInWithProvider: (provider, opts) => backend.signInWithProvider(provider, opts),
     async acceptTerms() {
       const u = await backend.acceptTerms(user)
       await enter(u)
@@ -263,6 +271,7 @@ export default function App() {
   else if (view.name === 'reviews') screen = <ReviewsPage />
   else if (view.name === 'selfeval') screen = <SelfEvalPage key={view.phase} phase={view.phase} />
   else if (view.name === 'certificate') screen = <CertificatePage />
+  else if (view.name === 'account' && user) screen = <AccountName />
   else if (view.name === 'practice') screen = <PracticeStudio />
   else if (view.name === 'admin' && admin) screen = <AdminPage />
   else screen = <Dashboard />

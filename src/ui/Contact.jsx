@@ -1,3 +1,4 @@
+import { firstName } from '../platform/names.js'
 import { useState } from 'react'
 import { useApp } from '../App.jsx'
 import { backend } from '../platform/backend.js'
@@ -16,7 +17,7 @@ export default function ContactPage() {
       <div className="wrap auth-shell">
         <div className="card auth-card fade-in stack" style={{ gap: '1rem' }}>
           <span className="eyebrow">Message sent</span>
-          <h2>Thank you, {user.name.split(' ')[0] || 'there'}</h2>
+          <h2>Thank you, {firstName(user) || 'there'}</h2>
           <p>Raad has your message and will reply to <b>{user.email}</b>.</p>
           <div className="row">
             <button className="btn btn-primary" onClick={() => go(paid ? 'dashboard' : 'landing')}>Back to the course</button>

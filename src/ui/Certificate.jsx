@@ -1,3 +1,4 @@
+import { firstName } from '../platform/names.js'
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../App.jsx'
 import { courseStats } from '../platform/progress.js'
@@ -113,7 +114,7 @@ export default function CertificatePage() {
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'end' }}>
         <div className="stack" style={{ gap: '.4rem' }}>
           <span className="eyebrow">Certificate</span>
-          <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>{stats.eligible ? 'Congratulations, ' + user.name.split(' ')[0] : 'Your certificate'}</h1>
+          <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)' }}>{stats.eligible ? 'Congratulations, ' + firstName(user) : 'Your certificate'}</h1>
           <p className="muted">{stats.eligible ? `Verified completion · ID ${id}` : `To unlock it: complete ${course.certificate.requires === 'all' ? 'all modules' : 'every released module'} and pass each quiz (${stats.completeCount} of ${stats.required} done)${stats.practiceLevels.length ? `, and pass one Arena role-play at each level (${stats.practicePassed.length} of ${stats.practiceLevels.length} done)` : ''}.`}</p>
         </div>
         <div className="row">
@@ -130,6 +131,7 @@ export default function CertificatePage() {
           <button className="btn btn-primary btn-sm" onClick={() => go('reviews')}>Write a review</button>
         </div>
       )}
+      <CertName />
       <div className="cert-frame"><canvas ref={ref} style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 8 }} aria-label={`Certificate of completion for ${user.name}`} /></div>
       {stats.modulesOk && (() => {
         const se = selfEvalOf(progress)
@@ -148,6 +150,18 @@ export default function CertificatePage() {
           </div>
         )
       })()}
+    </div>
+  )
+}
+
+// Lets the student check the name printed on the certificate, and change it on the "My name" screen
+// (a Google or Facebook account can carry a nickname or a short name).
+function CertName() {
+  const { user, go } = useApp()
+  return (
+    <div className="card cert-name row">
+      <span className="small"><span className="muted">Name on your certificate:</span> <strong>{user.name || 'not set yet'}</strong></span>
+      <button className="btn btn-ghost btn-sm" onClick={() => go('account')}>Change name</button>
     </div>
   )
 }
