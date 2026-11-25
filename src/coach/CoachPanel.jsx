@@ -229,6 +229,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
   const lastUser = useRef(null)
   const scrollMode = useRef('end') // after a send: bring the learner's message to the top; after opening a chat: the end
   const [scrollTick, setScrollTick] = useState(0)
+  const userScrolled = useRef(false) // the learner scrolled the chat after sending: leave the view where they put it
   const voice = useVoice()
   const voiceOn = useRef(false); voiceOn.current = voice.voiceOn
   const chatsRef = useRef(chats); chatsRef.current = chats
@@ -258,6 +259,23 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     if (scrollMode.current === 'start' && lastUser.current) body.scrollTo({ top: lastUser.current.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12, behavior: 'smooth' })
     else body.scrollTop = body.scrollHeight
   }, [scrollTick, activeId, screen])
+
+  // Notice when the learner scrolls the chat themselves (wheel, touch, keys or the scrollbar).
+  useEffect(() => {
+    const body = bodyRef.current; if (!body) return
+    const mark = () => { userScrolled.current = true }
+    const evs = ['wheel', 'touchstart', 'keydown', 'mousedown']
+    evs.forEach((e) => body.addEventListener(e, mark, { passive: true }))
+    return () => evs.forEach((e) => body.removeEventListener(e, mark))
+  }, [])
+
+  // While the chat covers the page (full screen, or any phone), the page behind it must not scroll: one scrollbar only.
+  useEffect(() => {
+    const root = document.documentElement
+    root.classList.toggle('coach-open', !hidden)
+    root.classList.toggle('coach-open-full', !hidden && full)
+    return () => root.classList.remove('coach-open', 'coach-open-full')
+  }, [hidden, full])
 
   function store(next) {
     next = { ...next, updatedAt: new Date().toISOString() }
@@ -309,7 +327,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     const base = chat
     const mine = { role: 'user', content: q, at: new Date().toISOString() }
     let cur = store({ ...base, title: base.title || titleOf(q), messages: [...base.messages, mine] })
-    scrollMode.current = 'start'; setScrollTick((n) => n + 1)
+    scrollMode.current = 'start'; userScrolled.current = false; setScrollTick((n) => n + 1)
     setBusy('reply'); setLive('')
     let input
     if (cur.kind === 'rehearsal') {
@@ -333,8 +351,9 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
         if (voiceOn.current) voice.speak(lessonsAsText(stripCase(splitQuestions(reply).text), modules))
         if (cur.kind !== 'rehearsal') learn(caseOf(reply)?.learned)
       }
-      // The reply is complete: show it from its start (with the learner's message just above it).
-      scrollMode.current = 'start'; setScrollTick((n) => n + 1)
+      // The reply is complete: show it from its start (with the learner's message just above it),
+      // unless the learner already scrolled while it was being written: pulling them back would make the chat jump.
+      if (!userScrolled.current) { scrollMode.current = 'start'; setScrollTick((n) => n + 1) }
     }
     setBusy(''); setLive('')
   }

@@ -1071,7 +1071,10 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .coach-wrap { display: grid; grid-template-columns: 1fr; min-height: 0; }
 .coach-panel.full .coach-wrap { grid-template-columns: 280px minmax(0, 1fr); }
 @media (max-width: 900px) { .coach-panel.full .coach-wrap { grid-template-columns: 1fr; } .coach-side { display: none; } }
-.coach-side { border-right: 1px solid var(--line); background: var(--surface-2); overflow-y: auto; padding: 1rem; }
+.coach-side { border-right: 1px solid var(--line); background: var(--surface-2); overflow-y: auto; overscroll-behavior: contain; padding: 1rem; }
+/* The chat covers the page (full screen, or a phone): lock the page behind it so only the chat scrolls. */
+html.coach-open-full, html.coach-open-full body { overflow: hidden; }
+@media (max-width: 640px) { html.coach-open, html.coach-open body { overflow: hidden; } }
 .coach-main { display: grid; grid-template-rows: 1fr auto auto auto; min-height: 0; }
 .coach-panel.full .coach-main { width: 100%; max-width: 860px; justify-self: center; }
 .coach-head { display: grid; gap: .55rem; padding: .7rem 1rem; border-bottom: 1px solid var(--line); background: var(--surface-2); }
@@ -1161,7 +1164,7 @@ table.data tr.group td { background: var(--surface-2); font: 600 .72rem/1.3 var(
 .coach-prep-rem { margin: 0; padding: .6rem .75rem; border-radius: 10px; background: var(--navy-2); color: var(--on-navy); font-weight: 600; }
 @media (max-width: 480px) { .coach-prep-row, .coach-prep-pair { grid-template-columns: 1fr; gap: .2rem; } }
 .coach-head h3 { font-size: 1.05rem; margin: .15rem 0 0; }
-.coach-body { overflow-y: auto; min-height: 0; padding: 1rem; display: grid; gap: .8rem; align-content: start; }
+.coach-body { overflow-y: auto; overscroll-behavior: contain; min-height: 0; padding: 1rem; display: grid; gap: .8rem; align-content: start; }
 .coach-intro { display: grid; gap: .6rem; }
 .coach-sugs { display: grid; gap: .45rem; }
 .coach-sug { text-align: left; padding: .6rem .75rem; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 .88rem/1.35 var(--f-body); cursor: pointer; }
