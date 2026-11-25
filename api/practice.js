@@ -143,7 +143,7 @@ async function turn(req, res, user, body) {
   let text = ''
   try {
     const stream = client.beta.messages.stream({
-      model: MODEL, max_tokens: 3000,
+      model: MODEL, max_tokens: 16000,
       messages: [{ role: 'user', content: input }],
       output_config: { effort: 'medium' }, // a little more thought keeps each reply natural and in context
       betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
@@ -194,7 +194,7 @@ async function score(req, res, user, body) {
   try {
     const client = new Anthropic({ apiKey: env('ANTHROPIC_API_KEY') })
     const stream = client.beta.messages.stream({
-      model: MODEL, max_tokens: 6000,
+      model: MODEL, max_tokens: 16000,
       messages: [{ role: 'user', content: prompt }],
       output_config: { effort: 'medium' },
       betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',

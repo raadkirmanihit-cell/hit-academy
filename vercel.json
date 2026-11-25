@@ -4,10 +4,10 @@
   ],
   "functions": {
     "api/coach.js": {
-      "maxDuration": 60
+      "maxDuration": 300
     },
     "api/practice.js": {
-      "maxDuration": 60
+      "maxDuration": 300
     }
   }
 }

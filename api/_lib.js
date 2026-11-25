@@ -327,3 +327,18 @@ export async function chargeCoach(user, { practice = false } = {}) {
   if (count > COACH_DAILY_LIMIT) return { status: 429, body: { error: 'You have reached today\'s AI limit. It resets at midnight.', code: 'rate_limited' } }
   return null
 }
+
+// Gives back the message chargeCoach just counted, when the reply could not be finished
+// (cut off, AI error, or the connection dropped). Best effort: a failure here only logs.
+export async function refundCoach(user, { practice = false } = {}) {
+  const userId = typeof user === 'string' ? user : user.id
+  const table = practice ? 'practice_usage' : 'coach_usage'
+  const day = new Date().toISOString().slice(0, 10)
+  try {
+    const { data, error } = await db().from(table).select('count').eq('user_id', userId).eq('day', day).maybeSingle()
+    if (error) throw error
+    if (!data || data.count <= 0) return
+    const { error: ue } = await db().from(table).update({ count: data.count - 1 }).eq('user_id', userId).eq('day', day).eq('count', data.count)
+    if (ue) throw ue
+  } catch (e) { console.error('refundCoach', e) }
+}
