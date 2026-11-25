@@ -1,7 +1,7 @@
 {
   "version": "2026-11-24",
-  "savedAt": "2026-11-24T13:57:57.643Z",
-  "runs": 3,
+  "savedAt": "2026-11-24T21:17:07.355Z",
+  "runs": 2,
   "results": [
     {
       "id": "terse-start",
@@ -125,6 +125,27 @@
       ]
     },
     {
+      "id": "start-issue-last-chance",
+      "scores": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "start-other-email",
+      "scores": [
+        1,
+        0.6666666666666666
+      ]
+    },
+    {
+      "id": "start-relationship-client",
+      "scores": [
+        1,
+        1
+      ]
+    },
+    {
       "id": "distinct-plan",
       "scores": [
         1,
@@ -144,22 +165,9 @@
       ]
     },
     {
-      "id": "start-issue-last-chance",
+      "id": "explain-pattern",
       "scores": [
         1,
-        1
-      ]
-    },
-    {
-      "id": "start-other-email",
-      "scores": [
-        1,
-        0.6666666666666666
-      ]
-    },
-    {
-      "id": "start-relationship-client",
-      "scores": [
         1,
         1
       ]

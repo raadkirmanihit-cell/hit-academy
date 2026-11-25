@@ -4,6 +4,7 @@
 // coach's hidden case file), a short "try it" exercise and a link to the lesson for more.
 // The "what" and "why" text is fixed here, written from the module pages, so it never contradicts the
 // course and costs no AI messages. Tokens that are not in this list are shown as plain text.
+// Moves are techniques to use, except kind 'spot': patterns to recognise in the other side.
 // Every `lesson` must be on the coach's lesson map (checked by scripts/check-coach-lessons.mjs).
 
 export const MOVES = [
@@ -54,8 +55,11 @@ export const MOVES = [
     why: 'Composure is a competitive advantage: a heated reply can damage the outcome even when you are right.',
     tryIt: 'Name the moment in your conversation most likely to make you react, and the one sentence you will say to yourself then.' },
   // Module 3
-  { id: 'counterfeit-yes', name: 'Counterfeit yes', lesson: 'm3/l1-counterfeit',
+  // A pattern to recognise in the other side (kind 'spot'): the card shows how to spot it and offers
+  // an explanation for the learner's own situation instead of an exercise.
+  { id: 'counterfeit-yes', name: 'Counterfeit yes', lesson: 'm3/l1-counterfeit', kind: 'spot',
     what: 'A "yes" said to escape pressure or look agreeable, with no real intention or understanding behind it.',
+    spot: 'It comes quickly and easily ("Yes, totally", "Sure, I\'ll get to it"), with no follow-up questions, vague answers when you ask for details, enthusiasm that doesn\'t match their body language, or a history of agreeing without delivering.',
     why: 'Spotting it early saves you from building on an agreement that was never there.',
     tryIt: 'Think of a recent "yes, sure" you received. What is one follow-up question that would have tested it?' },
   { id: 'commitment-yes', name: 'Commitment yes (what, when, who)', lesson: 'm3/l2-ensure',

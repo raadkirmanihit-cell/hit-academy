@@ -539,5 +539,60 @@
       "Gives a plan with a 'How I read this' section whose 'Start with' bullet names Relationship as the first lens.",
       "Acknowledging the missed commitments and their impact on the client comes before any new timeline or date is proposed to them (a message that only asks for a meeting may come first)."
     ]
+  },
+  {
+    "id": "explain-pattern",
+    "note": "'Explain it for my situation' on a pattern card (counterfeit yes) gets a short, situation-specific explanation, not a new plan.",
+    "turns": [
+      {
+        "role": "user",
+        "content": "One of my direct reports is under performing and I might have to fire him. How can I give him the feedback in a way that expresses the seriousness of the situation without beating around the bush but also without being unnecessarily harsh"
+      },
+      {
+        "role": "assistant",
+        "content": "This is a heavy conversation to carry, and wanting it to be both honest and humane is a good place to start. Seriousness usually comes from concrete facts and clear stakes, not from a harder tone. So I'd like to understand the specifics first, so the wording fits your situation rather than a template.\n? Walk me through what's been happening: what he has actually done or not done, what's already been said to him about it, and what you'd most like to come out of this conversation."
+      },
+      {
+        "role": "user",
+        "content": "He has trouble finishing his tasks. At first when the task is assigned, he doesn't ask any questions to better understand the task. He acts like he understood everything but his final output is usually not what was asked for. The work itself, he uses AI to do it. We can tell this because his pull requests always have unrelated changes. He is also unable to explain certain lines of code that he supposedly wrote. After multiple conversations, nothing has changed. Using AI is not a problem but using it in a way that cannot be explained is worrisome. I'd like to express the seriousness of the situation and explain the repercussions"
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds frustrating, especially after several conversations with no change. The two patterns you describe, not asking questions up front and not being able to explain his own code, may come from the same place: reluctance to admit when he doesn't understand something. That's a reading to verify, not a conclusion.\n? What would a good outcome of this conversation be for you?\n? What formal step is actually on the table if nothing changes?"
+      },
+      {
+        "role": "user",
+        "content": "What would a good outcome of this conversation be for you?\nPrepare a fair exit\n\nWhat formal step is actually on the table if nothing changes?\nTermination"
+      },
+      {
+        "role": "assistant",
+        "content": "That's a clear-eyed aim. A fair exit usually depends on two things: he hears the stakes in plain words, possibly for the first time, and the process around him is clean enough that nobody, including you, can later call it a surprise.\n? Is the door still genuinely open, or is the decision mostly made?\n? Where do HR and documentation stand so far?"
+      },
+      {
+        "role": "user",
+        "content": "Is the door still genuinely open, or is the decision mostly made?\nReal last chance, set deadline\n\nWhere do HR and documentation stand so far?\nHR involved, talks documented"
+      },
+      {
+        "role": "assistant",
+        "content": "A real last chance with a set deadline, HR involved and talks documented: that gives you a clean base, and it means this conversation has two jobs: a fair shot at change, and a fair exit if it doesn't come. His quick \"got it\" may be a [[move:counterfeit-yes]]: a yes that hides that he hasn't understood.\n? When you raised this before, what did he actually say back? | Agreed, promised to improve | Got defensive or explained | Said very little\n? Has he heard in plain words that his job is at risk? | Yes, clearly | Hinted, not said outright | No, not yet"
+      },
+      {
+        "role": "user",
+        "content": "When you raised this before, what did he actually say back?\nAgreed, promised to improve\n\nHas he heard in plain words that his job is at risk?\nHinted, not said outright"
+      },
+      {
+        "role": "assistant",
+        "content": "**What's really going on**: He agrees to tasks and promises to improve, then delivers something different. His quick agreement looks like a [[move:counterfeit-yes]].\n\n? Does this plan fit your situation? | Yes, it fits | Not quite | They'd react differently"
+      },
+      {
+        "role": "user",
+        "content": "Explain Counterfeit yes in my situation: how do I spot it, and what do I do when I hear it?"
+      }
+    ],
+    "criteria": [
+      "Replies in under 180 words with no new plan (no 'Your game plan' or 'What to say' sections) and no question round.",
+      "Uses the learner's own details (e.g. 'got it' at handover, promises to improve, work not matching the request) to describe what the counterfeit yes looks like here.",
+      "Gives at least one line in quotation marks to test whether his yes is real."
+    ]
   }
 ]
