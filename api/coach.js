@@ -3,12 +3,21 @@
 // Coach messages and Arena tokens are separate: see chargeCoach in _lib.js.
 // Subscribers have a monthly fair-use cap, and everyone has a daily limit.
 import Anthropic from '@anthropic-ai/sdk'
-import { env, requireUser, readJson, fail, chargeCoach } from './_lib.js'
+import { env, requireUser, readJson, fail, chargeCoach, refundCoach } from './_lib.js'
 import { soundsLikeCrisis, safetyReply } from '../src/coach/safety.js'
 import { feedback } from './_coach-feedback.js'
+import { INCOMPLETE } from '../src/coach/stream.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-opus-5-5'
 const MAX_CHARS = 120_000
+// Room for the model's (hidden) thinking plus a full plan. Thinking counts toward this cap, so the
+// old 4,000 often ran out halfway through a long plan. Only tokens actually written are paid for.
+const MAX_TOKENS = 16_000
+// If a reply still hits the cap, the server asks the model to carry on where it stopped (no extra message charged).
+const MAX_CONTINUES = 2
+const CONTINUE = 'Your previous reply was cut off by a length limit. Continue it exactly where it stopped: no repetition, no preamble, no comment about the cut.'
+// Stop safely before Vercel's time limit (maxDuration 300 s in vercel.json) so the learner gets a clean notice, not a silent cut.
+const DEADLINE_MS = 270_000
 
 // Prompt caching: the long, fixed part of the coach rules and the conversation so far are
 // stored by Anthropic for a few minutes, so the next message reads them at a tenth of the price.
@@ -64,29 +73,48 @@ export default async function handler(req, res) {
 
   const client = new Anthropic({ apiKey: env('ANTHROPIC_API_KEY') })
   const ctl = new AbortController()
-  req.on('close', () => ctl.abort())
+  let closed = false
+  // The learner's connection dropped (closed before we finished): stop the model and give the message back.
+  res.on('close', () => { if (!res.writableEnded) { closed = true; ctl.abort() } })
+  const timer = setTimeout(() => ctl.abort(), DEADLINE_MS)
 
   res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Accel-Buffering': 'no' })
+  let done = false
   try {
-    const stream = client.beta.messages.stream({
-      model: MODEL,
-      max_tokens: 4000,
-      // The course's coach rules arrive as the first user message (built in the browser from the course content).
-      messages: withCache(messages),
-      output_config: { effort: tier === 'quick' ? 'low' : 'medium' },
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-    }, { signal: ctl.signal })
-    for await (const ev of stream) {
-      if (ev.type === 'content_block_delta' && ev.delta.type === 'text_delta') res.write(ev.delta.text)
+    const history = withCache(messages)
+    let written = ''
+    for (let round = 0; round <= MAX_CONTINUES; round++) {
+      const turn = round === 0 ? history : [...history, { role: 'assistant', content: written }, { role: 'user', content: CONTINUE }]
+      const stream = client.beta.messages.stream({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        // The course's coach rules arrive as the first user message (built in the browser from the course content).
+        messages: turn,
+        output_config: { effort: tier === 'quick' ? 'low' : 'medium' },
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default',
+      }, { signal: ctl.signal })
+      for await (const ev of stream) {
+        if (ev.type === 'content_block_delta' && ev.delta.type === 'text_delta') { written += ev.delta.text; res.write(ev.delta.text) }
+      }
+      const final = await stream.finalMessage()
+      if (final.stop_reason === 'max_tokens' && written.trim()) {
+        console.warn('coach reply hit max_tokens, continuing', { round, usage: final.usage })
+        // Glue the next part on cleanly (a cut can land mid-word, so no extra space is added).
+        continue
+      }
+      if (final.stop_reason === 'refusal') res.write('\n\n[The AI can\'t help with that. Try rephrasing your question.]')
+      done = final.stop_reason !== 'max_tokens'
+      break
     }
-    const final = await stream.finalMessage()
-    if (final.stop_reason === 'refusal') res.write('\n\n[The AI can\'t help with that. Try rephrasing your question.]')
   } catch (e) {
-    if (!ctl.signal.aborted) {
-      console.error(e)
-      res.write('\n\n[The AI is unavailable right now. Please try again in a moment.]')
-    }
+    if (!closed) console.error(ctl.signal.aborted ? 'coach reply ran out of time' : e)
+  }
+  clearTimeout(timer)
+  // Not finished (still cut off, AI error, time limit or the learner's connection dropped): give the message back.
+  if (!done) {
+    await refundCoach(user, { practice })
+    if (!closed) res.write(INCOMPLETE)
   }
   res.end()
 }

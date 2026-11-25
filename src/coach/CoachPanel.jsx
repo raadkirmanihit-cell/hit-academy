@@ -315,6 +315,8 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     } catch (e) {
       noteError(e)
       if (e?.code !== 'cancelled') setErr(errorText(e))
+      // A reply that could not finish is never kept: the server gave the message back.
+      if (e?.code === 'incomplete') return { incomplete: true }
       return e?.text ? e.text + ' …' : null
     }
   }
@@ -340,7 +342,13 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
       const rules = COACH_RULES({ where: ctx.where, library: kb.library, lessons: lessonList(modules, owned), excerpts: formatExcerpts(found), profile: profileText(profile), history: historyText(chatsRef.current, cur.id) })
       input = [{ role: 'user', content: rules }, ...forModel(cur.messages).slice(-16)]
     }
-    const text = await call(input, { onText: ({ text }) => setLive(text.replace('[END]', '')) })
+    let text = await call(input, { onText: ({ text }) => setLive(text.replace('[END]', '')) })
+    if (text?.incomplete) {
+      // Cut off: take the question back out of the chat and put it in the box, so one press of Send retries it.
+      text = null
+      cur = store({ ...cur, messages: cur.messages.filter((m) => m !== mine) })
+      setDraft(q)
+    }
     if (text) {
       if (cur.kind === 'rehearsal' && text.trimStart().startsWith(SAFETY_TOKEN)) {
         cur = store({ ...cur, ended: true, messages: [...cur.messages, { role: 'safety', content: text.trimStart().slice(SAFETY_TOKEN.length).trim() }] })
@@ -366,7 +374,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     setScreen('chat'); scrollMode.current = 'end'
     setBusy('reply'); setLive('')
     const text = await call([{ role: 'user', content: REHEARSE_RULES(chatText(from), profileText(profile)) }], { onText: ({ text }) => setLive(text) })
-    if (text) store({ ...r, messages: [{ role: 'assistant', content: text.replace('[END]', '').trim(), at: new Date().toISOString() }] })
+    if (typeof text === 'string' && text) store({ ...r, messages: [{ role: 'assistant', content: text.replace('[END]', '').trim(), at: new Date().toISOString() }] })
     setBusy(''); setLive('')
   }
 
@@ -375,7 +383,7 @@ export function CoachPanel({ ctx, subscribe, hidden, onClose, onLesson }) {
     setErr(''); setBusy('debrief')
     const excerpts = formatExcerpts(retrieve(kb, rehearsalText(chat), {}, 6))
     const text = await call(REHEARSE_FEEDBACK(chatText(parent), rehearsalText(chat), excerpts))
-    if (text) store({ ...chat, ended: true, messages: [...chat.messages, { role: 'debrief', content: text.trim(), at: new Date().toISOString() }] })
+    if (typeof text === 'string' && text) store({ ...chat, ended: true, messages: [...chat.messages, { role: 'debrief', content: text.trim(), at: new Date().toISOString() }] })
     scrollMode.current = 'end'; setScrollTick((n) => n + 1)
     setBusy('')
   }
